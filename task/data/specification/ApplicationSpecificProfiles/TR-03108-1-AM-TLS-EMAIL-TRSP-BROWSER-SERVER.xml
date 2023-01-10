@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationMapping id="TR-03108-1-AM-TLS-EMAIL-TRSP-BROWSER-SERVER">
+	<Title>E-Mail-Trsp application mapping for the Browser -> Test Object communication interface.</Title>
+	<Version>1.0</Version>
+	<Description>The E-Mail-Trsp application is defined in [TR-03108-1]. For the TLS part it relies on the definitions from part 4 of [TR-03116].</Description>
+	<Reference>TR-03108-1</Reference>
+	<Reference>TR-03116-4</Reference>
+		
+	<!-- TODO
+	
+	The Technical Guideline regarding E-Mail-Trsp defines one deviation from the recommendation of [TR-03116] 
+	regarding the maximum lifespan of sessions. In accordance with this deviation it is recommended to not perform 
+	tests concerning the lifespan of sessions. In particular, the test case TLS_ICS_11 of [TR-03116-TS] may be omitted.
+	
+	-->
+	<Profiles>
+		<MandatoryProfiles>
+			<Profile>CHECK_CERTS</Profile>
+			<Profile>INTERIM_SUITES_SRV</Profile>
+			<Profile>NO_CLIENT_CERT</Profile>
+			<Profile>NO_TRUNC_HMAC</Profile>
+			<Profile>SERVER_CERT</Profile>
+			<Profile>TLS_1.2</Profile>
+			<Profile>TLS_SERVER</Profile>
+		</MandatoryProfiles>
+		<RecommendedProfiles>
+			<Profile>CERTIFIED_CA</Profile>
+			<Profile>ECC</Profile>
+			<Profile>ENC_THEN_MAC</Profile>
+			<Profile>EXT_MASTER_SECRET</Profile>
+			<Profile>SUPP_GROUPS</Profile>
+			<Profile>TLS_1.3</Profile>
+		</RecommendedProfiles>
+	</Profiles>
+	<ICSSections>
+		<MandatoryICSSections>
+			<Section>3.1</Section>
+			<Section>3.2</Section>
+			<Section>3.3</Section>
+			<Section>3.6</Section>
+			<Section>3.8</Section>
+		</MandatoryICSSections>
+		<OptionalICSSections>
+			<Section>3.4</Section>
+			<Section>3.7</Section>
+		</OptionalICSSections>
+	</ICSSections>
+</ApplicationMapping>

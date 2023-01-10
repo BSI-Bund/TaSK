@@ -1,0 +1,337 @@
+openapi: 3.0.0
+info:
+  title: "TaSK Framework - Remote API"
+  description: "This document defines a RESTful API for executing runs of the TaSK testsuites and accessing their result."
+  version: "1.0.0"
+  license:
+    name: "European Union Public Licence (EUPL) 1.2"
+    url: "https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12"
+servers:
+  - url: '{protocol}://{task_ip}:{task_port}/'
+    description: The TaSK REST API.
+    variables:
+      protocol:
+        default: https
+        enum:
+          - http
+          - https
+      task_ip:
+        default: 127.0.0.1
+        description: IP or HostName of TaSK Server, which is served at the location the OpenAPI YAML is served.
+      task_port:
+        default: '8088'
+        description: Port of TaSK Server.
+tags:
+  - name: "Base Path"
+    description: "Get basic information on this endpoint."
+  - name: "Start Execution"
+    description: "Execution of the TaSK Framework."
+  - name: "Get Status"
+    description: "Get the status of a test execution."
+  - name: "Get Results"
+    description: "Get the result of a test execution."
+paths:
+  /:
+    get:
+      tags:
+        - "Base Path"
+      summary: "Return the API definition of the REST Server."
+      description: "Return the API definition of the REST Server."
+      operationId: getAPIDefinition
+      responses:
+        200:
+          $ref: '#/components/responses/ApiDefinition'
+        500:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /execute/mics:
+    post:
+      tags:
+        - "Start Execution"
+      summary: "Execute a Testrun of the TaSK Framework using a MICS file."
+      description: "Execute the TaSK Framework with the provided MICS file."
+      operationId: executeFromMICS
+      requestBody:
+        $ref: '#/components/requestBodies/MICS'
+      responses:
+        202:
+          $ref: '#/components/responses/RunId'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        500:
+          $ref: '#/components/responses/ErrorResponse'
+        503:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /execute/trp:
+    post:
+      tags:
+        - "Start Execution"
+      summary: "Execute a Testrun of the TaSK Framework from a given Test Runplan."
+      description: "Execute a Testrun of the TaSK Framework with the provided Test Runplan file."
+      operationId: executeFromRunplan
+      requestBody:
+        $ref: '#/components/requestBodies/TestRunplan'
+      responses:
+        202:
+          $ref: '#/components/responses/RunId'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        500:
+          $ref: '#/components/responses/ErrorResponse'
+        503:
+          $ref: '#/components/responses/ErrorResponse'
+  /status/{runId}:
+    parameters:
+      - $ref: '#/components/parameters/RunId'
+    get:
+      tags:
+        - "Get Status"
+      summary: "Retrieve the status of a test suite execution."
+      description: "Retrieve the status of the test suite execution specified by the provided run identifier."
+      operationId: getStatus
+      responses:
+        200:
+          $ref: '#/components/responses/TestRunStatus'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        404:
+          $ref: '#/components/responses/ErrorResponse'
+        500:
+          $ref: '#/components/responses/ErrorResponse'
+  /result/{runId}:
+    parameters:
+      - $ref: '#/components/parameters/RunId'
+    get:
+      tags:
+        - "Get Results"
+      summary: "Retrieve the results of a test run."
+      description: "Retrieve the results of the test suite execution specified by the provided run identifier."
+      operationId: getResult
+      responses:
+        200:
+          $ref: '#/components/responses/TestRunResult'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        404:
+          $ref: '#/components/responses/ErrorResponse'
+        424:
+          $ref: '#/components/responses/ErrorResponse'
+        500:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /result/{runId}/xml:
+    parameters:
+      - $ref: '#/components/parameters/RunId'
+    get:
+      tags:
+        - "Get Results"
+      summary: "Retrieve the XML report of a test suite execution."
+      description: "Retrieve XML report of the test suite execution specified by the run identifier."
+      operationId: getReportXml
+      responses:
+        200:
+          $ref: '#/components/responses/TestRunReportXml'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        404:
+          $ref: '#/components/responses/ErrorResponse'
+        424:
+          $ref: '#/components/responses/ErrorResponse'
+        500:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /result/{runId}/pdf:
+    parameters:
+      - $ref: '#/components/parameters/RunId'
+    get:
+      tags:
+        - "Get Results"
+      summary: "Retrieve the PDF report of a test suite execution."
+      description: "Retrieve PDF report of the test suite execution specified by the run identifier."
+      operationId: getReportPdf
+      responses:
+        200:
+          $ref: '#/components/responses/TestRunReportPdf'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        404:
+          $ref: '#/components/responses/ErrorResponse'
+        424:
+          $ref: '#/components/responses/ErrorResponse'
+        500:
+          $ref: '#/components/responses/ErrorResponse'
+
+components:
+  parameters:
+    RunId:
+      name: runId
+      description: "Identifier of a Testrun/Test Suite Execution."
+      in: path
+      required: true
+      schema:
+        type: string
+        example: a4c6ffd34448adef23
+
+  requestBodies:
+    TestRunplan:
+      description: "Information regarding the TestRunplan of the Device under Test and related information."
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            $ref: '#/components/schemas/TestRunPlan'
+    MICS:
+      description: "Information regarding the MICS of the Device under Test and related information."
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            $ref: '#/components/schemas/MICS'
+  responses:
+    ApiDefinition:
+      description: "OK"
+      content:
+        text/yaml:
+          schema:
+            $ref: '#/components/schemas/APIDefinition'
+
+    RunId:
+      description: "Accepted"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RunId'
+    TestRunStatus:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Status'
+    TestRunResult:
+      description: "OK"
+      content:
+        application/octet-string:
+          schema:
+            $ref: '#/components/schemas/ResultArchive'
+      headers:
+        Content-Disposition:
+          schema:
+            type: string
+            example: attachment; filename="TestReport_62b35581-d9d8-479d-9eb2-7f9995b495ad.zip"
+    TestRunReportXml:
+      description: "OK"
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/XmlReport'
+      headers:
+        Content-Disposition:
+          schema:
+            type: string
+            example: attachment; filename="TestReport_62b35581-d9d8-479d-9eb2-7f9995b495ad.xml"
+    TestRunReportPdf:
+      description: "OK"
+      content:
+        application/pdf:
+          schema:
+            $ref: '#/components/schemas/PdfReport'
+      headers:
+        Content-Disposition:
+          schema:
+            type: string
+            example: attachment; filename="TestReport_62b35581-d9d8-479d-9eb2-7f9995b495ad.pdf"
+    ErrorResponse:
+      description: "ErrorMessage"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+
+  schemas:
+    APIDefinition:
+      type: string
+    TestRunPlan:
+      type: object
+      properties:
+        testRunPlanFile:
+          type: string
+          format: binary
+          description: "The TestRunplan file itself."
+        clientAuthCertificateChain:
+          description: "The certificate chain a test client should use to verify client authentication."
+          type: array
+          items:
+            type: string
+            format: binary
+        clientAuthKey:
+          description: "The private key a test client should use to verify client authentication."
+          type: string
+          format: binary
+    MICS:
+      type: object
+      properties:
+        micsFile:
+          type: string
+          format: binary
+          description: "The MICS file itself."
+        serverCertificateChain:
+          type: array
+          description: "The certificate chain of the server under test, from which the fingerprints are specified in the MICS file."
+          items:
+            type: string
+            format: binary
+        ignoreMicsVerificationResult:
+          type: boolean
+          description: "Ignore the result of the MICS verification when running the resulting test cases."
+        clientAuthCertificateChain:
+          description: "The certificate chain a test client should use to verify client authentication."
+          type: array
+          items:
+            type: string
+            format: binary
+        clientAuthKey:
+          description: "The private key a test client should use to verify client authentication."
+          type: string
+          format: binary
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+        statuscode:
+          type: string
+        errormessage:
+          type: string
+        path:
+          type: string
+    ResultArchive:
+      type: string
+      format: binary
+    PdfReport:
+      type: string
+      format: binary
+    RunId:
+      type: object
+      properties:
+        runId:
+          type: string
+          example: "a4b4d23234b23ef23a"
+    Status:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - Scheduled
+            - Running
+            - Aborted
+            - Executed
+        downloadURI:
+          type: string
+          format: url
+    XmlReport:
+      type: object
+      properties: {}
+      example: See schema file TaSKReport.xsd.

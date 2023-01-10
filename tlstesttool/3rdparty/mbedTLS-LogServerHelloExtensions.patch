@@ -1,0 +1,10 @@
+--- a/library/ssl_cli.c	2016-06-01 15:20:41 +0000
++++ b/library/ssl_cli.c	2016-06-06 06:46:55 +0000
+@@ -1681,6 +1681,7 @@
+     ext = buf + 40 + n;
+ 
+     MBEDTLS_SSL_DEBUG_MSG( 2, ( "server hello, total extension length: %d", ext_len ) );
++	MBEDTLS_SSL_DEBUG_BUF( 3, "server hello, extensions", ext, ext_len );
+ 
+     while( ext_len )
+     {

@@ -1,0 +1,235 @@
+--- a/include/openssl/ssl.h.in	2022-03-08 13:43:33.859800000 +0100
++++ b/include/openssl/ssl.h.in	2022-03-10 15:16:24.088871500 +0100
+@@ -1515,6 +1515,8 @@
+ __owur int BIO_ssl_copy_session_id(BIO *to, BIO *from);
+ void BIO_ssl_shutdown(BIO *ssl_bio);
+ 
++int SSL_CTX_set_overwrite_client_hello_ext(SSL_CTX * ctx, const char *ext, size_t ext_len);
++
+ __owur int SSL_CTX_set_cipher_list(SSL_CTX *, const char *str);
+ __owur SSL_CTX *SSL_CTX_new(const SSL_METHOD *meth);
+ __owur SSL_CTX *SSL_CTX_new_ex(OSSL_LIB_CTX *libctx, const char *propq,
+--- a/ssl/ssl_lib.c	2022-03-08 13:43:33.859800000 +0100
++++ b/ssl/ssl_lib.c	2022-03-16 17:47:56.641998626 +0100
+@@ -2710,6 +2710,14 @@
+     return num;
+ }
+ 
++
++int SSL_CTX_set_overwrite_client_hello_ext(SSL_CTX * ctx, const char *ext, size_t ext_len){
++    ctx->overwrite_client_hello_ext = OPENSSL_malloc(sizeof(char)*ext_len );
++    memcpy(ctx->overwrite_client_hello_ext, ext, ext_len);
++    ctx->overwrite_client_hello_ext_len= ext_len;
++}
++
++
+ /** specify the ciphers to be used by default by the SSL_CTX */
+ int SSL_CTX_set_cipher_list(SSL_CTX *ctx, const char *str)
+ {
+--- a/ssl/ssl_local.h	2022-03-08 13:43:33.859800000 +0100
++++ b/ssl/ssl_local.h	2022-03-08 13:46:24.288812100 +0100
+@@ -772,6 +772,46 @@
+     TLSEXT_IDX_num_builtins
+ } TLSEXT_INDEX;
+ 
++#define EXTENSION_MAPPING_SIZE 25
++/* Extensions sorted by ascending id */
++static int ssl_exts_mapping[EXTENSION_MAPPING_SIZE][2] = {
++        {TLSEXT_TYPE_server_name, TLSEXT_IDX_server_name},
++        {TLSEXT_TYPE_max_fragment_length, TLSEXT_IDX_max_fragment_length},
++        //{TLSEXT_TYPE_client_certificate_url, "client_certificate_url"},
++        //{TLSEXT_TYPE_trusted_ca_keys, "trusted_ca_keys"},
++        //{TLSEXT_TYPE_truncated_hmac, "truncated_hmac"},
++        {TLSEXT_TYPE_status_request, TLSEXT_IDX_status_request},
++        //{TLSEXT_TYPE_user_mapping, "user_mapping"},
++        //{TLSEXT_TYPE_client_authz, "client_authz"},
++        //{TLSEXT_TYPE_server_authz, "server_authz"},
++        //{TLSEXT_TYPE_cert_type, "cert_type"},
++        {TLSEXT_TYPE_supported_groups, TLSEXT_IDX_supported_groups},
++        {TLSEXT_TYPE_ec_point_formats, TLSEXT_IDX_ec_point_formats},
++        {TLSEXT_TYPE_srp, TLSEXT_IDX_srp},
++        {TLSEXT_TYPE_signature_algorithms, TLSEXT_IDX_signature_algorithms},
++        {TLSEXT_TYPE_use_srtp, TLSEXT_IDX_use_srtp},
++        {TLSEXT_TYPE_application_layer_protocol_negotiation,
++         TLSEXT_IDX_application_layer_protocol_negotiation},
++        {TLSEXT_TYPE_signed_certificate_timestamp, TLSEXT_IDX_signed_certificate_timestamp},
++        {TLSEXT_TYPE_padding, TLSEXT_IDX_padding},
++        {TLSEXT_TYPE_encrypt_then_mac, TLSEXT_IDX_encrypt_then_mac},
++        {TLSEXT_TYPE_extended_master_secret, TLSEXT_IDX_extended_master_secret},
++        {TLSEXT_TYPE_session_ticket, TLSEXT_IDX_session_ticket},
++        {TLSEXT_TYPE_psk, TLSEXT_IDX_psk},
++        {TLSEXT_TYPE_early_data, TLSEXT_IDX_early_data},
++        {TLSEXT_TYPE_supported_versions, TLSEXT_IDX_supported_versions},
++        {TLSEXT_TYPE_cookie, TLSEXT_IDX_cookie},
++        {TLSEXT_TYPE_psk_kex_modes, TLSEXT_IDX_psk_kex_modes},
++        {TLSEXT_TYPE_certificate_authorities, TLSEXT_IDX_certificate_authorities},
++        {TLSEXT_TYPE_post_handshake_auth, TLSEXT_IDX_post_handshake_auth},
++        {TLSEXT_TYPE_signature_algorithms_cert, TLSEXT_IDX_signature_algorithms_cert},
++        {TLSEXT_TYPE_key_share, TLSEXT_IDX_key_share},
++        {TLSEXT_TYPE_renegotiate, TLSEXT_IDX_renegotiate},
++# ifndef OPENSSL_NO_NEXTPROTONEG
++        {TLSEXT_TYPE_next_proto_neg, TLSEXT_IDX_next_proto_neg},
++# endif
++};
++
+ DEFINE_LHASH_OF(SSL_SESSION);
+ /* Needed in ssl_cert.c */
+ DEFINE_LHASH_OF(X509_NAME);
+@@ -838,6 +878,9 @@
+ struct ssl_ctx_st {
+     OSSL_LIB_CTX *libctx;
+ 
++    char* overwrite_client_hello_ext;
++    size_t overwrite_client_hello_ext_len;
++
+     const SSL_METHOD *method;
+     STACK_OF(SSL_CIPHER) *cipher_list;
+     /* same as above but sorted for lookup */
+--- a/ssl/statem/extensions.c	2022-03-08 13:43:33.859800000 +0100
++++ b/ssl/statem/extensions.c	2022-03-29 14:45:19.840144834 +0200
+@@ -18,7 +18,7 @@
+ #include "../ssl_local.h"
+ #include "statem_local.h"
+ #include "internal/cryptlib.h"
+-
++static int set_extensions_flags(SSL *s,  char * extensionString, WPACKET *pkt);
+ static int final_renegotiate(SSL *s, unsigned int context, int sent);
+ static int init_server_name(SSL *s, unsigned int context);
+ static int final_server_name(SSL *s, unsigned int context, int sent);
+@@ -777,6 +777,44 @@
+     return 1;
+ }
+ 
++static int set_extensions_flags(SSL *s, char * extensionString, WPACKET *pkt){
++
++    char delimiter[] = ":";
++    char* output;
++    output = strtok(extensionString, delimiter);
++
++    while(output!=NULL){
++        char type[3];
++        memcpy(type,&output[2],2);
++        type[2] = '\0';
++
++        int typeNumber = (int)strtol(type, NULL, 16);
++
++        int ext_index = -1;
++
++        for(int i=0; i<EXTENSION_MAPPING_SIZE;i++){
++            if(ssl_exts_mapping[i][0] == typeNumber){
++                ext_index = ssl_exts_mapping[i][1];
++                break;
++            }
++        }
++        if(ext_index!= -1) {
++            s->ext.extflags[ext_index] |= SSL_EXT_FLAG_SENT;
++            if(ext_index == TLSEXT_IDX_status_request){
++                s->ext.status_type = TLSEXT_STATUSTYPE_ocsp;
++            }
++        }
++       
++        char no_seperator = '\0';
++
++        size_t len = 0;
++        OPENSSL_hexstr2buf_ex(NULL, 0, &len, output, no_seperator);
++        unsigned char array[len];
++        OPENSSL_hexstr2buf_ex(array, sizeof(array), &len, output, no_seperator);
++        WPACKET_memcpy(pkt, array,len);
++        output = strtok(NULL, delimiter);
++    }
++}
+ /*
+  * Construct all the extensions relevant to the current |context| and write
+  * them to |pkt|. If this is an extension for a Certificate in a Certificate
+@@ -824,31 +864,74 @@
+         return 0;
+     }
+ 
+-    for (i = 0, thisexd = ext_defs; i < OSSL_NELEM(ext_defs); i++, thisexd++) {
+-        EXT_RETURN (*construct)(SSL *s, WPACKET *pkt, unsigned int context,
+-                                X509 *x, size_t chainidx);
+-        EXT_RETURN ret;
++    /* check if we want to overwrite clienthello extenions, if yes then we disable the default extensions from OpenSSL (except keyshare in TLS 1.3)*/
++    if(s->ctx->overwrite_client_hello_ext_len>0) {
++        set_extensions_flags(s, s->ctx->overwrite_client_hello_ext, pkt); //add extensions to client hello and set sent flags for each extension
++        if(s->ctx->min_proto_version== 772 && s->ctx->max_proto_version== 772/*TLS 1.3 (0x0304)*/){
++            //in TLS 1.3, we always have to send Key Exchange extension (has to be at the end)
++            // we cannot set the key share extension from TlsTestTool since it contains the public key of the internally generated
++            // (EC)DHE private key. Otherwise we cannot generate correctly the session key
++            const int key_share_index =19;
+ 
+-        /* Skip if not relevant for our context */
+-        if (!should_add_extension(s, thisexd->context, context, max_version))
+-            continue;
++            thisexd= ext_defs+key_share_index;
+ 
+-        construct = s->server ? thisexd->construct_stoc
+-                              : thisexd->construct_ctos;
++            EXT_RETURN (*construct)(SSL *s, WPACKET *pkt, unsigned int context,
++                                    X509 *x, size_t chainidx);
++            EXT_RETURN ret;
+ 
+-        if (construct == NULL)
+-            continue;
++            /* Skip if not relevant for our context */
+ 
+-        ret = construct(s, pkt, context, x, chainidx);
+-        if (ret == EXT_RETURN_FAIL) {
+-            /* SSLfatal() already called */
+-            return 0;
++
++            //if (!should_add_extension(s, thisexd->context, context, max_version))
++            //    continue;
++
++            construct = s->server ? thisexd->construct_stoc
++                                  : thisexd->construct_ctos;
++
++            //if (construct == NULL)
++            //    break;
++
++            ret = construct(s, pkt, context, x, chainidx);
++            if (ret == EXT_RETURN_FAIL) {
++                /* SSLfatal() already called */
++                return 0;
++            }
++            if (ret == EXT_RETURN_SENT
++                && (context & (SSL_EXT_CLIENT_HELLO
++                               | SSL_EXT_TLS1_3_CERTIFICATE_REQUEST
++                               | SSL_EXT_TLS1_3_NEW_SESSION_TICKET)) != 0)
++                s->ext.extflags[key_share_index] |= SSL_EXT_FLAG_SENT;
+         }
+-        if (ret == EXT_RETURN_SENT
++    }
++    else { //if no overwrite exensions are set, then use default extension behaviour from OpenSSL
++        for (i = 0, thisexd = ext_defs; i < OSSL_NELEM(ext_defs); i++, thisexd++) {
++            EXT_RETURN (*construct)(SSL *s, WPACKET *pkt, unsigned int context,
++                                    X509 *x, size_t chainidx);
++            EXT_RETURN ret;
++
++            /* Skip if not relevant for our context */
++
++
++            if (!should_add_extension(s, thisexd->context, context, max_version))
++                continue;
++
++            construct = s->server ? thisexd->construct_stoc
++                                  : thisexd->construct_ctos;
++
++            if (construct == NULL)
++                continue;
++
++            ret = construct(s, pkt, context, x, chainidx);
++            if (ret == EXT_RETURN_FAIL) {
++                /* SSLfatal() already called */
++                return 0;
++            }
++            if (ret == EXT_RETURN_SENT
+                 && (context & (SSL_EXT_CLIENT_HELLO
+                                | SSL_EXT_TLS1_3_CERTIFICATE_REQUEST
+                                | SSL_EXT_TLS1_3_NEW_SESSION_TICKET)) != 0)
+-            s->ext.extflags[i] |= SSL_EXT_FLAG_SENT;
++                s->ext.extflags[i] |= SSL_EXT_FLAG_SENT;
++        }
+     }
+ 
+     if (!WPACKET_close(pkt)) {

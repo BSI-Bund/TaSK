@@ -1,0 +1,28 @@
+--- a/library/ssl_srv.c	2022-06-14 10:47:05.464968000 +0200
++++ b/library/ssl_srv.c	2022-06-14 14:10:41.975658253 +0200
+@@ -2389,14 +2389,22 @@
+ 
+     *p++ = (unsigned char)( ssl->session_negotiate->ciphersuite >> 8 );
+     *p++ = (unsigned char)( ssl->session_negotiate->ciphersuite      );
+-    *p++ = (unsigned char)( ssl->session_negotiate->compression      );
++  
+ 
+     MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, chosen ciphersuite: %04x", ssl->session_negotiate->ciphersuite ) );
+     MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, chosen ciphersuite: %s",
+            mbedtls_ssl_get_ciphersuite_name( ssl->session_negotiate->ciphersuite ) ) );
+-    MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, compress alg.: 0x%02X",
++           
++    if(ssl->conf->overwrite_compression_methods != 0 )
++    {
++        MBEDTLS_SSL_DEBUG_BUF( 3, "server hello, compress alg.",
++                               ssl->conf->overwrite_compression_methods, ssl->conf->overwrite_compression_methods_len);
++        *p++ = ssl->conf->overwrite_compression_methods[0];
++    }else{       
++        MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, compress alg.: 0x%02X",
+                    ssl->session_negotiate->compression ) );
+-
++        *p++ = (unsigned char)( ssl->session_negotiate->compression      );
++    }
+     unsigned char* start_extension = p + 2;
+     /*
+      *  First write extensions, then the total length

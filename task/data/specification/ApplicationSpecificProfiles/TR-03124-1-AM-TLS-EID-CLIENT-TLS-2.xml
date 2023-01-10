@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationMapping id="TR-03124-1-EID-CLIENT-TLS-2">
+	<Title>TLS eID Client (PSK TLS/TLS-2) according to TR-03124-1</Title>
+	<Version>1.0</Version>
+	<Description></Description>
+	<Reference>TR-03124-1</Reference>
+	<ApplicationSpecificInspectionInstructions>
+		<Text>The eID-Client application is defined in [TR-03124-1]. For the TLS part it relies on the definitions from part 4 of [TR-03116]. However, it specifies the following deviation from these requirements:</Text>
+		<BaseSpecification></BaseSpecification>
+	</ApplicationSpecificInspectionInstructions>
+	<Profiles>
+		<MandatoryProfiles>
+			<Profile>NO_CLIENT_CERT</Profile>
+			<Profile>NO_SAN</Profile>
+			<Profile>PSK</Profile>
+			<Profile>SERVER_CERT</Profile>
+			<Profile>STOP_RESUMPTION</Profile>
+			<Profile>TLS_1.2</Profile>
+			<Profile>TLS_CLIENT</Profile>
+			<Profile>SKIP_CHAIN_VALIDN</Profile>
+		</MandatoryProfiles>
+		<RecommendedProfiles>
+			<Profile>PFS</Profile>
+			<Profile>TLS_1.3</Profile>
+			<Profile>SESSION_ID</Profile>
+			<Profile>SESSION_TICKET</Profile>
+		</RecommendedProfiles>
+	</Profiles>
+	<ICSSections>
+		<MandatoryICSSections>
+			<Section>3.1</Section>
+			<Section>3.2</Section>
+			<Section>3.3</Section>
+			<Section>3.5</Section>
+			<Section>3.6</Section>
+		</MandatoryICSSections>
+		<OptionalICSSections>
+			<Section>3.7</Section>
+		</OptionalICSSections>
+	</ICSSections>
+</ApplicationMapping>

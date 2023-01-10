@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLSEllipticCurves id="TR-02102-2-TLS-ELLIPTIC-CURVES">
+	<Metadata>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-02102-2</Reference>
+		</References>
+	</Metadata>
+
+	<!-- Chapter 3.6.2 -->
+	<ECC priority="1">
+		<Description>secp256r1</Description>
+		<Value>23</Value>
+		<Reference>RFC8422</Reference>
+		<UseUntil>2027+</UseUntil>
+	</ECC>
+	<ECC priority="1">
+		<Description>secp384r1</Description>
+		<Value>24</Value>
+		<Reference>RFC8422</Reference>
+		<UseUntil>2027+</UseUntil>
+	</ECC>
+	<ECC priority="0">
+		<Description>brainpoolP256r1</Description>
+		<Value>26</Value>
+		<Reference>RFC7027</Reference>
+		<UseUntil>2027+</UseUntil>
+	</ECC>
+	<ECC priority="0">
+		<Description>brainpoolP384r1</Description>
+		<Value>27</Value>
+		<Reference>RFC7027</Reference>
+		<UseUntil>2027+</UseUntil>
+	</ECC>
+	<ECC priority="0">
+		<Description>brainpoolP512r1</Description>
+		<Value>28</Value>
+		<Reference>RFC7027</Reference>
+		<UseUntil>2027+</UseUntil>
+	</ECC>
+		
+</TLSEllipticCurves>
+	

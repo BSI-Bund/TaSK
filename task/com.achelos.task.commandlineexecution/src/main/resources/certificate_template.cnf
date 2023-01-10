@@ -1,0 +1,105 @@
+[default]
+distinguished_name = req_distinguished_name
+prompt = no
+ 
+name                    = root-ca
+domain_suffix           = localhost
+aia_url                 = http://127.0.0.1:PLACEHOLDER_PORT_CRL/$name.crt
+crl_url                 = http://127.0.0.1:PLACEHOLDER_PORT_CRL/$name.crl
+ocsp_url                = http://127.0.0.1:PLACEHOLDER_PORT_OCSP
+default_ca              = ca_default
+name_opt                = utf8,esc_ctrl,multiline,lname,align
+ 
+[ca_dn]
+countryName             = "DE"
+organizationName        = "achelos GmbH"
+commonName              = "Test Certificate"
+ 
+[ca_default]
+home                    = PLACEHOLDER_BASE_DIR
+database                = $home/db/index
+serial                  = $home/db/serial
+crlnumber               = $home/db/crlnumber
+certificate             = $home/$name.crt
+private_key             = $home/private/$name.key
+RANDFILE                = $home/private/random
+new_certs_dir           = $home/certs
+unique_subject          = no
+copy_extensions         = none
+default_days            = 3650
+default_crl_days        = 3650
+default_md              = sha256
+policy                  = policy_c_o_match
+x509_extensions  = usr_cert
+ 
+[policy_c_o_match]
+countryName             = match
+stateOrProvinceName     = optional
+organizationName        = match
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+ 
+[req]
+default_bits            = 4096
+encrypt_key             = yes
+default_md              = sha256
+utf8                    = yes
+string_mask             = utf8only
+prompt                  = no
+distinguished_name      = ca_dn
+req_extensions          = ca_ext
+ 
+[ca_ext]
+basicConstraints        = critical,CA:true
+keyUsage                = critical,keyCertSign,cRLSign
+subjectKeyIdentifier    = hash
+ 
+[sub_ca_ext]
+authorityInfoAccess     = @issuer_info
+authorityKeyIdentifier  = keyid:always
+basicConstraints        = critical,CA:true,pathlen:0
+crlDistributionPoints   = @crl_info
+extendedKeyUsage        = clientAuth,serverAuth
+keyUsage                = critical,keyCertSign,cRLSign
+subjectKeyIdentifier    = hash
+ 
+[crl_info]
+URI.0                   = $crl_url
+ 
+[issuer_info]
+caIssuers;URI.0         = $aia_url
+OCSP;URI.0              = $ocsp_url
+ 
+[ crl_ext ]
+# Extension for CRLs (`man x509v3_config`).
+authorityKeyIdentifier=keyid:always
+ 
+[ocsp_ext]
+authorityKeyIdentifier  = keyid:always
+basicConstraints        = critical,CA:false
+extendedKeyUsage        = OCSPSigning
+noCheck                 = yes
+keyUsage                = critical,digitalSignature
+subjectKeyIdentifier    = hash
+
+[ usr_dn ]
+countryName             = "DE"
+organizationName        = "achelos GmbH"
+commonName              = "Test"
+ 
+[ usr_cert ]
+authorityInfoAccess     = OCSP;URI:$ocsp_url
+crlDistributionPoints   = @crl_info
+subjectAltName = @server_alt_names
+
+[server_alt_names]
+DNS.1 = localhost
+DNS.2 = *.localhost
+IP.3 = 127.0.0.1
+IP.4 = ::1
+ 
+[ v3_OCSP ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = OCSPSigning

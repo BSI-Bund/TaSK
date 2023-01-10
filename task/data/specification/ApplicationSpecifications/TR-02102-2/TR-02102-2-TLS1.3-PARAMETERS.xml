@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLS1.3_Parameter id="TR-02102-2-TLS1.3-PARAMETERS">
+	<Metadata>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-02102-2</Reference>
+		</References>
+	</Metadata>
+
+	<!-- Chapter 3.4.1 Handshake Modes -->
+	<HandshakeModes use="optional" reference="3.4.1">
+		<HandshakeMode>ECDHE</HandshakeMode>
+		<HandshakeMode>DHE</HandshakeMode>
+		<HandshakeMode>PSK-ECDHE</HandshakeMode>
+		<HandshakeMode>PSK</HandshakeMode>
+	</HandshakeModes>
+	
+	<!-- Tabel 8 -->
+	<PSK-Modes use="optional" reference="3.4.1">
+		<PSK-Mode>
+			<Description>psk_ke</Description>
+			<Value>0</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2026</UseUntil>
+		</PSK-Mode>
+		<PSK-Mode>
+			<Description>psk_dhe_ke</Description>
+			<Value>1</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</PSK-Mode>
+	</PSK-Modes>
+	
+	<!-- Chapter 3.4.4 -->
+	<!-- Tabel 12 -->
+	<CipherSuites use="optional" reference="3.4.4">
+		<CipherSuite>
+			<Description>TLS_AES_128_GCM_SHA256</Description>
+			<Value>0x13,0x01</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_AES_256_GCM_SHA384</Description>
+			<Value>0x13,0x02</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_AES_128_CCM_SHA256</Description>
+			<Value>0x13,0x04</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</CipherSuite>
+	</CipherSuites>
+		
+	<!-- Chapter 3.4.2 -->
+	<!-- Tabel 9 -->
+	<Supported_Groups use="optional" reference="3.4.2">
+		<DHGroup>
+			<Description>secp256r1</Description>
+			<Value>23</Value>
+			<Reference>RFC8422</Reference>
+			<UseUntil>2027+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>secp384r1</Description>
+			<Value>24</Value>
+			<Reference>RFC8422</Reference>
+			<UseUntil>2027+</UseUntil>
+		</DHGroup>
+		
+		<DHGroup>
+			<Description>brainpoolP256r1tls13</Description>
+			<Value>31</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>brainpoolP384r1tls13</Description>
+			<Value>32</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>brainpoolP512r1tls13</Description>
+			<Value>33</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>ffdhe2048</Description>
+			<Value>256</Value>
+			<Reference>RFC7919</Reference>
+			<UseUntil>2022</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>ffdhe3072</Description>
+			<Value>257</Value>
+			<Reference>RFC7919</Reference>
+			<UseUntil>2027+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>ffdhe4096</Description>
+			<Value>258</Value>
+			<Reference>RFC7919</Reference>
+			<UseUntil>2027+</UseUntil>
+		</DHGroup>
+	</Supported_Groups>
+		
+	<!-- Chapter 3.4.3 -->
+	<!-- Tabel 10 -->
+	<SignatureAlgorithmsHandshake use="optional" reference="3.4.3">
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha256</Description>
+			<Value>0x0804</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha384</Description>
+			<Value>0x0805</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha512</Description>
+			<Value>0x0806</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha256</Description>
+			<Value>0x0809</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha384</Description>
+			<Value>0x080A</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha512</Description>
+			<Value>0x080B</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_secp256r1_sha256</Description>
+			<Value>0x0403</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_secp384r1_sha384</Description>
+			<Value>0x0503</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP256r1tls13_sha256</Description>
+			<Value>0x081A</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP384r1tls13_sha384</Description>
+			<Value>0x081B</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP512r1tls13_sha512</Description>
+			<Value>0x081C</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+	</SignatureAlgorithmsHandshake>
+		
+	<!-- Chapter 3.4.3 -->
+	<!-- Tabel 11 -->
+	<SignatureAlgorithmsCertificate use="optional" reference="3.4.3">
+		<SignatureScheme>
+			<Description>rsa_pkcs1_sha256</Description>
+			<Value>0x0401</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2025</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pkcs1_sha384</Description>
+			<Value>0x0501</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2025</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pkcs1_sha512</Description>
+			<Value>0x0601</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2025</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha256</Description>
+			<Value>0x0804</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha384</Description>
+			<Value>0x0805</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha512</Description>
+			<Value>0x0806</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha256</Description>
+			<Value>0x0809</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha384</Description>
+			<Value>0x080A</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha512</Description>
+			<Value>0x080B</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_secp256r1_sha256</Description>
+			<Value>0x0403</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_secp384r1_sha384</Description>
+			<Value>0x0503</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP256r1tls13_sha256</Description>
+			<Value>0x081A</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP384r1tls13_sha384</Description>
+			<Value>0x081B</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP512r1tls13_sha512</Description>
+			<Value>0x081C</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2027+</UseUntil>
+		</SignatureScheme>	
+	</SignatureAlgorithmsCertificate>
+	
+</TLS1.3_Parameter>
+	

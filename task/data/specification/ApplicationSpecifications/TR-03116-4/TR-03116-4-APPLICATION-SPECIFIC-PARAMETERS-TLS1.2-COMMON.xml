@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLS1.2_Parameter id="TR-03116-4-APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-COMMON">
+	<Metadata>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-03116-4</Reference>                   
+		</References>
+	</Metadata>
+	
+	<!-- Chapter 2.2.1.3 -->
+	<!-- Table 3 -->
+	<!-- Cipher suites based on certificates and pre-shard key -->
+	<CipherSuites type="PSK-and-certificate-based-CipherSuites" use="required" reference="2.2.1.3">
+		<CipherSuite>
+			<Description>TLS_RSA_PSK_WITH_AES_128_CBC_SHA256</Description>
+			<Value>0x00,0xB6</Value>
+			<Reference>RFC5487</Reference>
+			<UseUntil>2028+</UseUntil>
+		</CipherSuite>
+	</CipherSuites>
+	
+	<!-- Chapter 2.2.1.3 -->
+	<!-- Table 4 -->
+	<!-- Cipher Suites with Pre Shared Key -->
+	<CipherSuites type="PSK-based-CipherSuites" use="required" reference="2.2.1.3">
+		<CipherSuite>
+			<Description>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256</Description>
+			<Value>0xC0,0x37</Value>
+			<Reference>RFC5489</Reference>
+			<UseUntil>2028+</UseUntil>
+		</CipherSuite>
+	</CipherSuites>
+	
+
+	<!-- Chapter 2.2.2 -->
+	<!-- Table 5 -->
+	<Supported_Groups use="required" reference="2.2.2">
+		<DHGroup>
+			<Description>secp256r1</Description>
+			<Value>23</Value>
+			<Reference>RFC8422</Reference>
+			<UseUntil>2028+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>brainpoolP256r1</Description>
+			<Value>26</Value>
+			<Reference>RFC7027</Reference>
+			<UseUntil>2028+</UseUntil>
+		</DHGroup>		
+	</Supported_Groups>	
+
+	
+	<!-- Chapter 2.2.3.1 -->
+	<!-- Table 6 -->
+	<SignatureAlgorithms use="required" reference="2.2.3.1">
+		<SignatureAlgorithm>
+			<SignatureAlgorithmName>rsa</SignatureAlgorithmName>
+			<SignatureAlgorithmValue>1</SignatureAlgorithmValue>
+			<DigestAlgorithmName>sha256</DigestAlgorithmName>
+			<DigestAlgorithmValue>4</DigestAlgorithmValue>
+			<Reference>RFC5246</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureAlgorithm>
+		<SignatureAlgorithm>
+			<SignatureAlgorithmName>ecdsa</SignatureAlgorithmName>
+			<SignatureAlgorithmValue>3</SignatureAlgorithmValue>
+			<DigestAlgorithmName>sha256</DigestAlgorithmName>
+			<DigestAlgorithmValue>4</DigestAlgorithmValue>
+			<Reference>RFC5246</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureAlgorithm>
+	</SignatureAlgorithms>
+	
+	<MiscellaneousTLSFeatures>
+		<!-- Chapter 2.2.3.1 -->
+		<TLSFeature use="optional" reference="2.2.3.2">encrypt_then_mac</TLSFeature>
+		<!-- Chapter 2.2.3.3 -->
+		<TLSFeature use="optional" reference="2.2.3.3">status_request_v2</TLSFeature>
+		<!-- Chapter 2.2.3.4 -->
+		<TLSFeature use="optional" reference="2.2.3.4">extended_master_secret</TLSFeature>
+	</MiscellaneousTLSFeatures>
+</TLS1.2_Parameter>		
+
+	

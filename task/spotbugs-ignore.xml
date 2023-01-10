@@ -1,0 +1,45 @@
+<FindBugsFilter>
+    <Match>
+        <Package name="~generated.*"/>
+    </Match>
+    <!-- EI_EXPOSE_REP2 false positives-->
+    <Match>
+        <Class name="com.achelos.task.logging.LoggingConnector$LogEntry" />
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.achelos.task.abstracttestsuite.TestCaseExecutor" />
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.achelos.task.abstracttestsuite.TestCaseLogChecker" />
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
+
+    <!-- Singleton Pattern is wrongly marked as an potential error. -->
+    <Match>
+        <Class name="com.achelos.task.logging.LoggingConnector" />
+        <Method name="getInstance" />
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+
+    <!-- Singleton Pattern is wrongly marked as an potential error. -->
+    <Match>
+        <Class name="com.achelos.task.configuration.TestRunPlanConfiguration" />
+        <Method name="getInstance" />
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+    <!-- Singleton Pattern is wrongly marked as an potential error. -->
+    <Match>
+        <Class name="com.achelos.task.configuration.TestRunPlanConfiguration" />
+        <Method name="parseRunPlanConfiguration" />
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+    <!-- Singleton Pattern is wrongly marked as an potential error. -->
+    <Match>
+        <Class name="com.achelos.task.abstracttestsuite.ExecutionControl" />
+        <Method name="getInstance" />
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+</FindBugsFilter>

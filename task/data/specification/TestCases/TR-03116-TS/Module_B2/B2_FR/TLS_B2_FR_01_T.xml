@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
+<TestCase id="TLS_B2_FR_01_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
+	<Title>Test case TLS_B2_FR_01_T</Title>
+	<Version>1.0</Version>
+	<Purpose>These test cases verify that the Encrypt then MAC extension is used if the clients offers it. The test is carried out for the TLS version [TLS_VERSION] and the CBC-based cipher suite [CIPHERSUITE].</Purpose>
+	<Profile>TLS_SERVER</Profile>
+	<Profile>ENC_THEN_MAC</Profile>
+	<Profile>CLIENT_CERT</Profile>
+	<Profile>TLS_1.2</Profile>
+	<Reference>RFC 5246</Reference>
+	<Reference>RFC 4492</Reference>
+	<Reference>RFC 7366</Reference>
+	<Precondition>DUT services are online without any known disturbances.</Precondition>
+	<Precondition>The DUT is accepting TLS connections.</Precondition>
+
+	<TestStep>
+		<Command>
+			<Text>The tester connects to the DUT.</Text>
+		</Command>
+		<Description>The TLS ClientHello offers the TLS version [TLS_VERSION].</Description>
+		<Description>The TLS ClientHello offers only the cipher suite [CIPHERSUITE].</Description>
+		<Description>The TLS ClientHello offers the encrypt_then_mac extension.</Description>
+		<Description>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate extension according to the ICS.</Description>
+		<Description>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all algorithms that are supported according to the ICS are listed.</Description>
+		<Description>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.</Description>
+
+		<ExpectedResult>
+			<Text>The DUT accepts the ClientHello.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>It requests client authentication.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The DUT selected the encrypt_then_mac extension.</Text>
+		</ExpectedResult>
+	</TestStep>
+	<TestStep>
+		<Command>
+			<Text>The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].</Text>
+		</Command>		
+		<ExpectedResult>
+			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
+		</ExpectedResult>
+
+	</TestStep>
+</TestCase>

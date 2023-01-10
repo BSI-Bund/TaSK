@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Please include the following ENTITY definitions in the root document which uses this file. And change the paths accordingly.
+<!DOCTYPE doc [
+<!ENTITY TR-02102-2-SPECIFICATION SYSTEM "../TR-02102-2/TR-02102-2-SPECIFICATION.xml">
+<!ENTITY APPLICATION-SPECIFIC-PARAMETERS-TLS1.3 SYSTEM "APPLICATION-SPECIFIC-PARAMETERS-TLS1.3.xml">
+<!ENTITY APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-COMMON SYSTEM "APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-COMMON.xml">
+]>
+-->
+<TLSSpecification id="TR-03116-4-COMMON">
+	<Metadata>
+		<Title>Common requirements for TLS Server and Client according to TR-03116-4</Title>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-03116-4</Reference>
+			<Reference>TR-02102-2</Reference>
+		</References>
+	</Metadata>
+	
+	<BaseSpecification>
+		<!-- Include all the TLS parameters from TR-02102-2 -->
+		&TR-02102-2-SPECIFICATION;
+	</BaseSpecification>
+	
+	<FurtherSpecifications>
+		<TLSVersions>
+			<TLSVersion use="required">TLSv1.2</TLSVersion>
+			<TLSVersion use="optional">TLSv1.3</TLSVersion>
+		</TLSVersions>
+		<TlsSessionLifetime>48h</TlsSessionLifetime>
+		
+		<!-- Include all the application specific TLS parameters from TR-03116-4 -->
+		&APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-COMMON;
+		&APPLICATION-SPECIFIC-PARAMETERS-TLS1.3;
+	</FurtherSpecifications>
+	
+</TLSSpecification>

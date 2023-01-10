@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Example ICS according to BSI-TR-03116-TS Chapter 3 
+	This example uses the requirements from BSI-TR-03116-TS_Annex Chapter 2.3 eID-Clients -->
+<ICS>	
+	<Title>Test Application - eID-Client TLS-2 channel</Title> <!-- Optional-->
+	<Version>1.0.0</Version>
+	<Description>This is an example ICS that will be used as the input to the TaSK test framework.</Description> <!-- Optional-->
+		
+	<ApplicationUnderTest>
+		<!-- Chapter 3.1 
+			Basic information about the DUT. -->
+		<ApplicationType>TR-03124-1-EID-CLIENT-TLS-2</ApplicationType>
+		<RespectiveTechnicalGuideline>TR-03124-1</RespectiveTechnicalGuideline> <!-- Optional-->
+		<DUTExecutable>/usr/bin/AusweisApp2</DUTExecutable> <!-- Here the real executable should be added. -->
+		<DUTCallArguments>
+	<!-- Note: Double quotation marks are not allowed and the arguments should 
+		be written without them. e.g. use RSA+SHA256 instead of "RSA+SHA256" -->
+			<StartConnectionArguments></StartConnectionArguments>
+		</DUTCallArguments> <!-- Here the call arguments for the real executable should be added. -->
+	</ApplicationUnderTest>
+
+	<Profiles>
+		<!-- Chapter 3.2 Table 3
+			An applicant SHALL provide a declaration containing information on the supported profiles. -->
+		<!-- mandatory profiles from TR-03116-TS_Annex, Table 4 -->
+		<Profile>NO_CLIENT_CERT</Profile>
+		<Profile>NO_SAN</Profile>
+		<!-- <Profile>PFS</Profile> Defined as Mandatory, but currently does not make sense.-->
+		<Profile>PSK</Profile>
+		<Profile>SERVER_CERT</Profile>
+		<Profile>STOP_RESUMPTION</Profile>
+		<Profile>TLS_1.2</Profile>
+		<Profile>TLS_CLIENT</Profile>
+		<Profile>SKIP_CHAIN_VALIDN</Profile>
+
+		<!-- recommended profiles from TR-03116-TS_Annex, Table 3 -->
+		<!-- <Profile>TLS_1.3</Profile> Recommended, but is not really well defined.-->
+		<Profile>SESSION_ID</Profile>
+		<Profile>SESSION_TICKET</Profile>
+	</Profiles>
+		
+	<SupportedCryptography>
+		<!-- Chapter 3.3 
+			one element 'SupportedTLSVersion' for each line in Table 4 -->
+		<SupportedTLSVersion version="TLSv1.2">
+			<SupportedCipherSuites>
+				<!-- Table 5 
+					The order of the cipher suites MUST reflect the preference of the DUT-->
+				<CipherSuite>TLS_RSA_PSK_WITH_AES_256_GCM_SHA384</CipherSuite>
+				<CipherSuite>TLS_RSA_PSK_WITH_AES_256_CBC_SHA384</CipherSuite>
+				<CipherSuite>TLS_RSA_PSK_WITH_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_RSA_PSK_WITH_AES_128_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_RSA_PSK_WITH_AES_256_CBC_SHA</CipherSuite>
+
+			</SupportedCipherSuites>
+			
+			<SupportedKeyLengths>
+				<!-- Table 6 
+					mandates the minimal supported key lengths to be provided for each TLS version and algorithm separately -->
+			</SupportedKeyLengths>
+			
+			<SupportedEllipticCurves-DHGroups>
+				<!-- Table 7 
+					In case the SUPP_GROUPS profile was selected, the named groups MUST be given in Table 7 in the order of preference.
+					This is mandatory if the SUPP_GROUPS profile was selected -->
+			</SupportedEllipticCurves-DHGroups>
+						
+			<SupportedSignatureAlgorithms>
+				<!-- Table 8 
+					The vendor SHALL list the signature algorithms supported by the DUT -->
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA256</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA512</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA384</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA224</HashName>
+				</SignatureAlgorithm>
+
+			</SupportedSignatureAlgorithms>
+				
+			<SupportedTLSExtensions>
+				<!-- Table 10 
+					The supported extensions SHALL be provided.
+					The names shall match https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml -->
+				<Extension>encrypt_then_mac</Extension>
+				<Extension>SessionTicket TLS</Extension>
+				<Extension>extended_master_secret</Extension>
+				<Extension>signature_algorithms</Extension>
+				<Extension>server_name</Extension>
+				<Extension>status_request</Extension>
+			</SupportedTLSExtensions>
+
+		</SupportedTLSVersion>
+
+	</SupportedCryptography>
+	
+	<!--  <TLSWithSKCipherSuites> -->
+
+	<!-- </TLSWithSKCipherSuites> -->
+	<TLSWithPSKCipherSuites>
+		<!-- Chapter 3.5 Table 13
+			This is only mandatory if the profile 'PSK' was selected. -->
+		<PSKValue>b2a1b2d4c3</PSKValue>
+	</TLSWithPSKCipherSuites>
+
+	<!-- Chapter 3.6 Table 14 
+		Added, even though it is not allowed here. -->
+	<ConnectionTimeout>5m</ConnectionTimeout>
+		
+	<!-- <Zero-RTTData> -->
+		<!-- Chapter 3.7 Table 15
+			This is only mandatory if TLS Version TLSv1.3 is supported -->
+	<!-- </Zero-RTTData> -->
+		
+<!-- 	<TLSCertificates> -->
+	<!-- Chapter 3.8
+		This is only mandatory, if the CHECK_CERTS profile was selected -->
+<!-- 		<CertificateChain> -->
+	<!-- Table 16	
+		The vendor must provide the chain of X.509 certificates used by the test object in hierarchical order. -->
+<!-- 		</CertificateChain> -->
+<!-- 	</TLSCertificates> -->
+
+	
+</ICS>

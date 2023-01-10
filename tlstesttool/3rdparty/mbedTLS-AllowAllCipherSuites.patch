@@ -1,0 +1,44 @@
+--- a/library/ssl_cli.c	2016-06-07 11:13:19 +0000
++++ b/library/ssl_cli.c	2016-06-07 11:14:19 +0000
+@@ -707,7 +707,6 @@
+     unsigned char *p, *q;
+     unsigned char offer_compress;
+     const int *ciphersuites;
+-    const mbedtls_ssl_ciphersuite_t *ciphersuite_info;
+ 
+     MBEDTLS_SSL_DEBUG_MSG( 2, ( "=> write client hello" ) );
+ 
+@@ -849,33 +848,6 @@
+ 
+     for( i = 0; ciphersuites[i] != 0; i++ )
+     {
+-        ciphersuite_info = mbedtls_ssl_ciphersuite_from_id( ciphersuites[i] );
+-
+-        if( ciphersuite_info == NULL )
+-            continue;
+-
+-        if( ciphersuite_info->min_minor_ver > ssl->conf->max_minor_ver ||
+-            ciphersuite_info->max_minor_ver < ssl->conf->min_minor_ver )
+-            continue;
+-
+-#if defined(MBEDTLS_SSL_PROTO_DTLS)
+-        if( ssl->conf->transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM &&
+-            ( ciphersuite_info->flags & MBEDTLS_CIPHERSUITE_NODTLS ) )
+-            continue;
+-#endif
+-
+-#if defined(MBEDTLS_ARC4_C)
+-        if( ssl->conf->arc4_disabled == MBEDTLS_SSL_ARC4_DISABLED &&
+-            ciphersuite_info->cipher == MBEDTLS_CIPHER_ARC4_128 )
+-            continue;
+-#endif
+-
+-#if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
+-        if( ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_ECJPAKE &&
+-            mbedtls_ecjpake_check( &ssl->handshake->ecjpake_ctx ) != 0 )
+-            continue;
+-#endif
+-
+         MBEDTLS_SSL_DEBUG_MSG( 3, ( "client hello, add ciphersuite: %04x",
+                                     ciphersuites[i] ) );
+ 

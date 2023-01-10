@@ -1,0 +1,30 @@
+--- a/library/ssl_srv.c	2021-05-11 13:03:55.827644500 +0200
++++ b/library/ssl_srv.c	2021-05-11 14:30:26.181869600 +0200
+@@ -2383,8 +2383,17 @@
+     /*
+      *  First write extensions, then the total length
+      */
+-    ssl_write_renegotiation_ext( ssl, p + 2 + ext_len, &olen );
+-    ext_len += olen;
++    if( ssl->conf->overwrite_extensions != 0 )
++    {
++        memcpy( p + 2 + ext_len,
++                ssl->conf->overwrite_extensions,
++                ssl->conf->overwrite_extensions_len );
++        ext_len += ssl->conf->overwrite_extensions_len;
++    }
++    else
++    {
++        ssl_write_renegotiation_ext( ssl, p + 2 + ext_len, &olen );
++        ext_len += olen;
+ 
+ #if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
+     ssl_write_max_fragment_length_ext( ssl, p + 2 + ext_len, &olen );
+@@ -2426,6 +2426,7 @@
+     ssl_write_alpn_ext( ssl, p + 2 + ext_len, &olen );
+     ext_len += olen;
+ #endif
++    }
+ 
+     MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, total extension length: %d", ext_len ) );
+ 

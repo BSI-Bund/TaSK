@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
+<TestCase id="TLS_A2_FR_07" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
+	<Title>Test case TLS_A2_FR_07</Title>
+	<Version>1.0</Version>
+	<Purpose>This test verifies that the Truncated-HMAC extension is not  offered and cannot be used in a connection.</Purpose>
+	<Profile>TLS_CLIENT</Profile>
+	<Profile>NO_TRUNC_HMAC</Profile>
+	<Profile>CLIENT_CERT</Profile>
+	<Profile>TLS_1.2</Profile>
+	<Reference>TR-03116-4</Reference>
+	<Reference>RFC 5246</Reference>
+	<Reference>RFC 4492</Reference>
+	<Reference>RFC 6066</Reference>
+	<Precondition>The test TLS server is waiting for incoming TLS connections on [URL].</Precondition>
+
+	<TestStep>
+		<Command>
+			<Text>The tester causes the DUT to connect to the TLS server on [URL].</Text>
+		</Command>
+		<ExpectedResult>
+			<Text>
+			The TLS server receives a ClientHello handshake message from the DUT.
+			</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The TLS ClientHello does not offer the Truncated-HMAC  extension.</Text>
+		</ExpectedResult>
+
+
+	</TestStep>
+
+	<TestStep>
+		<Command>
+			<Text>The TLS server answers the DUT choosing a TLS version and a cipher suite that is contained in the ClientHello.</Text>	
+		</Command>
+		<Description>The TLS server supplies the certificate chain [CERT_DEFAULT].</Description>
+		<Description>The server sends a CertificateRequest to the DUT.</Description>
+
+		<Description>The server selects the Truncated-HMAC extension despite it was not offered.</Description>
+
+		<Description>No further extensions are supplied by the server.</Description>
+		<ExpectedResult>
+			<Text>The client supplies a valid client certificate and a correct CertificateVerify message.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The DUT rejects the connection with a "unsupported_extension" alert or another suitable error description.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>No TLS channel is established.</Text>
+		</ExpectedResult>
+
+	</TestStep>
+</TestCase>

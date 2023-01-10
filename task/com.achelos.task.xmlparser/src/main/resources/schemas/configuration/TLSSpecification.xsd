@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema TLS
+			Specification for an Application.
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<!-- Base Element should be a single TLSSpecification -->
+	<xsd:element name="TLSSpecification"
+		type="TLSSpecification" />
+
+	<!-- The Type of the TLSSpecification should be as follows. Including a 
+		recursion to a "BaseSpecification" -->
+	<xsd:complexType name="TLSSpecification">
+		<xsd:sequence>
+			<xsd:element name="Metadata" type="Metadata"
+				minOccurs="1" maxOccurs="1" />
+			<xsd:element name="BaseSpecification" minOccurs="0"
+				maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="TLSSpecification"
+							type="TLSSpecification" minOccurs="1" maxOccurs="1" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="FurtherSpecifications"
+				type="FurtherSpecifications" minOccurs="0" maxOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:string"
+			use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="Metadata">
+		<xsd:sequence>
+			<xsd:element name="Title" type="xsd:string" minOccurs="0"
+				maxOccurs="1" />
+			<xsd:element name="Version" type="xsd:string"
+				minOccurs="0" maxOccurs="1" />
+			<xsd:element name="References" minOccurs="0"
+				maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Reference" type="xsd:string"
+							maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="FurtherSpecifications">
+		<xsd:sequence>
+			<xsd:element name="TLSVersions" minOccurs="0"
+				maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="TLSVersion" minOccurs="1"
+							maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:simpleContent>
+									<xsd:extension base="xsd:string">
+										<xsd:attribute name="use" type="usetype" />
+									</xsd:extension>
+								</xsd:simpleContent>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="TlsSessionLifetime" type="xsd:string"
+				minOccurs="0" maxOccurs="1" />
+			<xsd:element name="TLS1.2_Parameter"
+				type="TLS1.2_Parameter" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="TLS1.3_Parameter"
+				type="TLS1.3_Parameter" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="TLSMinimumKeyLength"
+				type="TLSMinimumKeyLength" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="TLSEllipticCurves"
+				type="TLSEllipticCurves" minOccurs="0" maxOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="TLS1.2_Parameter">
+		<xsd:sequence>
+			<xsd:element name="Metadata" type="Metadata"
+				minOccurs="0" maxOccurs="1" />
+
+			<xsd:element name="CipherSuites" type="CipherSuites" minOccurs="0" maxOccurs="unbounded" />
+
+			<xsd:element name="Supported_Groups" minOccurs="0"
+				maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="DHGroup"
+							type="SpecificationDetails" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+					<xsd:attribute name="reference" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="SignatureAlgorithms" minOccurs="0"
+				maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="SignatureAlgorithm" maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="SignatureAlgorithmName" type="xsd:string"
+										minOccurs="1" maxOccurs="1" />
+									<xsd:element name="SignatureAlgorithmValue" type="xsd:string" minOccurs="1"
+										maxOccurs="1" />
+									<xsd:element name="DigestAlgorithmName" type="xsd:string"
+										minOccurs="1" maxOccurs="1" />
+									<xsd:element name="DigestAlgorithmValue" type="xsd:string" minOccurs="1"
+										maxOccurs="1" />
+									<xsd:element name="Reference" type="xsd:string"
+										minOccurs="0" maxOccurs="1" />
+									<xsd:element name="UseUntil" type="xsd:string"
+										minOccurs="0" maxOccurs="1" />
+								</xsd:sequence>
+								<xsd:attribute name="use" type="usetype" />
+								<xsd:attribute name="priority" type="xsd:integer" />
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+					<xsd:attribute name="reference" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="MiscellaneousTLSFeatures"
+				minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="TLSFeature" minOccurs="0"
+							maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:simpleContent>
+									<xsd:extension base="xsd:string">
+										<xsd:attribute name="use" type="usetype" />
+										<xsd:attribute name="reference"
+											type="xsd:string" />
+									</xsd:extension>
+								</xsd:simpleContent>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:complexType name="SpecificationDetails">
+		<xsd:sequence>
+			<xsd:element name="Description" type="xsd:string"
+				minOccurs="1" maxOccurs="1" />
+			<xsd:element name="Value" type="xsd:string" minOccurs="1"
+				maxOccurs="1" />
+			<xsd:element name="Reference" type="xsd:string"
+				minOccurs="0" maxOccurs="1" />
+			<xsd:element name="UseUntil" type="xsd:string"
+				minOccurs="0" maxOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="use" type="usetype" />
+		<xsd:attribute name="priority" type="xsd:integer" />
+	</xsd:complexType>
+	
+	<xsd:complexType name = "CipherSuites">
+		<xsd:sequence>
+			<xsd:element name="CipherSuite" maxOccurs="unbounded" type="SpecificationDetails" />
+		</xsd:sequence>
+		<xsd:attribute name="type" type="xsd:string" />
+		<xsd:attribute name="use" type="usetype" />
+		<xsd:attribute name="reference" type="xsd:string" />
+		<xsd:attribute name="full-list" type="xsd:boolean" default="false"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="TLS1.3_Parameter">
+		<xsd:sequence>
+			<xsd:element name="Metadata" type="Metadata" minOccurs="0" maxOccurs="1" />
+
+			<xsd:element name="HandshakeModes" minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="HandshakeMode" maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:simpleContent>
+									<xsd:extension base="xsd:string">
+										<xsd:attribute name="use" type="usetype" />
+										<xsd:attribute name="support" type="xsd:string" />
+									</xsd:extension>
+								</xsd:simpleContent>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+					<xsd:attribute name="reference" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="PSK-Modes" minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="PSK-Mode"
+							type="SpecificationDetails" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+					<xsd:attribute name="reference" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="CipherSuites" type="CipherSuites" minOccurs="0" maxOccurs="unbounded" />
+
+			<xsd:element name="Supported_Groups" minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="DHGroup"
+							type="SpecificationDetails" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+					<xsd:attribute name="reference" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="SignatureAlgorithmsHandshake"
+				minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="SignatureScheme"
+							type="SpecificationDetails" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+					<xsd:attribute name="reference" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="SignatureAlgorithmsCertificate"
+				minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="SignatureScheme"
+							type="SpecificationDetails" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="use" type="usetype" />
+					<xsd:attribute name="reference" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:complexType name="TLSMinimumKeyLength">
+		<xsd:sequence>
+			<xsd:element name="Metadata" type="Metadata"
+				minOccurs="1" maxOccurs="1" />
+			<xsd:element name="MinimumKeyLengths"
+				type="MinimumKeyLengths" minOccurs="1" maxOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:complexType name="MinimumKeyLengths">
+		<xsd:sequence>
+			<xsd:element name="Algorithm" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="MinimumKeyLength"
+							maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:simpleContent>
+									<xsd:extension base="xsd:integer">
+										<xsd:attribute name="UseUntil" type="xsd:string" />
+									</xsd:extension>
+								</xsd:simpleContent>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="type" type="xsd:string" use="required"/>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="TLSEllipticCurves">
+		<xsd:sequence>
+			<xsd:element name="Metadata" type="Metadata"
+				minOccurs="1" maxOccurs="1" />
+			<xsd:element name="ECC" type="SpecificationDetails"
+				maxOccurs="unbounded" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:simpleType name="usetype">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="optional" />
+			<xsd:enumeration value="required" />
+			<xsd:enumeration value="atLeastOne" />
+			<xsd:enumeration value="forbidden" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+</xsd:schema>

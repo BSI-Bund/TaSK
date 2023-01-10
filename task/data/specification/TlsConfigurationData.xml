@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TlsConfigurationData>
+	<!-- BSI-TR-03116-TS Table 20 -->
+	<TlsVersions>
+		<TlsVersion>SSLv2/v3</TlsVersion>
+		<TlsVersion>TLSv1.0</TlsVersion>
+		<TlsVersion>TLSv1.1</TlsVersion>
+		<TlsVersion>TLSv1.2</TlsVersion>
+		<TlsVersion>TLSv1.3</TlsVersion>
+	</TlsVersions>
+	<!-- BSI-TR-03116-TS Table 21 -->
+	<NamedCurves>
+		<NamedCurve>secp192r1</NamedCurve>
+		<NamedCurve>secp224r1</NamedCurve>
+		<NamedCurve>secp256r1</NamedCurve>
+		<NamedCurve>brainpoolP256r1</NamedCurve>
+		<NamedCurve>secp384r1</NamedCurve>
+		<NamedCurve>brainpoolP384r1</NamedCurve>
+		<NamedCurve>secp521r1</NamedCurve>
+		<NamedCurve>brainpoolP512r1</NamedCurve>
+		<NamedCurve>ffdhe2048</NamedCurve>
+		<NamedCurve>ffdhe3072</NamedCurve>
+		<NamedCurve>ffdhe4096</NamedCurve>
+		<NamedCurve>ffdhe6144</NamedCurve>
+		<NamedCurve>ffdhe8192</NamedCurve>
+	</NamedCurves>
+	<!-- BSI-TR-03116-TS Table 22 -->
+	<RSA_DSA_DHE_KeyLengths>
+		<RSA_DSA_DHE_KeyLength>1024</RSA_DSA_DHE_KeyLength>
+		<RSA_DSA_DHE_KeyLength>1536</RSA_DSA_DHE_KeyLength>
+		<RSA_DSA_DHE_KeyLength>2048</RSA_DSA_DHE_KeyLength>
+		<RSA_DSA_DHE_KeyLength>3072</RSA_DSA_DHE_KeyLength>
+		<RSA_DSA_DHE_KeyLength>4096</RSA_DSA_DHE_KeyLength>
+	</RSA_DSA_DHE_KeyLengths>
+</TlsConfigurationData>

@@ -1,0 +1,36 @@
+--- a/include/mbedtls/ssl.h	2016-06-01 09:15:32 +0000
++++ b/include/mbedtls/ssl.h	2016-06-01 11:20:07 +0000
+@@ -639,4 +639,6 @@
+ #endif
+ 	const unsigned char *overwrite_extensions;    /*!< bytes for overwriting ClientHello.extensions */
+ 	size_t               overwrite_extensions_len;/*!< length of overwrite_extensions               */
++	const unsigned char *overwrite_compression_methods;    /*!< bytes for overwriting ClientHello.compression_methods */
++	size_t               overwrite_compression_methods_len;/*!< length of overwrite_compression_methods               */
+ };
+--- a/library/ssl_cli.c	2016-06-01 09:15:32 +0000
++++ b/library/ssl_cli.c	2016-06-01 11:28:31 +0000
+@@ -929,7 +929,23 @@
+         offer_compress = 0;
+ #endif
+ 
+-    if( offer_compress )
++	if( ssl->conf->overwrite_compression_methods != 0 )
++	{
++		MBEDTLS_SSL_DEBUG_MSG( 3, ( "client hello, compress len.: %d", ssl->conf->overwrite_compression_methods_len ) );
++		MBEDTLS_SSL_DEBUG_BUF( 3, "client hello, compress alg.",
++						  ssl->conf->overwrite_compression_methods,
++						  ssl->conf->overwrite_compression_methods_len );
++
++		*p++ = ssl->conf->overwrite_compression_methods_len;
++		const unsigned char * end = ssl->conf->overwrite_compression_methods
++				+ ssl->conf->overwrite_compression_methods_len;
++		const unsigned char * source = ssl->conf->overwrite_compression_methods;
++		while( source != end )
++		{
++			*p++ = *source++;
++		}
++	}
++	else if( offer_compress )
+     {
+         MBEDTLS_SSL_DEBUG_MSG( 3, ( "client hello, compress len.: %d", 2 ) );
+         MBEDTLS_SSL_DEBUG_MSG( 3, ( "client hello, compress alg.: %d %d",

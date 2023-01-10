@@ -1,0 +1,71 @@
+[default]
+distinguished_name = req_distinguished_name
+prompt = no
+ 
+name                    = root-ca
+domain_suffix           = localhost
+default_ca              = ca_default
+name_opt                = utf8,esc_ctrl,multiline,lname,align
+ 
+[ca_dn]
+countryName             = "DE"
+organizationName        = "achelos GmbH"
+organizationalUnitName	= "Tests"
+commonName              = "localhost"
+ 
+[ca_default]
+home                    = PLACEHOLDER_BASE_DIR
+certificate             = $home/$name.crt
+private_key             = $home/private/$name.key
+RANDFILE                = $home/private/random
+new_certs_dir           = $home/certs
+database		= $home/db/index
+serial                  = $home/db/serial
+unique_subject          = no
+copy_extensions         = none
+default_days            = 365
+default_crl_days        = 365
+default_md              = sha256
+policy                  = policy_c_o_match
+x509_extensions  	= usr_cert
+
+
+[policy_c_o_match]
+countryName             = match
+stateOrProvinceName     = optional
+organizationName        = match
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional 
+
+[req]
+default_bits            = 4096
+encrypt_key             = yes
+default_md              = sha256
+utf8                    = yes
+string_mask             = utf8only
+prompt                  = no
+distinguished_name      = ca_dn
+req_extensions          = ca_ext
+ 
+[ca_ext]
+basicConstraints        = critical,CA:true
+keyUsage                = critical,keyCertSign,cRLSign
+subjectKeyIdentifier    = hash
+ 
+[sub_ca_ext]
+authorityKeyIdentifier  = keyid:always
+basicConstraints        = critical,CA:true,pathlen:0
+extendedKeyUsage        = clientAuth,serverAuth
+keyUsage                = critical,keyCertSign,cRLSign
+subjectKeyIdentifier    = hash
+ 
+[ usr_dn ]
+countryName             = "DE"
+organizationName        = "achelos GmbH"
+organzationalUnitName	= "Tests"
+commonName              = "localhost"
+
+[ usr_cert ]
+extendedKeyUsage        = clientAuth,serverAuth
+keyUsage                = critical,digitalSignature

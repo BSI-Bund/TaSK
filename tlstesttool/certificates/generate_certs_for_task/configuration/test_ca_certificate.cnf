@@ -1,0 +1,13 @@
+[ ca ]
+default_ca = CA_default
+[req]
+prompt = no
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+CN = Test CA
+OU = TLS Test Tool
+O = achelos GmbH
+C = DE
+
+
+

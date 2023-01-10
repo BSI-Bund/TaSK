@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLS1.2_Parameter id="TR-03116-4-APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-CLIENT-ONLY">
+	<Metadata>
+		<Title>Application specific TLS 1.2 Client recommendations according to TR-03116-4</Title>
+		<Version>1.0</Version>
+			<References>
+				<Reference>TR-03116-4</Reference>
+			</References>
+	</Metadata>
+	
+	<!-- Chapter 2.2.1.1 -->
+	<!-- Table 1 -->
+	<CipherSuites use="required" reference="2.2.1.1">
+		<CipherSuite>
+			<Description>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</Description>
+			<Value>0xC0,0x23</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256</Description>
+			<Value>0xC0,0x27</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</Description>
+			<Value>0xC0,0x2B</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2028+</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</Description>
+			<Value>0xC0,0x2F</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2028+</UseUntil>
+		</CipherSuite>
+	</CipherSuites>
+</TLS1.2_Parameter>		

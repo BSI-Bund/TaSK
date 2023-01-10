@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			targetNamespace="http://bsi.bund.de/TR03116"
+			xmlns="http://bsi.bund.de/TR03116"
+			elementFormDefault="qualified">
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema for a TestCase.
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="TestCase">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="Title" type="xsd:string" minOccurs="1" maxOccurs="1" />
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element name="Version" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="Purpose" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="Profile" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+						<xsd:element name="Reference" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+						<xsd:element name="Precondition" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+						<xsd:element name="TestStep" type="TestStep" minOccurs="1" maxOccurs="unbounded" />
+						<xsd:element name="Postcondition" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+						<xsd:element name="Metadata" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+					<xsd:element name="Comment" type="xsd:string" minOccurs="1" maxOccurs="1" />
+				</xsd:choice>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:string" use="required" />
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:complexType name="TestStep">
+		<xsd:sequence>
+			<xsd:element name="Command" minOccurs="1" maxOccurs="1">
+			<xsd:complexType>
+				<xsd:sequence>
+					<xsd:element name="Text" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="TechnicalCommand" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="TestDataReference" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="Description" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="ExpectedResult" minOccurs="1" maxOccurs="unbounded">
+			<xsd:complexType>
+				<xsd:sequence>
+					<xsd:element name="Text" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+</xsd:schema>

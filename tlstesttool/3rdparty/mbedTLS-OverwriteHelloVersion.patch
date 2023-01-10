@@ -1,0 +1,87 @@
+--- a/include/mbedtls/ssl.h	2016-06-10 11:17:35 +0000
++++ b/include/mbedtls/ssl.h	2016-06-10 12:17:28 +0000
+@@ -642,3 +642,5 @@
+	const unsigned char *overwrite_compression_methods;    /*!< bytes for overwriting ClientHello.compression_methods */
+	size_t               overwrite_compression_methods_len;/*!< length of overwrite_compression_methods 
++	unsigned int         overwrite_hello_version : 1;  /*!< overwrite version in Client/ServerHello?            */
++	unsigned char        hello_version[2];             /*!< value for overwriting version in Client/ServerHello */
+    }
+--- a/library/ssl_cli.c	2016-06-10 11:17:35 +0000
++++ b/library/ssl_cli.c	2016-06-10 12:18:51 +0000
+@@ -741,8 +741,17 @@
+     buf = ssl->out_msg;
+     p = buf + 4;
+ 
+-    mbedtls_ssl_write_version( ssl->conf->max_major_ver, ssl->conf->max_minor_ver,
+-                       ssl->conf->transport, p );
++	if( ssl->conf->overwrite_hello_version != 0 )
++	{
++		p[0] = ssl->conf->hello_version[0];
++		p[1] = ssl->conf->hello_version[1];
++	}
++	else
++	{
++		mbedtls_ssl_write_version( ssl->conf->max_major_ver, ssl->conf->max_minor_ver,
++						   ssl->conf->transport, p );
++	}
++
+     p += 2;
+ 
+     MBEDTLS_SSL_DEBUG_MSG( 3, ( "client hello, max version: [%d:%d]",
+--- a/library/ssl_srv.c	2016-06-10 11:17:34 +0000
++++ b/library/ssl_srv.c	2016-06-10 12:19:36 +0000
+@@ -2245,8 +2245,17 @@
+     buf = ssl->out_msg;
+     p = buf + 4;
+ 
+-    mbedtls_ssl_write_version( ssl->major_ver, ssl->minor_ver,
+-                       ssl->conf->transport, p );
++	if( ssl->conf->overwrite_hello_version != 0 )
++	{
++		p[0] = ssl->conf->hello_version[0];
++		p[1] = ssl->conf->hello_version[1];
++	}
++	else
++	{
++		mbedtls_ssl_write_version( ssl->major_ver, ssl->minor_ver,
++						   ssl->conf->transport, p );
++	}
++
+     p += 2;
+ 
+     MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, chosen version: [%d:%d]",
+--- a/library/ssl_tls.c	2016-06-13 14:10:06 +0000
++++ b/library/ssl_tls.c	2016-06-15 12:43:14 +0000
+@@ -3543,18 +3543,21 @@
+         return( MBEDTLS_ERR_SSL_INVALID_RECORD );
+     }
+ 
+-    /* Check version */
+-    if( major_ver != ssl->major_ver )
+-    {
+-        MBEDTLS_SSL_DEBUG_MSG( 1, ( "major version mismatch" ) );
+-        return( MBEDTLS_ERR_SSL_INVALID_RECORD );
+-    }
++	if( ssl->conf->overwrite_hello_version == 0 )
++	{
++		/* Check version */
++		if( major_ver != ssl->major_ver )
++		{
++			MBEDTLS_SSL_DEBUG_MSG( 1, ( "major version mismatch" ) );
++			return( MBEDTLS_ERR_SSL_INVALID_RECORD );
++		}
+ 
+-    if( minor_ver > ssl->conf->max_minor_ver )
+-    {
+-        MBEDTLS_SSL_DEBUG_MSG( 1, ( "minor version mismatch" ) );
+-        return( MBEDTLS_ERR_SSL_INVALID_RECORD );
+-    }
++		if( minor_ver > ssl->conf->max_minor_ver )
++		{
++			MBEDTLS_SSL_DEBUG_MSG( 1, ( "minor version mismatch" ) );
++			return( MBEDTLS_ERR_SSL_INVALID_RECORD );
++		}
++	}
+ 
+     /* Check length against the size of our buffer */
+     if( ssl->in_msglen > MBEDTLS_SSL_BUFFER_LEN

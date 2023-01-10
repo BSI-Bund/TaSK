@@ -1,0 +1,131 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema for a XML Report of TaSK.
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="TaSKReport">
+		<xsd:complexType>
+			<xsd:sequence>
+				<!-- Metadata field for e.g. Tester in Charge, Date, or other metadata. -->
+				<xsd:element name="Metadata" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="TesterInCharge" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="DateOfReportGeneration" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="ExecutionMachine" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="StartOfExecution" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="EndOfExecution" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="ExecutionType" type="xsd:string" minOccurs="0" maxOccurs="1" />
+						</xsd:sequence> 
+					</xsd:complexType>
+				</xsd:element>
+
+				<!-- DUTInformation field for e.g. Title, ApplicationType, Version or other DUT Information. -->
+				<xsd:element name="DUTInformation" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="Title" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="ApplicationType" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="Version" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="Description" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="File" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+							<xsd:element name="Fingerprint" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				
+				<!-- List of executed TestSuites.-->
+				<xsd:element name="TestSuite" type="TestSuite" minOccurs="0" maxOccurs="unbounded"/>
+				
+				<!-- TaSKFrameworkMessages -->
+				<xsd:element name="TaSKFrameworkMessages" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="LogMessage" type="LogMessage" minOccurs="0" maxOccurs="unbounded"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				
+				<!-- InputParameters -->
+				<xsd:element name="InputParameters" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:any minOccurs="0" maxOccurs="2" processContents="lax"/>
+							<!--  <xsd:element name="MICS" type="xsd:anyType" minOccurs="0" maxOccurs="1" /> -->
+							<!--  <xsd:element name="TestRunPlan" type="xsd:anyType" minOccurs="0" maxOccurs="1"/>		 -->										
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:complexType name="TestSuite">
+		<xsd:sequence>
+			<!-- Test suite identifier -->
+			<xsd:element name="TestSuiteIdentifier" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+		
+			<!-- Summary information for each TestSuites test cases -->
+			<xsd:element name="Summary" type="Summary" minOccurs="1" maxOccurs="1"/>
+			
+			<!-- TestSuiteMessages -->
+			<xsd:element name="TestSuiteMessages" minOccurs="1" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="LogMessage" type="LogMessage" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			
+			<!-- Detailed information for each TestCase in TLS_ICS.-->
+			<xsd:element name="TestCases" minOccurs="1" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="TestCase" type="TestCase" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence> 
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence> 
+	</xsd:complexType>
+	
+	<xsd:complexType name="Summary">
+		<xsd:sequence>
+			<xsd:element name="TotalNoOfTestcases" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="NoOfExecTestcases" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="NoOfPassedTestcases" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="NoOfFailedTestcases" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="NoOfTestcasesWithWarnings" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="StartTime" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="EndTime" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence> 
+	</xsd:complexType>
+	
+	<xsd:complexType name="TestCase">
+		<xsd:sequence>
+			<xsd:element name="TestCaseId" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="Description" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="Purpose" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="Result" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="StartTime" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="EndTime" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="LogMessages" minOccurs="1" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="LogMessage" type="LogMessage" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence> 
+	</xsd:complexType>
+	
+	<xsd:complexType name="LogMessage">
+		<xsd:simpleContent>
+	     <xsd:extension base="xsd:string">
+	       <xsd:attribute name="LogLevel" type="xsd:string" use="required"/>
+	       <xsd:attribute name="Timestamp" type="xsd:string" use="required"/>
+	     </xsd:extension>
+	   </xsd:simpleContent>
+	</xsd:complexType>
+</xsd:schema>

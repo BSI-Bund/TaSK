@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
+<TestCase id="TLS_A2_FR_10" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
+	<Title>Test case TLS_A2_FR_10</Title>
+	<Version>1.0</Version>
+	<Purpose>Positive test verifying the session resumption through the Session ID.</Purpose>
+	<Profile>TLS_CLIENT</Profile>
+	<Profile>CLIENT_CERT</Profile>
+	<Profile>SESSION_ID</Profile>
+	<Profile>TLS_1.2</Profile>
+	<Reference>TR-03116-4</Reference>
+	<Reference>RFC 5246</Reference>
+	<Reference>RFC 4492</Reference>
+	<Precondition>The test TLS server is waiting for incoming TLS connections on [URL].</Precondition>
+
+	<TestStep>
+		<Command>
+			<Text>The tester causes the DUT to connect to the TLS server on [URL].</Text>
+		</Command>
+		<ExpectedResult>
+			<Text>
+			The TLS server receives a ClientHello handshake message from the DUT.
+			</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The TLS ClientHello indicates support for session resumption via empty Session ID extension.</Text>
+		</ExpectedResult>
+
+	</TestStep>
+
+	<TestStep>
+		<Command>
+			<Text>The TLS server answers the DUT choosing a TLS version and a cipher suite that is contained in the ClientHello.</Text>		
+		</Command>
+		<Description>The TLS server supplies the certificate chain [CERT_DEFAULT].</Description>
+				<Description>The server sends a CertificateRequest to the DUT.</Description>
+		
+		<Description>The TLS server further generates a new Session ID and supplies it to the DUT.</Description>
+
+		<ExpectedResult>
+			<Text>The client supplies a valid client certificate and a correct CertificateVerify message.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
+		</ExpectedResult>
+	</TestStep>
+	
+	<TestStep>
+		<Command>
+			<Text>Close TLS connection.</Text>		
+		</Command>
+
+		<ExpectedResult>
+			<Text>TRUE</Text>
+		</ExpectedResult>
+	</TestStep>
+	
+	<TestStep>
+		<Command>
+			<Text>The tester causes the DUT to connect to the TLS server of [URL] for the second time.</Text>
+		</Command>
+		<ExpectedResult>
+			<Text>
+			The TLS server receives a ClientHello handshake message from the DUT.
+			</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The TLS ClientHello initiates session resumption via Session ID extension with the correct value.</Text>
+		</ExpectedResult>
+	</TestStep>
+	
+	<TestStep>
+		<Command>
+			<Text>The TLS server accepts session resumption.</Text>		
+		</Command>
+		<Description>Session resumption is performed.</Description>
+
+		<ExpectedResult>
+			<Text>Session resumption is executed without errors and the channel is established.</Text>
+		</ExpectedResult>
+	</TestStep>
+</TestCase>

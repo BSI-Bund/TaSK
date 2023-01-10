@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLS1.3_Parameter id="TR-03124-1-APPLICATION-SPECIFIC-PARAMETERS-EID-CLIENT-TLS-2-TLS1.3">
+	<Metadata>
+		<Title>Application specific TLS 1.3 eID-Client recommendations for TLS-2 according to TR-03124-1</Title>
+		<Version>1.0</Version>
+			<References>
+				<Reference>TR-03124-1</Reference>
+			</References>
+	</Metadata>
+
+</TLS1.3_Parameter>

@@ -1,0 +1,12 @@
+--- a/library/debug.c	2016-01-04 22:26:36 +0000
++++ b/library/debug.c	2016-06-01 15:18:38 +0000
+@@ -157,9 +157,6 @@
+     memset( txt, 0, sizeof( txt ) );
+     for( i = 0; i < len; i++ )
+     {
+-        if( i >= 4096 )
+-            break;
+-
+         if( i % 16 == 0 )
+         {
+             if( i > 0 )

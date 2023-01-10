@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema for a Test Run Plan of the TaSK Tool. This is based on the TR-03116-TS Chapter 4 to Chapter 6. 
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="TestRunPlan">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="TestRunPlanGenerationTime" type="xsd:string" minOccurs="1" maxOccurs="1" />
+				
+				<xsd:element name="TestConfiguration" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="ApplicationType" minOccurs="0" maxOccurs="1" type="xsd:string" />
+							<xsd:element name="URL" minOccurs="0" maxOccurs="1" type="xsd:string" />
+							<!-- A port to use to establish a connection to the DUT/ TLS server -->
+							<xsd:element name="Port" minOccurs="0" maxOccurs="1" type="xsd:string" />
+							<xsd:element name="DUTExecutable" type="xsd:string" minOccurs="0" maxOccurs="1" />
+							<xsd:element name="DUTCallArguments" type="DUTCallArguments" minOccurs="0" maxOccurs="1" />
+							<xsd:element name="ApplicationSpecificData" type="AppSpecificData" minOccurs="0" maxOccurs="1" />
+							<xsd:element name="DUTCapabilities" type="DUTCapabilities" minOccurs="0" maxOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<!--  The MICS file used to generate this Test Run Plan. -->
+				<xsd:element name="MICSInfo" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<!-- The Title of the MICS file. -->
+							<xsd:element name="Name" type ="xsd:string" minOccurs="1" maxOccurs="1"/>
+							<!-- The Version of the MICS file. -->
+							<xsd:element name="Description" type ="xsd:string" minOccurs="1" maxOccurs="1"/>
+							<!-- The Path of the MICS file. -->
+							<xsd:element name="PathToFile" type ="xsd:string" minOccurs="1" maxOccurs="1"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				
+				<!-- The TestSetup parameters for the DUT. -->
+				<xsd:element name="TlsConfiguration" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+						
+							<!-- List of TlsVersions to test. -->
+							<xsd:element name="TlsVersions" minOccurs="1" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<!-- The Name and support status of a single TLS version. -->
+										<xsd:element name="TlsVersion" minOccurs="1" maxOccurs="unbounded">
+											<xsd:complexType>
+												<xsd:simpleContent>
+													<xsd:extension base="xsd:string">
+														<xsd:attribute name="supported" use="required" type="xsd:boolean" />
+													</xsd:extension>
+												</xsd:simpleContent>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+						
+							<!-- List of supported cipher suites to test. -->
+							<xsd:element name="SupportedCipherSuites" minOccurs="1" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<!-- The Name and Identifier of a single supported cipher suite. -->
+										<xsd:element name="CipherSuite" minOccurs="1" maxOccurs="unbounded">
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+												</xsd:sequence>
+												<xsd:attribute name="tlsVersion" use="required">
+													<xsd:simpleType>
+														<xsd:restriction base="xsd:string">
+															<xsd:enumeration value="SSLv2/v3" />
+															<xsd:enumeration value="TLSv1.0" />
+															<xsd:enumeration value="TLSv1.1" />
+															<xsd:enumeration value="TLSv1.2" />
+															<xsd:enumeration value="TLSv1.3" />
+														</xsd:restriction>
+													</xsd:simpleType>
+												</xsd:attribute>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+						
+							<!-- List of supported ECC / DH Groups to test. -->
+							<xsd:element name="TlsSupportedGroups" minOccurs="1" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<!-- The Name and Identifier of a single supported ECC/DH Group. -->
+										<xsd:element name="Group" minOccurs="0" maxOccurs="unbounded">
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+												</xsd:sequence>
+												<xsd:attribute name="tlsVersion" use="required">
+													<xsd:simpleType>
+														<xsd:restriction base="xsd:string">
+															<xsd:enumeration value="SSLv2/v3" />
+															<xsd:enumeration value="TLSv1.0" />
+															<xsd:enumeration value="TLSv1.1" />
+															<xsd:enumeration value="TLSv1.2" />
+															<xsd:enumeration value="TLSv1.3" />
+														</xsd:restriction>
+													</xsd:simpleType>
+												</xsd:attribute>
+												<xsd:attribute name="supported" use="required" type="xsd:boolean" />
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							
+							<!-- List of supported Signature Algorithms to test. -->
+							<xsd:element name="SupportedSignatureAlgorithms" minOccurs="1" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<!-- The Name and Identifier of a single supported Signature Algorithm. -->
+										<xsd:element name="SignatureAlgorithm" minOccurs="1" maxOccurs="unbounded">
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+													<xsd:element name="HashName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+												</xsd:sequence>
+												<xsd:attribute name="tlsVersion" use="required">
+													<xsd:simpleType>
+														<xsd:restriction base="xsd:string">
+															<xsd:enumeration value="SSLv2/v3" />
+															<xsd:enumeration value="TLSv1.0" />
+															<xsd:enumeration value="TLSv1.1" />
+															<xsd:enumeration value="TLSv1.2" />
+															<xsd:enumeration value="TLSv1.3" />
+														</xsd:restriction>
+													</xsd:simpleType>
+												</xsd:attribute>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							
+							<!-- List of supported Signature Algorithms for Certificates to test. -->
+							<xsd:element name="SupportedSignatureAlgorithmsCertificate" minOccurs="1" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<!-- The Name and Identifier of a single supported Signature Algorithm. -->
+										<xsd:element name="SignatureAlgorithm" minOccurs="0" maxOccurs="unbounded">
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+												</xsd:sequence>
+												<xsd:attribute name="tlsVersion" use="required">
+													<xsd:simpleType>
+														<xsd:restriction base="xsd:string">
+															<xsd:enumeration value="SSLv2/v3" />
+															<xsd:enumeration value="TLSv1.0" />
+															<xsd:enumeration value="TLSv1.1" />
+															<xsd:enumeration value="TLSv1.2" />
+															<xsd:enumeration value="TLSv1.3" />
+														</xsd:restriction>
+													</xsd:simpleType>
+												</xsd:attribute>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							
+							<!--  Supported TLS Extensions -->
+							<xsd:element name="SupportedExtensions" minOccurs="1" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="Extension" minOccurs="0" maxOccurs="unbounded">
+											<xsd:complexType>
+												<xsd:simpleContent>
+													<xsd:extension base="xsd:string">
+														<xsd:attribute name="tlsVersion" use="required">
+															<xsd:simpleType>
+																<xsd:restriction base="xsd:string">
+																	<xsd:enumeration value="SSLv2/v3" />
+																	<xsd:enumeration value="TLSv1.0" />
+																	<xsd:enumeration value="TLSv1.1" />
+																	<xsd:enumeration value="TLSv1.2" />
+																	<xsd:enumeration value="TLSv1.3" />
+																</xsd:restriction>
+															</xsd:simpleType>
+														</xsd:attribute>
+													</xsd:extension>
+												</xsd:simpleContent>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							
+							<!-- The KeyLengths to test. -->
+							<xsd:element name="KeyLengths" minOccurs="1" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="RSA" type="KeyLengthType" minOccurs="1" maxOccurs="1"/>
+										<xsd:element name="DSA" type="KeyLengthType" minOccurs="1" maxOccurs="1"/>
+										<xsd:element name="DHE" type="KeyLengthType" minOccurs="1" maxOccurs="1"/>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+
+							
+							<xsd:element name="TlsWithPSK" minOccurs="0" maxOccurs="1" >
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="PSKValue" type="xsd:hexBinary" minOccurs="1" maxOccurs="1"/>
+										<xsd:element name="PSKIdentityHintValue" type="xsd:string" minOccurs="0" maxOccurs="1" />
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							
+							<xsd:element name="InformationOnTR03145Certification" minOccurs="0" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="NameOfTheCA" type="xsd:string" minOccurs="1" maxOccurs="1" />
+										<xsd:element name="BSICertificateNumber" type="xsd:string" minOccurs="1" maxOccurs="1" />
+										<xsd:element name="Subject" type="xsd:string" minOccurs="1" maxOccurs="1" />
+										<xsd:element name="ValidityNotBefore" type="xsd:string" minOccurs="1" maxOccurs="1" />
+										<xsd:element name="ValidityNotAfter" type="xsd:string" minOccurs="1" maxOccurs="1" />
+										<xsd:element name="SubjectKeyIdentifier" type="xsd:string" minOccurs="1" maxOccurs="1" />
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							
+							
+							<!-- Maximum TLS Session Lifetime -->
+							<xsd:element name="TlsSessionLifetime" minOccurs="1" maxOccurs="1" type="xsd:string" />
+							<!-- Zero Roundtrip Data Support -->
+							<xsd:element name="ZeroRTTSupport" minOccurs="0" maxOccurs="1" type="xsd:boolean" />
+							
+							<xsd:element name="TLSCertificates" minOccurs="0" maxOccurs="1">
+								<xsd:complexType>
+									<xsd:sequence>
+										<!-- Table 16 -->
+										<xsd:element name="CertificateChain" minOccurs="1" maxOccurs="1">
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="Certificate" minOccurs="1" maxOccurs="unbounded">
+														<xsd:complexType>
+															<xsd:sequence>
+																<xsd:element name="Subject" type="xsd:string" minOccurs="1" maxOccurs="1" />
+																<xsd:element name="Fingerprint" type="xsd:hexBinary" minOccurs="1" maxOccurs="1" />
+															</xsd:sequence>
+															<xsd:attribute name="type" use="required">
+																<xsd:simpleType>
+																		<xsd:restriction base="xsd:string">
+																			<xsd:enumeration value="RootCACertificate" />
+																			<xsd:enumeration value="IntermediateCertificate" />
+																			<xsd:enumeration value="EndEntityCertificate" />
+																		</xsd:restriction>
+																</xsd:simpleType>
+															</xsd:attribute>
+														</xsd:complexType>
+													</xsd:element>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+										<!-- Table 17 -->
+										<xsd:element name="ServerDomains" minOccurs="0" maxOccurs="1">
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="SubDomain" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				
+				<!-- The test cases to execute for this DUT. -->
+				<xsd:element name="TestCases" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<!-- A single TestCase, identified by the ID. -->
+							<xsd:element name="TestCase" type ="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	
+	<xsd:complexType name="KeyLengthType">
+		<xsd:sequence>
+			<xsd:element name="KeyLength" minOccurs="1" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:simpleContent>
+						<xsd:extension base="xsd:int">
+							<xsd:attribute name="supported" use="required" type="xsd:boolean" />
+							<xsd:attribute name="tlsVersion" use="required">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:string">
+									<xsd:enumeration value="SSLv2/v3" />
+									<xsd:enumeration value="TLSv1.0" />
+									<xsd:enumeration value="TLSv1.1" />
+									<xsd:enumeration value="TLSv1.2" />
+									<xsd:enumeration value="TLSv1.3" />
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+						</xsd:extension>
+					</xsd:simpleContent>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<!-- ApplicationSpecificData: e.g. TLS client certificate for the test of client authentication -->
+	<xsd:complexType name="AppSpecificData">
+		<xsd:sequence>
+			<!-- Table 16 -->
+			<xsd:element name="TestClientCertificate" minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="CertificateFile" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="CertificatePrivateKey" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- DUTCallArguments: -->
+	<xsd:complexType name="DUTCallArguments">
+		<xsd:sequence>
+			<xsd:element name="StartConnectionArguments" type="xsd:string" minOccurs="1" maxOccurs="1" />
+			<xsd:element name="ResumeConnectionArguments" type="xsd:string" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="EIDClientPort" type="xsd:int" minOccurs="0" maxOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="DUTCapabilities" >
+			<xsd:sequence>
+				<xsd:element name="Capability" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

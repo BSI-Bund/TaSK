@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLS1.2_Parameter id="TR-03124-1-APPLICATION-SPECIFIC-PARAMETERS-EID-CLIENT-TLS-2-TLS1.2">
+	<Metadata>
+		<Title>Application specific TLS 1.2 eID-Client recommendations for TLS-2 according to TR-03124-1</Title>
+		<Version>1.0</Version>
+			<References>
+				<Reference>TR-03124-1</Reference>
+			</References>
+	</Metadata>
+
+	<!-- Chapter 4.5 -->
+	<CipherSuites reference="4.5" full-list="true">
+		<CipherSuite use="required" priority="0">
+			<Description>TLS_RSA_PSK_WITH_AES_256_CBC_SHA</Description>
+			<Value>0xC0,0x23</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite use="optional" priority="0">
+			<Description>TLS_RSA_PSK_WITH_AES_128_CBC_SHA256</Description>
+			<Value>0x00,0xB6</Value>
+			<Reference>RFC5487</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite use="optional" priority="0">
+			<Description>TLS_RSA_PSK_WITH_AES_256_CBC_SHA384</Description>
+			<Value>0x00,0xB7</Value>
+			<Reference>RFC5487</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite use="optional" priority="0">
+			<Description>TLS_RSA_PSK_WITH_AES_128_GCM_SHA256</Description>
+			<Value>0x00,0xAC</Value>
+			<Reference>RFC5487</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite use="optional" priority="0">
+			<Description>TLS_RSA_PSK_WITH_AES_256_GCM_SHA384</Description>
+			<Value>0x00,0xAD</Value>
+			<Reference>RFC5487</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+	</CipherSuites>
+
+	<!-- TR-03116-4 Chapter 2.2.2 -->
+	<!-- Table 5 -->
+	<!-- Out of a discussion with the BSI this should be optional in the case of RSA_PSK Ciphersuites such as here.-->
+	<Supported_Groups use="optional" reference="2.2.2">
+		<DHGroup>
+			<Description>secp256r1</Description>
+			<Value>23</Value>
+			<Reference>RFC8422</Reference>
+			<UseUntil>2028+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>brainpoolP256r1</Description>
+			<Value>26</Value>
+			<Reference>RFC7027</Reference>
+			<UseUntil>2028+</UseUntil>
+		</DHGroup>
+	</Supported_Groups>
+
+	<!-- Chapter 2.2.3.1 -->
+	<!-- Table 6 -->
+	<!-- Footnote 3.-->
+	<SignatureAlgorithms use="optional" reference="2.2.3.1">
+		<SignatureAlgorithm>
+			<SignatureAlgorithmName>ecdsa</SignatureAlgorithmName>
+			<SignatureAlgorithmValue>3</SignatureAlgorithmValue>
+			<DigestAlgorithmName>sha256</DigestAlgorithmName>
+			<DigestAlgorithmValue>4</DigestAlgorithmValue>
+			<Reference>RFC5246</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureAlgorithm>
+	</SignatureAlgorithms>
+
+</TLS1.2_Parameter>		

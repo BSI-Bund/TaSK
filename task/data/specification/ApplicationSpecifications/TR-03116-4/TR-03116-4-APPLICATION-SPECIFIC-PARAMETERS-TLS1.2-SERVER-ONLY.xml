@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLS1.2_Parameter id="TR-03116-4-APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-SERVER-ONLY">
+	
+	<Metadata>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-03116-4</Reference>
+		</References>
+	</Metadata>
+	
+	<!-- Chapter 2.2.1.2 -->
+	<!-- Table 2 -->
+	<!-- TLS servers must have at least one certificate that contains a public key for ECDSA or RSA. Unless a TLS server has two certificates, i.e., one for each key type, the use of ECDSA keys is recommended.-->
+	<CipherSuites use="atLeastOne" reference="2.2.1.2">
+		<CipherSuite>
+			<Description>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</Description>
+			<Value>0xC0,0x23</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</Description>
+			<Value>0xC0,0x2B</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2028+</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256</Description>
+			<Value>0xC0,0x27</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2026</UseUntil>
+		</CipherSuite>
+		<CipherSuite>
+			<Description>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</Description>
+			<Value>0xC0,0x2F</Value>
+			<Reference>RFC5289</Reference>
+			<UseUntil>2028+</UseUntil>
+		</CipherSuite>
+	</CipherSuites>
+</TLS1.2_Parameter>

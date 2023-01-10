@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLS1.3_Parameter id="TR-03116-4-APPLICATION-SPECIFIC-PARAMETERS-TLS1.3">
+	<Metadata>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-03116-4</Reference>
+		</References>
+	</Metadata>
+	
+	<!-- Chapter 2.3.1 -->
+	<HandshakeModes reference="2.3.1">
+		<HandshakeMode use="required">ECDHE</HandshakeMode>
+		<HandshakeMode use="required">DHE</HandshakeMode>
+		<HandshakeMode use="required" support="SessionResumption">PSK-ECDHE</HandshakeMode>
+		<HandshakeMode use="required" support="SessionResumption">PSK-DHE</HandshakeMode>
+		<HandshakeMode use="forbidden">0-RTTData</HandshakeMode>
+	</HandshakeModes>
+		
+	<!-- Chapter 2.3.2 -->
+	<!-- Table 7 -->
+	<CipherSuites use="required" reference="2.3.2">
+		<CipherSuite>
+			<Description>TLS_AES_128_GCM_SHA256</Description>
+			<Value>0x13,0x01</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</CipherSuite>	
+	</CipherSuites>
+	
+	<!-- Chapter 2.3.3 -->
+	<!-- Table 8 -->
+	<Supported_Groups use="required" reference="2.3.3">
+		<DHGroup>
+			<Description>secp256r1</Description>
+			<Value>23</Value>
+			<Reference>RFC8422</Reference>
+			<UseUntil>2028+</UseUntil>
+		</DHGroup>
+		<DHGroup>
+			<Description>brainpoolP256r1tls13</Description>
+			<Value>31</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2028+</UseUntil>
+		</DHGroup>		
+	</Supported_Groups>
+	
+	<!-- Chapter 2.3.4.1 -->
+	<!-- Table 9 -->
+	<SignatureAlgorithmsHandshake use="required" reference="2.3.4.1">
+		<SignatureScheme>
+			<Description>ecdsa_secp256r1_sha256</Description>
+			<Value>0x0403</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP256r1tls13_sha256</Description>
+			<Value>0x081A</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha256</Description>
+			<Value>0x0804</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha256</Description>
+			<Value>0x0809</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+	</SignatureAlgorithmsHandshake>
+	
+	<!-- Chapter 2.3.4.2 -->
+	<!-- Table 10 -->
+	<SignatureAlgorithmsCertificate use="required" reference="2.3.4.2">
+		<SignatureScheme>
+			<Description>rsa_pkcs1_sha256</Description>
+			<Value>0x0401</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2025</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pkcs1_sha384</Description>
+			<Value>0x0501</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2025</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha256</Description>
+			<Value>0x0804</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_pss_sha256</Description>
+			<Value>0x0809</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>rsa_pss_rsae_sha384</Description>
+			<Value>0x0805</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_secp256r1_sha256</Description>
+			<Value>0x0403</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP256r1tls13_sha256</Description>
+			<Value>0x081A</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_secp384r1_sha384</Description>
+			<Value>0x0503</Value>
+			<Reference>RFC8446</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+		<SignatureScheme>
+			<Description>ecdsa_brainpoolP384r1tls13_sha384</Description>
+			<Value>0x081B</Value>
+			<Reference>RFC8734</Reference>
+			<UseUntil>2028+</UseUntil>
+		</SignatureScheme>
+	</SignatureAlgorithmsCertificate>
+	
+</TLS1.3_Parameter>
+
+	

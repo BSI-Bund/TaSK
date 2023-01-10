@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema for an Application Mapping.
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="ApplicationMapping">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="Title" type="xsd:string" minOccurs="1" maxOccurs="1" />
+				<xsd:element name="Version" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="Description" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="Reference" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+				<xsd:element name="ApplicationSpecificInspectionInstructions" type="AppSpecInspInst" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="Profiles" type="Profiles" minOccurs="1" maxOccurs="1" />
+				<xsd:element name="ICSSections" type="ICSSections" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:string" use="required" />
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:complexType name="AppSpecInspInst">
+		<xsd:sequence>
+				<xsd:element name="Text" type="xsd:string" minOccurs="1" maxOccurs="1" />
+				<xsd:element name="BaseSpecification" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="Profiles">
+		<xsd:sequence>
+			<xsd:element name="MandatoryProfiles" type="ProfileList" minOccurs="1" maxOccurs="1" />
+			<xsd:element name="RecommendedProfiles" type="ProfileList" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="ProfileList">
+		<xsd:sequence>
+			<xsd:element name="Profile" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="ICSSections">
+		<xsd:sequence>
+			<xsd:element name="MandatoryICSSections" type="SectionList" minOccurs="1" maxOccurs="1" />
+			<xsd:element name="OptionalICSSections" type="SectionList" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="SectionList">
+		<xsd:sequence>
+			<xsd:element name="Section" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:complexType>
+	
+</xsd:schema>

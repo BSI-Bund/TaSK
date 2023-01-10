@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationMapping id="TR-03116-4-SERVER">
+	<Title>TLS Servers according to TR-03116-4</Title>
+	<Version>1.0</Version>
+	<Description>This mapping describes a common TLS server according to part 4 of [TR-03116] which does not necessarily adhere to any additional application specific requirements.</Description>
+	<Reference>TR-03116-4</Reference>
+	<ApplicationSpecificInspectionInstructions>
+		<Text>By definition, for general TLS server applications, no deviations from part 4 of [TR-03116] apply.</Text>
+		<BaseSpecification>TR-03116-4-APPLICATION-SPECIFIC-PARAMETERS-TLS-SERVER</BaseSpecification>
+	</ApplicationSpecificInspectionInstructions>
+	<Profiles>
+		<MandatoryProfiles>
+			<Profile>CHECK_CERTS</Profile>
+			<Profile>ECC</Profile>
+			<Profile>ENC_THEN_MAC</Profile>
+			<Profile>INTERIM_SUITES_SRV</Profile>
+			<Profile>OCSP_STAPLING</Profile>
+			<Profile>SERVER_CERT</Profile>
+			<Profile>SUPP_GROUPS</Profile>
+			<Profile>TLS_1.2</Profile>
+			<Profile>TLS_SERVER</Profile>
+		</MandatoryProfiles>
+		<RecommendedProfiles>
+			<Profile>CERTIFIED_CA</Profile>
+			<Profile>DURATION</Profile>
+			<Profile>NO_COMPRESSION</Profile>
+			<Profile>NO_HEARTBEAT</Profile>
+			<Profile>NO_RENEGOTIATION</Profile>
+			<Profile>NO_TRUNC_HMAC</Profile>
+			<Profile>OCSP_STAPLING</Profile>
+			<Profile>PFS</Profile>
+			<Profile>SESSION_ID</Profile>
+			<Profile>SESSION_TICKET</Profile>
+			<Profile>NO_CLIENT_CERT</Profile> <!-- This is not the in the current (11.03.22) version of the TR, but is required to actually get some testcases. -->
+		</RecommendedProfiles>
+	</Profiles>
+	<ICSSections>
+		<MandatoryICSSections>
+			<Section>3.1</Section>
+			<Section>3.2</Section>
+			<Section>3.3</Section>
+			<Section>3.4</Section>
+			<Section>3.6</Section>
+			<Section>3.7</Section>
+			<Section>3.8</Section>
+		</MandatoryICSSections>
+	</ICSSections>
+</ApplicationMapping>

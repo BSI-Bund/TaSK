@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Please include the following ENTITY definitions in the root document which uses this file. And change the paths accordingly.
+<!DOCTYPE tr-02102-2 [
+<!ENTITY TLS1.2-PARAMETERS SYSTEM "TR-02102-2-TLS1.2-PARAMETERS.xml">
+<!ENTITY TLS1.3-PARAMETERS SYSTEM "TR-02102-2-TLS1.3-PARAMETERS.xml">
+<!ENTITY TLS-MINIMUM-KEY-LENGTH SYSTEM "TR-02102-2-TLS-MINIMUM-KEY-LENGTH.xml">
+<!ENTITY TLS-ELLIPTIC-CURVES SYSTEM "TR-02102-2-TLS-ELLIPTIC-CURVES.xml">
+]>
+-->
+
+<TLSSpecification id="TR-02102-2">
+	
+	<Metadata>
+		<Title>Requirements for TLS Parameters according to TR-02102-2</Title>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-02102-2</Reference>
+		</References>
+	</Metadata>
+	
+	<FurtherSpecifications>
+		<TLSVersions use="atLeastOne">
+			<TLSVersion>TLSv1.2</TLSVersion>
+			<TLSVersion>TLSv1.3</TLSVersion>
+		</TLSVersions>
+		
+		<!-- Include all the TLS parameters from TR-02102-2 -->
+		&TLS1.2-PARAMETERS;
+		&TLS1.3-PARAMETERS;
+		&TLS-MINIMUM-KEY-LENGTH;
+		&TLS-ELLIPTIC-CURVES;	
+	</FurtherSpecifications>
+	
+</TLSSpecification>

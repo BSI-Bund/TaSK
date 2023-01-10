@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationMapping id="TR-03130-1-AM-TLS-EID-SERVER-EID-INTERFACE">
+	<Title>TLS eID-Server mapping for the eID Interface according to TR-03130-1</Title>
+	<Version>1.0</Version>
+	<Description></Description>
+	<Reference>TR-03130-1</Reference>
+	<ApplicationSpecificInspectionInstructions>
+		<Text>The eID-Server application is defined in [TR-03130-1]. For the TLS part it relies on the definitions from part 4 of [TR-03116]. However, it does not specify any deviations from those requirements for TLS.</Text>
+		<BaseSpecification></BaseSpecification>
+		<!-- . -->
+		<!-- . -->
+		<!-- . -->
+		<!-- . -->
+		<!-- . -->
+		<!-- special cases TODO -->
+	</ApplicationSpecificInspectionInstructions>
+	<Profiles>
+		<MandatoryProfiles>
+			<Profile>CHECK_CERTS</Profile>
+			<Profile>INTERIM_SUITES_SRV</Profile>
+			<Profile>NO_CLIENT_CERT</Profile>
+			<Profile>PFS</Profile>
+			<Profile>TLS_1.2</Profile>
+			<Profile>TLS_SERVER</Profile>
+		</MandatoryProfiles>
+		<RecommendedProfiles>
+			<Profile>ECC</Profile>
+			<Profile>ENC_THEN_MAC</Profile>
+			<Profile>SESSION_ID</Profile>
+			<Profile>SESSION_TICKET</Profile>
+			<Profile>TLS_1.3</Profile>
+		</RecommendedProfiles>
+	</Profiles>
+	<ICSSections>
+		<MandatoryICSSections>
+			<Section>3.1</Section>
+			<Section>3.2</Section>
+			<Section>3.3</Section>
+			<Section>3.6</Section>
+			<Section>3.8</Section>
+		</MandatoryICSSections>
+		<OptionalICSSections>
+			<Section>3.4</Section>
+			<Section>3.7</Section>
+		</OptionalICSSections>
+	</ICSSections>
+</ApplicationMapping>

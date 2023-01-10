@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TestRunPlan>
+    <TestRunPlanGenerationTime>2022-12-06T13:34:51</TestRunPlanGenerationTime>
+    <TestConfiguration>
+        <ApplicationType>TR-03124-1-EID-CLIENT-TLS-2</ApplicationType>
+        <URL></URL>
+        <Port></Port>
+        <DUTExecutable>/usr/bin/AusweisApp2</DUTExecutable>
+        <DUTCallArguments>
+            <StartConnectionArguments></StartConnectionArguments>
+            <ResumeConnectionArguments></ResumeConnectionArguments>
+        </DUTCallArguments>
+        <DUTCapabilities>
+            <Capability>SESSION_TICKET</Capability>
+            <Capability>SESSION_ID</Capability>
+        </DUTCapabilities>
+    </TestConfiguration>
+    <MICSInfo>
+        <Name>Test Application - eID-Client TLS-2 channel</Name>
+        <Description>This is an example ICS that will be used as the input to the TaSK test framework.</Description>
+        <PathToFile>/path/to/task/data/input/ExampleMICS_eID-Client-TLS-2.xml</PathToFile>
+    </MICSInfo>
+    <TlsConfiguration>
+        <TlsVersions>
+            <TlsVersion supported="false">SSLv2/v3</TlsVersion>
+            <TlsVersion supported="false">TLSv1.0</TlsVersion>
+            <TlsVersion supported="false">TLSv1.1</TlsVersion>
+            <TlsVersion supported="true">TLSv1.2</TlsVersion>
+            <TlsVersion supported="false">TLSv1.3</TlsVersion>
+        </TlsVersions>
+        <SupportedCipherSuites>
+            <CipherSuite tlsVersion="TLSv1.2">
+                <Name>TLS_RSA_PSK_WITH_AES_256_GCM_SHA384</Name>
+            </CipherSuite>
+            <CipherSuite tlsVersion="TLSv1.2">
+                <Name>TLS_RSA_PSK_WITH_AES_256_CBC_SHA384</Name>
+            </CipherSuite>
+            <CipherSuite tlsVersion="TLSv1.2">
+                <Name>TLS_RSA_PSK_WITH_AES_128_GCM_SHA256</Name>
+            </CipherSuite>
+            <CipherSuite tlsVersion="TLSv1.2">
+                <Name>TLS_RSA_PSK_WITH_AES_128_CBC_SHA256</Name>
+            </CipherSuite>
+            <CipherSuite tlsVersion="TLSv1.2">
+                <Name>TLS_RSA_PSK_WITH_AES_256_CBC_SHA</Name>
+            </CipherSuite>
+        </SupportedCipherSuites>
+        <TlsSupportedGroups>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>secp192r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>secp224r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>secp256r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>brainpoolP256r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>secp384r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>brainpoolP384r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>secp521r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>brainpoolP512r1</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe2048</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe3072</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe4096</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe6144</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe8192</Name>
+            </Group>
+        </TlsSupportedGroups>
+        <SupportedSignatureAlgorithms>
+            <SignatureAlgorithm tlsVersion="TLSv1.2">
+                <Name>rsa</Name>
+                <HashName>sha256</HashName>
+            </SignatureAlgorithm>
+            <SignatureAlgorithm tlsVersion="TLSv1.2">
+                <Name>rsa</Name>
+                <HashName>sha512</HashName>
+            </SignatureAlgorithm>
+            <SignatureAlgorithm tlsVersion="TLSv1.2">
+                <Name>rsa</Name>
+                <HashName>sha384</HashName>
+            </SignatureAlgorithm>
+            <SignatureAlgorithm tlsVersion="TLSv1.2">
+                <Name>rsa</Name>
+                <HashName>sha224</HashName>
+            </SignatureAlgorithm>
+        </SupportedSignatureAlgorithms>
+        <SupportedSignatureAlgorithmsCertificate/>
+        <SupportedExtensions>
+            <Extension tlsVersion="TLSv1.2">encrypt_then_mac</Extension>
+            <Extension tlsVersion="TLSv1.2">SessionTicket TLS</Extension>
+            <Extension tlsVersion="TLSv1.2">extended_master_secret</Extension>
+            <Extension tlsVersion="TLSv1.2">signature_algorithms</Extension>
+            <Extension tlsVersion="TLSv1.2">server_name</Extension>
+            <Extension tlsVersion="TLSv1.2">status_request</Extension>
+        </SupportedExtensions>
+        <KeyLengths>
+            <RSA>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">1024</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">1536</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">2048</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">3072</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">4096</KeyLength>
+            </RSA>
+            <DSA>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">1024</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">1536</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">2048</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">3072</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">4096</KeyLength>
+            </DSA>
+            <DHE>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">1024</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">1536</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">2048</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">3072</KeyLength>
+                <KeyLength supported="false" tlsVersion="TLSv1.2">4096</KeyLength>
+            </DHE>
+        </KeyLengths>
+        <TlsWithPSK>
+            <PSKValue>B2A1B2D4C3</PSKValue>
+        </TlsWithPSK>
+        <TlsSessionLifetime>PT5M</TlsSessionLifetime>
+        <ZeroRTTSupport>false</ZeroRTTSupport>
+    </TlsConfiguration>
+    <TestCases>
+        <TestCase>TLS_A1_GP_01_T</TestCase>
+        <TestCase>TLS_A1_GP_02_T</TestCase>
+        <TestCase>TLS_A1_GP_04</TestCase>
+        <TestCase>TLS_A1_GP_05</TestCase>
+        <TestCase>TLS_A1_FR_04_T</TestCase>
+        <TestCase>TLS_A1_FR_10</TestCase>
+        <TestCase>TLS_A1_FR_11</TestCase>
+        <TestCase>TLS_A1_FR_12_T</TestCase>
+        <TestCase>TLS_A1_CH_01</TestCase>
+        <TestCase>TLS_A1_CH_02</TestCase>
+        <TestCase>TLS_A1_CH_03</TestCase>
+        <TestCase>TLS_A1_CH_04</TestCase>
+        <TestCase>TLS_A1_CH_06_T</TestCase>
+        <TestCase>TLS_A1_CH_07</TestCase>
+        <TestCase>TLS_A1_CH_08</TestCase>
+        <TestCase>TLS_A1_CH_09</TestCase>
+    </TestCases>
+</TestRunPlan>

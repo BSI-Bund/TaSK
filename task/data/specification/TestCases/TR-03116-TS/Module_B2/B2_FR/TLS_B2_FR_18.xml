@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
+<TestCase id="TLS_B2_FR_18" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
+	<Title>Test case TLS_B2_FR_18</Title>
+	<Version>1.0</Version>
+	<Purpose>This test checks the behaviour of the DUT in case TLS client authentication fails. The client does not send a client certificate during the handshake.</Purpose>
+	<Profile>TLS_SERVER</Profile>
+	<Profile>SERVER_CERT</Profile>
+	<Profile>CLIENT_CERT</Profile>
+	<Reference>RFC 5246</Reference>
+	<Reference>RFC 4492</Reference>
+	<Precondition>DUT services are online without any known disturbances.</Precondition>
+	<Precondition>The DUT is accepting TLS connections.</Precondition>
+
+	<TestStep>
+		<Command>
+			<Text>The tester connects to the DUT.</Text>
+		</Command>
+		<Description>The TLS ClientHello offers the highest TLS version supported according to the ICS.</Description>
+		<Description>The TLS ClientHello offers a cipher suite that is supported according to the ICS.</Description>
+		<Description>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate extension according to the ICS.</Description>
+		<Description>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all algorithms that are supported according to the ICS are listed.</Description>
+		<Description>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.</Description>
+		<ExpectedResult>
+			<Text>The DUT accepts the ClientHello.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>It requests client authentication.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The DUT supplies a certificate.</Text>
+		</ExpectedResult>
+	</TestStep>
+	<TestStep>
+		<Command>
+			<Text>The TLS client supplies an empty client certificate message.</Text>
+		</Command>		
+		<ExpectedResult>
+			<Text>The DUT does not accept the certificate and sends a "bad_certificate" alert or another suitable error description.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>No TLS channel is established.</Text>
+		</ExpectedResult>
+
+	</TestStep>
+</TestCase>

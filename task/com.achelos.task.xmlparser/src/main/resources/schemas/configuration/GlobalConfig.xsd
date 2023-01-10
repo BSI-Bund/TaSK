@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 (http://www.altova.com) by n.n. (gematik) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="configuration">
+		<xs:annotation>
+			<xs:documentation>Configuration file </xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="parameters">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:choice>
+										<xs:sequence>
+											<xs:element name="int" type="xs:int" minOccurs="1" maxOccurs="unbounded"/>
+										</xs:sequence>
+										<xs:sequence>
+											<xs:element name="boolean" type="xs:boolean" minOccurs="1" maxOccurs="unbounded"/>
+										</xs:sequence>
+										<xs:sequence>
+											<xs:element name="hexstring" type="xs:hexBinary" minOccurs="1" maxOccurs="unbounded"/>
+										</xs:sequence>
+										<xs:sequence>
+											<xs:element name="file" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+										</xs:sequence>
+										<xs:sequence>
+											<xs:element name="string" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+										</xs:sequence>
+									</xs:choice>
+									<xs:attribute name="id" type="xs:string" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

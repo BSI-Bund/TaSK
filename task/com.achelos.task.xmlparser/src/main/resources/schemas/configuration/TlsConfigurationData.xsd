@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema for a Configuration containing Lists of parameters to be supported by the testing environment. See Tables 20-22 in the BSI-TR-03116-TS document. 
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="TlsConfigurationData">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="TlsVersions" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="TlsVersion" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="NamedCurves" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="NamedCurve" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="RSA_DSA_DHE_KeyLengths" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="RSA_DSA_DHE_KeyLength" type="xsd:positiveInteger" minOccurs="1" maxOccurs="unbounded" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

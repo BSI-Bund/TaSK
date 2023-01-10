@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationMapping id="TR-03116-3-AM-TLS-SMART-METERING-LMN-SERVER">
+	<Title>TLS server mapping for the HAN interface according to TR-03116-3</Title>
+	<Version>1.0</Version>
+	<Description>Within the Smart Metering infrastructure, the communication infrastructure distinguishes between different interfaces. Depending on the particular interface, smartmeter gateways and communication partners act as TLS server or as TLS client.</Description>
+	<Reference>TR-03116-3</Reference>
+	<ApplicationSpecificInspectionInstructions>
+		<Text>The application specific crypto requirements are defined in part 3 of [TR-03116]. This also includes the definitions for TLS.</Text>
+		<BaseSpecification></BaseSpecification>
+	</ApplicationSpecificInspectionInstructions>
+	<Profiles>
+		<MandatoryProfiles>
+			<Profile>CHECK_CERTS</Profile>
+			<Profile>CLIENT_CERT</Profile>
+			<Profile>DURATION</Profile>
+			<Profile>ECC</Profile>
+			<Profile>NO_COMPRESSION</Profile>
+			<Profile>NO_RENEGOTIATION</Profile>
+			<Profile>NO_TRUNC_HMAC</Profile>
+			<Profile>PFS</Profile>
+			<Profile>SERVER_CERT</Profile>
+			<Profile>TLS_SERVER</Profile>
+			<Profile>TLS_1.2</Profile>
+		</MandatoryProfiles>
+		<RecommendedProfiles>
+			<Profile>ENC_THEN_MAC</Profile>
+			<Profile>EXT_MASTER_SECRET</Profile>
+			<Profile>SESSION_ID</Profile>
+			<Profile>SESSION_TICKET</Profile>
+			<Profile>TLS_1.3</Profile>
+		</RecommendedProfiles>
+	</Profiles>
+	<ICSSections>
+		<MandatoryICSSections>
+			<Section>3.1</Section>
+			<Section>3.2</Section>
+			<Section>3.3</Section>
+			<Section>3.6</Section>
+			<Section>3.8</Section>
+		</MandatoryICSSections>
+		<OptionalICSSections>
+			<Section>3.7</Section>
+		</OptionalICSSections>
+	</ICSSections>
+</ApplicationMapping>

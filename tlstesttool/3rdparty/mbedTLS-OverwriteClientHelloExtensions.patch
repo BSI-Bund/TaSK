@@ -1,0 +1,37 @@
+--- a/include/mbedtls/ssl.h	2016-01-04 22:26:36 +0000
++++ b/include/mbedtls/ssl.h	2016-05-23 08:29:49 +0000
+@@ -637,6 +637,8 @@
+ #if defined(MBEDTLS_SSL_FALLBACK_SCSV) && defined(MBEDTLS_SSL_CLI_C)
+     unsigned int fallback : 1;      /*!< is this a fallback?                */
+ #endif
++	const unsigned char *overwrite_extensions;    /*!< bytes for overwriting ClientHello.extensions */
++	size_t               overwrite_extensions_len;/*!< length of overwrite_extensions               */
+ };
+ 
+ 
+--- a/library/ssl_cli.c	2016-01-04 22:26:36 +0000
++++ b/library/ssl_cli.c	2016-05-23 08:45:31 +0000
+@@ -951,6 +951,15 @@
+ 
+     // First write extensions, then the total length
+     //
++	if( ssl->conf->overwrite_extensions != 0 )
++	{
++		memcpy( p + 2 + ext_len,
++				ssl->conf->overwrite_extensions,
++				ssl->conf->overwrite_extensions_len );
++		ext_len += ssl->conf->overwrite_extensions_len;
++	}
++	else
++	{
+ #if defined(MBEDTLS_SSL_SERVER_NAME_INDICATION)
+     ssl_write_hostname_ext( ssl, p + 2 + ext_len, &olen );
+     ext_len += olen;
+@@ -1010,6 +1019,7 @@
+     ssl_write_session_ticket_ext( ssl, p + 2 + ext_len, &olen );
+     ext_len += olen;
+ #endif
++	}
+ 
+     /* olen unused if all extensions are disabled */
+     ((void) olen);

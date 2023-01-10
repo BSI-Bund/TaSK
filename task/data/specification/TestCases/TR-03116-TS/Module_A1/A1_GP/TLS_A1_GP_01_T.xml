@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
+<TestCase id="TLS_A1_GP_01_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
+	<Title>Test case TLS_A1_GP_01_T</Title>
+	<Version>1.0</Version>
+	<Purpose>This positive test verifies that the offered TLS version, cipher suites, the order of the suites and extensions match the ICS. Furthermore, a TLS connection is possible. The test is carried out for the TLS version [TLS_VERSION] and the cipher suite [CIPHERSUITE].</Purpose>
+	<Profile>TLS_CLIENT</Profile>
+	<Profile>NO_CLIENT_CERT</Profile>
+	<Reference>TR-03116-4</Reference>
+	<Reference>RFC 5246</Reference>
+	<Reference>RFC 4492</Reference>
+	<Precondition>The test TLS server is waiting for incoming TLS connections on [URL].</Precondition>
+
+	<TestStep>
+		<Command>
+			<Text>The tester causes the DUT to connect to the TLS server on [URL].</Text>
+		</Command>
+		<ExpectedResult>
+			<Text>
+			The TLS server receives a ClientHello handshake message from the DUT.
+			</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The TLS ClientHello offers the highest TLS version stated in the ICS.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The TLS ClientHello offers all cipher suites stated in the ICS for this TLS version in specified order.</Text>
+		</ExpectedResult>
+		<ExpectedResult>
+			<Text>The TLS ClientHello offers only the extensions stated in the ICS that match the TLS version.</Text>
+		</ExpectedResult>
+
+	</TestStep>
+
+	<TestStep>
+		<Command>
+			<Text>The TLS server answers the DUT with the valid combination of [TLS_VERSION] and [CIPHERSUITE].</Text>		
+		</Command>
+		<Description>The TLS server supplies the certificate chain [CERT_DEFAULT].</Description>
+		<Description>No TLS extensions are supplied by the server which are not required to conduct the TLS handshake.</Description>
+
+		<ExpectedResult>
+			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
+		</ExpectedResult>
+
+	</TestStep>
+</TestCase>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestProfiles>
+	<!-- Test Profiles from BSI-TR-03116-TS Chapter 2.1 -->
+	<!-- General TLS Parameters -->
+	<ProfileId>CHECK_CERTS</ProfileId>
+	<ProfileId>CLIENT_CERT</ProfileId>
+	<ProfileId>ECC</ProfileId>
+	<ProfileId>INTERIM_SUITES_SRV</ProfileId>
+	<ProfileId>NO_CLIENT_CERT</ProfileId>
+	<ProfileId>PFS</ProfileId>
+	<ProfileId>FFDHE</ProfileId>
+	<ProfileId>PSK</ProfileId>
+	<ProfileId>SERVER_CERT</ProfileId>
+	<ProfileId>TLS_1.2</ProfileId>
+	<ProfileId>TLS_1.3</ProfileId>
+	<ProfileId>TLS_CLIENT</ProfileId>
+	<ProfileId>TLS_SERVER</ProfileId>
+	<ProfileId>SKIP_CHAIN_VALIDN</ProfileId>
+	<!-- Extensions -->
+	<ProfileId>ENC_THEN_MAC</ProfileId>
+	<ProfileId>EXT_MASTER_SECRET</ProfileId>
+	<ProfileId>NO_COMPRESSION</ProfileId>
+	<ProfileId>NO_HEARTBEAT</ProfileId>
+	<ProfileId>NO_SAN</ProfileId>
+	<ProfileId>NO_TRUNC_HMAC</ProfileId>
+	<ProfileId>OCSP_STAPLING</ProfileId>
+	<ProfileId>SUPP_GROUPS</ProfileId>
+	<!-- Further TLS Capabilities -->
+	<ProfileId>CERTIFIED_CA</ProfileId>
+	<ProfileId>DURATION</ProfileId>
+	<ProfileId>NO_RENEGOTIATION</ProfileId>
+	<ProfileId>RANDOM_TIME</ProfileId>
+	<ProfileId>SESSION_ID</ProfileId>
+	<ProfileId>SESSION_TICKET</ProfileId>
+	<ProfileId>STOP_RESUMPTION</ProfileId>
+</TestProfiles>

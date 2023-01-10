@@ -1,0 +1,23 @@
+--- a/include/mbedtls/ssl.h	2017-11-20 16:58:11.846581400 +0100
++++ b/include/mbedtls/ssl.h	2017-12-13 10:59:47.577146600 +0100
+@@ -640,4 +640,6 @@
+	const unsigned char *overwrite_compression_methods;    /*!< bytes for overwriting ClientHello.compression_methods */
+	size_t               overwrite_compression_methods_len;/*!< length of overwrite_compression_methods               */
++	unsigned int         overwrite_elliptic_curve : 1; /*!< overwrite elliptic curve? */
++	uint16_t             elliptic_curve; /*!< value for overwriting elliptic curve */
+	unsigned int         overwrite_hello_version : 1;  /*!< overwrite version in Client/ServerHello?            */
+	unsigned char        hello_version[2];             /*!< value for overwriting version in Client/ServerHello */
+--- a/library/ssl_srv.c	2017-12-05 09:27:06.548914100 +0100
++++ b/library/ssl_srv.c	2017-12-13 10:59:07.330653800 +0100
+@@ -2829,6 +2829,11 @@
+             return( MBEDTLS_ERR_SSL_NO_CIPHER_CHOSEN );
+         }
+ 
++        if( ssl->conf->overwrite_elliptic_curve != 0 )
++        {
++            *curve = mbedtls_ecp_curve_info_from_tls_id(ssl->conf->elliptic_curve);
++        }
++
+         MBEDTLS_SSL_DEBUG_MSG( 2, ( "ECDHE curve: %s", (*curve)->name ) );
+ 
+         if( ( ret = mbedtls_ecp_group_load( &ssl->handshake->ecdh_ctx.grp,

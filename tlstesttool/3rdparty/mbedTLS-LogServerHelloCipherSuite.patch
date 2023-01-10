@@ -1,0 +1,20 @@
+--- a/library/ssl_cli.c	2016-10-05 16:17:05.012076800 +0200
++++ a/library/ssl_cli.c	2016-10-19 10:47:12.515256500 +0200
+@@ -1569,6 +1569,7 @@
+     /*
+      * Initialize update checksum functions
+      */
++	MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, received ciphersuite: %04x", i ) );
+     ssl->transform_negotiate->ciphersuite_info = mbedtls_ssl_ciphersuite_from_id( i );
+ 
+     if( ssl->transform_negotiate->ciphersuite_info == NULL )
+--- a/library/ssl_srv.c	2018-03-22 10:12:44.972009600 +0100
++++ b/library/ssl_srv.c	2018-03-22 10:10:14.253384000 +0100
+@@ -2385,6 +2385,7 @@
+     *p++ = (unsigned char)( ssl->session_negotiate->ciphersuite      );
+     *p++ = (unsigned char)( ssl->session_negotiate->compression      );
+ 
++    MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, chosen ciphersuite: %04x", ssl->session_negotiate->ciphersuite ) );
+     MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, chosen ciphersuite: %s",
+            mbedtls_ssl_get_ciphersuite_name( ssl->session_negotiate->ciphersuite ) ) );
+     MBEDTLS_SSL_DEBUG_MSG( 3, ( "server hello, compress alg.: 0x%02X",

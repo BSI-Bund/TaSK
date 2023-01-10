@@ -1,0 +1,150 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.achelos.task</groupId>
+		<artifactId>com.achelos.task</artifactId>
+		<version>0.4.2</version>
+	</parent>
+	<artifactId>com.achelos.task.xmlparser</artifactId>
+	<packaging>jar</packaging>
+
+	<properties>
+		<junit.platform.version>1.3.2</junit.platform.version>
+		<junit.jupiter.version>5.4.0</junit.jupiter.version>
+		<jakarta.xml.version>3.0.0</jakarta.xml.version>
+		<xmldatapath>${project.parent.basedir}/data</xmldatapath>
+	</properties>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>com.achelos.task</groupId>
+			<artifactId>com.achelos.task.commons</artifactId>
+			<version>0.4.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.achelos.task</groupId>
+			<artifactId>com.achelos.task.logging</artifactId>
+			<version>0.4.2</version>
+		</dependency>
+
+		<!-- JUnit Dependencies -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-surefire-provider</artifactId>
+			<version>${junit.platform.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Jakarta XML Binding -->
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<version>${jakarta.xml.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>3.0.2</version>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Plugin required to build java classes from XSD using XJC -->
+			<plugin>
+				<groupId>com.evolvedbinary.maven.mojohaus</groupId>
+				<artifactId>jaxb-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<!-- This results in created classes having dependencies to javax.xml.bind instead of jakarta.xml.bind. 
+				Wait for a newer version with a fix. Until then there is a fork we can use. (see above)
+				<groupId>org.codehaus.mojo</groupId>
+			    <artifactId>jaxb2-maven-plugin</artifactId>
+			    <version>2.5.0</version> 
+				-->
+				<executions>
+					<execution>
+						<id>ConfigSchemas</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/src/main/resources/schemas/configuration/TLSSpecification.xsd</source>
+								<source>${basedir}/src/main/resources/schemas/configuration/TestProfiles.xsd</source>
+								<source>${basedir}/src/main/resources/schemas/configuration/ApplicationMapping.xsd</source>
+								<source>${basedir}/src/main/resources/schemas/configuration/TestCase.xsd</source>
+								<source>${basedir}/src/main/resources/schemas/configuration/GlobalConfig.xsd</source>
+								<source>${basedir}/src/main/resources/schemas/configuration/TlsConfigurationData.xsd</source>
+							</sources>
+							<packageName>generated.jaxb.configuration</packageName>
+						</configuration>
+					</execution>
+					<execution>
+						<id>InputSchemas</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/src/main/resources/schemas/input/MICS.xsd</source>
+							</sources>
+							<packageName>generated.jaxb.input</packageName>
+							<!--
+			                    Don't clear the output directory before generating the sources.
+			                -->
+							<clearOutputDir>false</clearOutputDir>
+						</configuration>
+					</execution>
+					<execution>
+						<id>TestRunPlanSchemas</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/src/main/resources/schemas/testrunplan/TestRunPlan.xsd</source>
+							</sources>
+							<packageName>generated.jaxb.testrunplan</packageName>
+							<!--
+			                    Don't clear the output directory before generating the sources.
+			                -->
+							<clearOutputDir>false</clearOutputDir>
+						</configuration>
+					</execution>
+					<execution>
+						<id>XMLReportSchemas</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/src/main/resources/schemas/output/TaSKReport.xsd</source>
+							</sources>
+							<packageName>generated.jaxb.xmlreport</packageName>
+							<!--
+			                    Don't clear the output directory before generating the sources.
+			                -->
+							<clearOutputDir>false</clearOutputDir>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
