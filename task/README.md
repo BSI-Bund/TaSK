@@ -1,5 +1,5 @@
 # TaSK Framework
-The "TaSK Framework" is a configurable test tool for performing TLS conformity tests based on the Technical Guideline TR-03116-TS.
+The "TaSK Framework" is a configurable test tool for performing TLS conformity tests based on the Technical Guideline [TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_v1.pdf).
 The test tool has a modular structure to enable efficient further development and applicability in different test scenarios.
 This testing tool enables test centers to efficiently and effectively test various DUTs from different application-specific scenarios for conformity.
 Furthermore, it offers manufacturers the possibility to perform independent tests during development.
@@ -10,11 +10,11 @@ The framework consists of two components: "TaSK" and "TLS Test Tool".
 
 ### 1.1 TaSK
 The test case runner with report generator and validation mechanism for the input documents.
-It is started via a command line interface and can be executed locally or via a REST API. The configuration is done via XML files which are explained later in this document. 
+It is started via a command line interface and can be executed locally or via a REST API. The configuration is done via XML files which are explained later in this document.
 
-### 1.2 TLS Test Tool 
-The TLS test tool is a stand-alone application that is capable of performing different TLS handshakes and apply manipulations on the TLS communication. It is used in the background by TaSK. 
-Depending on the type of the DUT and the test-scenario, it can act as a TLS client or a TLS server. 
+### 1.2 TLS Test Tool
+The TLS test tool is a stand-alone application that is capable of performing different TLS handshakes and apply manipulations on the TLS communication. It is used in the background by TaSK.
+Depending on the type of the DUT and the test-scenario, it can act as a TLS client or a TLS server.
 
 ### 1.3 Overview TaSK Framework Modules
 The TaSK framework has been designed to be modular. The numbered circles in the figure represent the order of the workflow.
@@ -22,13 +22,13 @@ The TaSK framework has been designed to be modular. The numbered circles in the 
 
 
 
-Several *configuration files* are directly derived from the specification TR-03116-TS and need not to be edited. But the user must set the values in the global configuration files according to the test environment. 
+Several *configuration files* are directly derived from the specification TR-03116-TS and need not to be edited. But the user must set the values in the global configuration files according to the test environment.
 
-The *MICS verifier* checks the manufacturer's specification for plausibility. 
+The *MICS verifier* checks the manufacturer's specification for plausibility.
 
-Once the MICS verification has successfully been completed, the *test suite setup* module can start generating the *test case run plan* (TRP). The TRP is a self-contained XML file that contains a list of test cases to be executed along with all the required parameters and dependencies. Only test cases determined by the application profile will be executed. The test cases are independent from each other and do not rely on a specific execution order unless a dependency has been explicitly specified in the test case description. 
+Once the MICS verification has successfully been completed, the *test suite setup* module can start generating the *test case run plan* (TRP). The TRP is a self-contained XML file that contains a list of test cases to be executed along with all the required parameters and dependencies. Only test cases determined by the application profile will be executed. The test cases are independent from each other and do not rely on a specific execution order unless a dependency has been explicitly specified in the test case description.
 
-The TRP is then used as input to the *test case execution*. The test cases are executed sequentially one after another as specified in the TRP and the results are captured. To improve code reuse, the test cases have been functionally divided into smaller blocks, namely test fragments. 
+The TRP is then used as input to the *test case execution*. The test cases are executed sequentially one after another as specified in the TRP and the results are captured. To improve code reuse, the test cases have been functionally divided into smaller blocks, namely test fragments.
 
 
 ## 2 Building the Framework
@@ -56,7 +56,7 @@ mvn org.apache.maven.plugins:maven-javadoc-plugin:aggregate-no-fork
 As a result, the JavaDocs will be aggregated at `task/target/site/apidocs`.
 
 ## 3 Execution
-This chapter explains how the TaSK framework can be executed and configured. A command line interface is provided to the user as described in the following chapter. 
+This chapter explains how the TaSK framework can be executed and configured. A command line interface is provided to the user as described in the following chapter.
 
 ### 3.1 Command Line Interface
 The TaSK framework provides a command line interface to the user, which can be used to run the test framework.
@@ -76,7 +76,7 @@ The path to the global configuration XML file.
 
 `-d <arg>, --certificate-directory <arg>`   
 *Required if CHECK_CERTS Profile is set in MICS. Otherwise optional.*   
-The path to a directory with certificates in either DER or PEM encoding. 
+The path to a directory with certificates in either DER or PEM encoding.
 
 `-g, --debug`   
 *Optional*   
@@ -120,7 +120,7 @@ The provider who runs the TaSK framework server is required to provide the globa
 The global configuration file contains parameters for the specification of hostname and port the server should listen to.
 A user can execute a test case run, by providing an MICS file or a test run plan file for a DUT of Type TLS-Server via the REST interface.
 An OpenAPI v3 conform specification of the REST API can be either found here: [`openapi.yaml`](com.achelos.task.rest-impl/src/main/resources/openapi.yaml)
-or retrieved from a running TaSK REST server via a `GET /` request. 
+or retrieved from a running TaSK REST server via a `GET /` request.
 A tool like e.g. [Swagger UI](https://swagger.io/tools/swagger-ui/) can be used to visualize the REST API documentation.
 
 ### 3.2 System Requirements for Execution
@@ -133,7 +133,7 @@ The following system requirements should be met when trying to execute the TaSK 
 
 ### 3.3 Quick Start
 The following steps are meant as a quick start guide. More detailed informations are contained in the following chapters.
-1. Make sure the `System Requirements for Execution` are fulfilled. 
+1. Make sure the `System Requirements for Execution` are fulfilled.
    1. The TLS Test Tool is available as a separate Source Bundle. For information about the build of the TLS Test Tool have a look at contained `README` file.
 2. Copy the exemplary global configuration file [`ExampleGlobalConfig.xml`](data/configuration/ExampleGlobalConfig.xml) to a location of your choice.
    1. Edit your copy of the global configuration by setting all mandatory configuration options as described in the comments of the `ExampleGlobalConfig.xml`.
@@ -160,14 +160,14 @@ The user of the TaSK framework has two options of executing the TaSK framework.
 1. MICS
   The user can provide a machine-readable version of the ICS document ("MICS").
   If the "CHECK_CERTS" test profile has been set in the MICS, the respective part in the MICS has also to be set and the respective certificate chain has to be provided as an input to the TaSK framework.
-  If a MICS is provided and can be successfully verified, the TaSK framework generates a test run plan file to specify the test suite to execute. 
+  If a MICS is provided and can be successfully verified, the TaSK framework generates a test run plan file to specify the test suite to execute.
 
 1. Test Run Plan
   If an already existing test run plan file is provided, the MICS file and the certificate verification is skipped, and the test suite specified by this test run plan file is executed.
 
-#### 3.4.1 MICS 
-The Machine-readable Implementation Conformance Statement ("MICS") is an XML file, which includes information about the DUT, provided by the vendor according to chapter 3 of the [TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_v1.pdf). 
-The structure of the MICS file is based on tables 2 to 17 in the document. 
+#### 3.4.1 MICS
+The Machine-readable Implementation Conformance Statement ("MICS") is an XML file, which includes information about the DUT, provided by the vendor according to chapter 3 of the [TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_v1.pdf).
+The structure of the MICS file is based on tables 2 to 17 in the document.
 
 The MICS must be conform to `<task-dir>/com.achelos.task.xmlparser/src/main/resources/schemas/input/MICS.xsd` and has to be provided via the CLI as follows:
 
@@ -183,7 +183,7 @@ Commented MICS examples:
 
 #### 3.4.2 Certificates
 If the "CHECK_CERTS" test profile has been set in the MICS the test cases "TLS_CERT_01" - "TLS_CERT_12" described in the [TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_v1.pdf) will be executed by the MICS verifier module.
-For that purpose the TLS certificate chain used by the DUT has to be provided to the TaSK framework. 
+For that purpose the TLS certificate chain used by the DUT has to be provided to the TaSK framework.
 
 Via the CLI a directory can be specified, which is searched for the respective certificates. Each certificate has to be provided as a separate file, encoded either in PEM or in DER encoding.
 
@@ -194,7 +194,7 @@ java -jar com.achelos.task.commandlineinterface-<version>-jar-with-dependencies.
 #### 3.4.3 Test Run Plan
 The TaSK framework uses the provided MICS file to generate a test run plan file. This test run plan file is used to specify a application specific test suite containing the test cases corresponding to the test profiles of the device under test.
 
-Moreover, an already existing test run plan file can be used to rerun the specified test suite from the command line interface. 
+Moreover, an already existing test run plan file can be used to rerun the specified test suite from the command line interface.
 
 Via the CLI a test run plan file can be provided as follows:
 
@@ -208,7 +208,7 @@ The configuration of the TaSK framework is also done via a set of XML files. On 
 On the other hand, a collection of XML files is used to represent test cases, application specific profiles, and technical guidelines, which are used as a baseline by the TaSK framework. The schemas for these XML files are contained as resource in the module com.achelos.task.xmlparser
 
 #### 3.5.1 Global Configuration
-The global configuration XML file is used by the TaSK framework to specify the general test framework properties to be used. 
+The global configuration XML file is used by the TaSK framework to specify the general test framework properties to be used.
 For example, the name of the tester or test center that should appear in the report, the type of report to generate, or the location of the "TLS Test Tool".
 
 The global configuration XML file must be conform to  `<task-dir>/com.achelos.task.xmlparser/src/main/resources/schemas/configuration/GlobalConfig.xsd` and is provided to the CLI as follows:
@@ -235,8 +235,8 @@ This XML is conform to `<task-dir>/com.achelos.task.xmlparser/src/main/resources
 
 
 ##### 3.5.2.2 TR-03116-TS Test Case Definitions
-The BSI has made available all the test case definitions specified in [TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_v1.pdf) as a collection of XML files. 
-These XML files are included in the configuration data and consist of different attributes and elements, however we are only interested in the attributes "id" and the elements "Profile". 
+The BSI has made available all the test case definitions specified in [TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_v1.pdf) as a collection of XML files.
+These XML files are included in the configuration data and consist of different attributes and elements, however we are only interested in the attributes "id" and the elements "Profile".
 This information is used later on in the MICS validation and test suite setup modules to select the test cases that are to be executed based on the application specific profile.
 
 The test case definition files are stored in the directory `<task-dir>/data/specification/TestCases`.
@@ -248,7 +248,7 @@ The test cases defined in [TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downl
 The decision on the applicability of a particular TLS test case is made based on the specific application at hand. Therefore, in order to execute the TLS test cases, each application (e.g., eID-Client, eID-Server, Smart Metering, E-Mail-Trsp, etc.) must specify which profiles are applicable for it.
 
 These application profiles are specified in the [Annex to BSI TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_Annex.pdf).
-The profile mappings for these applications have been manually specified in XML configuration files that are then supplied to the TaSK framework. 
+The profile mappings for these applications have been manually specified in XML configuration files that are then supplied to the TaSK framework.
 
 The application profiles definition files are stored in the directory `<task-dir>/data/specification/ApplicationSpecificProfiles`.
 These XML files must be conform to `<task-dir>/com.achelos.task.xmlparser/src/main/resources/schemas/configuration/ApplicationMapping.xsd`
@@ -256,10 +256,10 @@ These XML files must be conform to `<task-dir>/com.achelos.task.xmlparser/src/ma
 
 ##### 3.5.2.4 TR-03116-TS Technical Guideline Specifications
 Each application is mapped to a base specification which is defined in the [Annex to BSI TR-03116-TS](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03116/BSI-TR-03116-TS_Annex.pdf).
-However, such a base specification can be derived from multiple specification documents. 
+However, such a base specification can be derived from multiple specification documents.
 
 Each specification document has been divided into smaller modules and is represented in XML.
-Specific modules are then merged together to form the application specification. 
+Specific modules are then merged together to form the application specification.
 
 Moreover, a specification document can relate to another specification document as a base specification. The corresponding XML file can relate to another specification for that purpose.
 These relations are resolved by the TaSK framework during the reading of such specifications. While doing so, subsequent specifications override requirements of the underlying base specification.
@@ -288,4 +288,3 @@ Commented examples of the configuration files can be found in the 'data'-folder 
 - Test run plan example for eID-Client TLS-2: [`<task-dir>/data/testrunplan/TRP_ExampleMICS_eID-Client-TLS-2xml`](data/testrunplan/TRP_ExampleMICS_eID-Client-TLS-2.xml)
 - Global configuration example: [`<task-dir>/data/configuration/ExampleGlobalConfig.xml`](data/configuration/ExampleGlobalConfig.xml)
 - TR-03116-TS test case definitions: `<task-dir>/data/specification/TestCases/TR-03116-TS/../..`
-``` 
