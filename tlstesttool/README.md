@@ -5,6 +5,31 @@ As a client, the TLS Test Tool establishes a TCP/IP connection and starts a TLS 
 
 As a server, the TLS Test Tool waits on a specific port and waits until a client connects to the server and performs a TLS handshake. The user can influence this default behaviour by using one or more of the provided manipulations.
 
+Content:
+
+<ol>
+  <li><a href="README.md#building">Building the Tool</a></li>
+  <li><a href="README.md#configuration">Configuration</a>
+    <ol>
+      <li><a href="README.md#cli">Command line arguments</a></li>
+      <li><a href="README.md#configfile">Configuration file</a>
+        <ol>
+          <li><a href="README.md#inputbinary">Input of binary data</a></li>
+          <li><a href="README.md#networkoptions">Network options</a></li>
+          <li><a href="README.md#libraryoptions">Library options</a></li>
+          <li><a href="README.md#loggingoptions">Logging options</a></li>
+          <li><a href="README.md#tlsoptions">TLS options</a></li>
+          <li><a href="README.md#messagemanipulations">Message manipulations</a></li>
+          <li><a href="README.md#examples">Examples</a></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li><a href="README.md#license">License</a></li>
+  <li><a href="README.md#3rdpartylicenses">Third party Licenses</a></li>
+</ol>
+
+<a name="building"></a>
 ## 1 Building the Tool
 The TLS Test Tool uses CMake as its build system and requires a C++14-compatible compiler. For
 building external libraries, Perl and Patch are required. For example, on a Debian GNU/Linux system,
@@ -22,10 +47,12 @@ cmake --build .
 
 After a successful build, the TLS Test Tool can be found in the src sub-directory. 
 
+<a name="configuration"></a>
 ## 2 Configuration
 The available arguments for configuring the TLS Test Tool are described here. Values that a user
 has to provide are denoted in square brackets (e.g., [length] for a value named length).
 
+<a name="cli"></a>
 ### 2.1 Command line arguments
 The TLS Test Tool expects at least one argument on the command line.
 ```bash
@@ -40,12 +67,15 @@ Examples:
 TlsTestTool --configFile=config/TestCase27.conf
 TlsTestTool --configFile=tlsOptions.conf
 ```
+
+<a name="configfile"></a>
 ### 2.2 Configuration file
 The configuration for the TLS Test Tool is given in a configuration file. The configuration file
 is a plain text file. Lines that start with the hash sign (#) are treated as comments and ignored.
 Arguments are given as name-value pairs separated with the equals sign (=). The following arguments
 are known.
 
+<a name="inputbinary"></a>
 #### 2.2.1 Input of binary data
 Binary data is given in hexadecimal form. The bytes of a byte array have to be encoded separately
 and printed separated by a space character. Each byte is represented by two digits from 0-9a-f. For
@@ -53,6 +83,7 @@ example, the array of the two bytes 0xc0 0x30 has to be given as c0 30. In the f
 HEXSTRING- is used as placeholder for an arbitrary byte array. Please note that an empty byte array is
 possible and has to be represented by an empty string.
 
+<a name="networkoptions"></a>
 #### 2.2.2 Network options
 
 * `mode=[mode]`
@@ -109,6 +140,7 @@ within timeout seconds.
 
   Ignored, if *mode=client*.
 
+<a name="libraryoptions"></a>
 #### 2.2.3 Library options
 
 * `tlsLibrary=[library]`
@@ -119,6 +151,7 @@ within timeout seconds.
 
   If not specified, the `mbed TLS` library is used.
 
+<a name="loggingoptions"></a>
 #### 2.2.4 Logging options
 
 * `logLevel=[level]`
@@ -136,6 +169,7 @@ within timeout seconds.
   `off` : No output.
 
 
+<a name="tlsoptions"></a>
 #### 2.2.5 TLS options
 
 * `certificateFile=[path]`
@@ -304,6 +338,7 @@ If a session resumption is performed (type = `{resumptionWithSessionID, resumpti
   Sets the pskIdentityHint (Pre-Shared Key) to the TLS Test Tool.
   Later, in the TLS handshake the server sends the identity hint in the Server Key Exchange message.
 
+<a name="messagemanipulations"></a>
 #### 2.2.6 Message manipulations
 
 * `manipulateClientHelloCompressionMethods=[bytes]` 
@@ -406,6 +441,7 @@ of extensions separated by a colon ("**:**").
 
   Ignored, if *mode=client*.
 
+<a name="examples"></a>
 #### 2.2.7 Examples
 
 Example for running as a TLS client:
@@ -417,11 +453,12 @@ host=tls-check.de
 port=443
 ```
 
+<a name="license"></a>
 ## 3 License
 The TLS Test Tool is licensed under the EUPL-1.2-or-later.
 For more information on the license, see the included [License text](LICENSE.md) itself, or the according [website](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12) of the European Commision.
 
-
+<a name="3rdpartylicenses"></a>
 ## 4 Third party Licenses
 
 The licenses of 3rd party software used within TLS Test Tool are listed below.
