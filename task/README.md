@@ -325,7 +325,7 @@ For some application types it is necessary to use an external motivator to inter
 
 #### 3.7.1 Browser Simulator
 
-If the DUT is an eID-Client application (ApplicationType `TR-03124-1-EID-CLIENT-TLS-1-2` or `TR-03124-1-EID-CLIENT-TLS-2`), TaSK uses the BrowserSimulator from the [eID-Client Testbed](https://github.com/eID-Testbeds/client) to motivate the DUT to connect to the server. 
+If the DUT is an eID-Client application (ApplicationType `TR-03124-1-EID-CLIENT-TLS-1-2` or `TR-03124-1-EID-CLIENT-TLS-2`), TaSK uses an extended version of the BrowserSimulator from the [eID-Client Testbed](https://github.com/eID-Testbeds/client) to motivate the DUT to connect to the server. 
 
 The BrowserSimulator works as a RMI server and implements the three methods from the IBrowserSimulator interface:
 - startApp
