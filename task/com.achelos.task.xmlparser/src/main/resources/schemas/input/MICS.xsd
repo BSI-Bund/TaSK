@@ -52,15 +52,24 @@
 				<!-- In the case of an TLS Server, an URL and a port are necessary. -->
 				<xsd:sequence>
 					<xsd:element name="URL" type="xsd:string" minOccurs="1" maxOccurs="1" />
-					<xsd:element name="Port" type="xsd:string" minOccurs="1" maxOccurs="1" />		
+					<xsd:element name="Port" type="xsd:string" minOccurs="1" maxOccurs="1" />
+					<!-- In the case of an eID Server, an RMI Interface may be necessary. -->
+					<xsd:element name="RMIURL" type="xsd:string" minOccurs="0" maxOccurs="1" />
+					<xsd:element name="RMIPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
 				</xsd:sequence>
 				<!-- In the case of an TLS client, an Executable and call arguments are necessary. -->
 				<xsd:sequence>
 					<xsd:element name="DUTExecutable" type="xsd:string" minOccurs="1" maxOccurs="1" />
 					<xsd:element name="DUTCallArguments" type="DutCallArguments" minOccurs="1" maxOccurs="1" />
 				</xsd:sequence>
+				<!-- In the case of an eID-Client, the connection details of a running BrowserSimulator are necessary. -->
+				<xsd:sequence>
+					<xsd:element name="BrowserSimulatorURL" type="xsd:string" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="BrowserSimulatorPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
+					<xsd:element name="EIDClientPort" type="xsd:int" minOccurs="0" maxOccurs="1" />
+				</xsd:sequence>
 			</xsd:choice>
-		</xsd:sequence> 
+		</xsd:sequence>
 	</xsd:complexType>
 	
 	<xsd:complexType name="ProfileList">
@@ -225,7 +234,6 @@
 		<xsd:sequence>
 			<xsd:element name="StartConnectionArguments" type="xsd:string" minOccurs="1" maxOccurs="1" />
 			<xsd:element name="ResumeConnectionArguments" type="xsd:string" minOccurs="0" maxOccurs="1" />
-			<xsd:element name="EIDClientPort" type="xsd:int" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:schema>

@@ -31,7 +31,7 @@ public class ResultApi {
 
     @GET
     @Path("/pdf")
-    @Produces({ "application/pdf" })
+    @Produces({ "application/pdf", MediaType.APPLICATION_JSON})
     @Operation(summary = "Retrieve the PDF report of a test suite execution.", description = "Retrieve PDF report of the test suite execution specified by the run identifier.", tags={ "Get Results" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation=Object.class))),
@@ -105,7 +105,7 @@ public class ResultApi {
 
     @GET
     @Path("/xml")
-    @Produces({ "application/xml" })
+    @Produces({ "application/xml", MediaType.APPLICATION_JSON})
     @Operation(summary = "Retrieve the XML report of a test suite execution.", description = "Retrieve XML report of the test suite execution specified by the run identifier.", tags={ "Get Results" })
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation=Object.class))),
@@ -177,7 +177,7 @@ public class ResultApi {
     }
 
     @GET
-    @Produces({ "application/octet-string" })
+    @Produces({ "application/octet-string", MediaType.APPLICATION_JSON })
     @Operation(summary = "Retrieve the results of a test run.", description = "Retrieve the results of the test suite execution specified by the provided run identifier.", tags={ "Get Results" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation=Object.class))),

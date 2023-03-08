@@ -33,6 +33,12 @@ const std::string TlsHelper::getInternalCipherSuite(const TlsCipherSuite cipherS
 	else if ((cipherSuite.first == 0x13) && (cipherSuite.second == 0x01)) {
 		return  "TLS_AES_128_GCM_SHA256";
 	}
+        else if ((cipherSuite.first == 0x13) && (cipherSuite.second == 0x04)) {
+            return "TLS_AES_128_CCM_SHA256";
+        }
+        else if ((cipherSuite.first == 0x13) && (cipherSuite.second == 0x05)) {
+            return  "TLS_AES_128_CCM_8_SHA256";
+        }
 	else if ((cipherSuite.first == 0xc0) && (cipherSuite.second == 0x2c)) {
 		return "ECDHE-ECDSA-AES256-GCM-SHA384";
 	}
@@ -266,6 +272,9 @@ const std::string TlsHelper::getInternalSupportedGroup(const TlsSupportedGroupID
         case 18:
 			return "secp192k1";
 			break;
+        case 19:
+                        return "secp192r1";
+                        break;
 		case 20:
 			return "secp224k1";
 			break;

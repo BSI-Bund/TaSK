@@ -101,7 +101,6 @@ public class TSharkExecutor extends GenericCommandLineExecution {
 				// Add a small delay for the process to start
 				final int finishProcessDelay = 3000;
 				startSleepTimer(finishProcessDelay);
-//				Thread.sleep(500); //TODO @snl @far what is the optimal value for that, maybe make it customizable from ExampleGlobalConfig
 				// All executors use startSleepTimer method because some times process takes a little bit time to start.
 
 			} catch (IOException e) {

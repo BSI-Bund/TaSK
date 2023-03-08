@@ -150,7 +150,7 @@
 -                                X509 *x, size_t chainidx);
 -        EXT_RETURN ret;
 +    /* check if we want to overwrite clienthello extenions, if yes then we disable the default extensions from OpenSSL (except keyshare in TLS 1.3)*/
-+    if(s->ctx->overwrite_client_hello_ext_len>0) {
++    if(s->ctx->overwrite_client_hello_ext_len>0 && ((context & SSL_EXT_CLIENT_HELLO) != 0)) {
 +        set_extensions_flags(s, s->ctx->overwrite_client_hello_ext, pkt); //add extensions to client hello and set sent flags for each extension
 +        if(s->ctx->min_proto_version== 772 && s->ctx->max_proto_version== 772/*TLS 1.3 (0x0304)*/){
 +            //in TLS 1.3, we always have to send Key Exchange extension (has to be at the end)

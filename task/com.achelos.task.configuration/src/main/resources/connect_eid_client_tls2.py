@@ -18,8 +18,6 @@ def main():
                         help="Path to Server Certificate which shall be used for the eService mock.")
     parser.add_argument("-server_key", required=True,
                         help="Path to Server Private Key which shall be used for the eService mock.")
-    parser.add_argument("-eid_client", required=True,
-                        help="Path to the eID Client Executable.")
     parser.add_argument("-eservice_port", type=int, default=8447, nargs="?", help="Port Number on which the mock eService should listen. Default: 8443")
     parser.add_argument("-eid_client_port", type=int, default=24727,
                         help="Port on which the eID-Client listens for commands. Default:24727")
@@ -29,6 +27,12 @@ def main():
                         help="Port of the eID-Server to include in TCToken.")
     parser.add_argument("-psk", required=True,
                         help="PSK to include in TCToken.")
+    parser.add_argument("-browsersimclient", required=True,
+                        help="Absolute path to browsersimulatorclient.jar")
+    parser.add_argument("-browsersim_hostname", required=True,
+                        help="Hostname of the browsersimulator RMI service")
+    parser.add_argument("-browsersim_port", required=True,
+                        help="Port of the browsersimulator RMI service")
 
     args = parser.parse_args()
 
@@ -51,37 +55,22 @@ def main():
                                                  args=(args.server_cert, args.server_key, args.eservice_port),
                                                  daemon=True)
     eid_service_thread.start()
-
-    prefix = "DUT log: "
-    # Starting eID Client
-    print(f"{prefix}Starting eID Client.")
-    eid_client_process = subprocess.Popen(args.eid_client, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        preexec_fn=os.setsid, universal_newlines=True)
-
-
-    #print(f"{prefix}Waiting for eID Client to start.")
     time.sleep(2)
+    prefix = "DUT log: "
 
-    # Get eID Client to connect to eID Service
-    connect_eid_client(args.eid_client_port, args.eservice_port)
-
-    print(f"{prefix}Waiting for eID Client to finish.")
-    time.sleep(5)
+    # Use the BrowserSimulator to start the eID Client and tell it to connect to eID Service
+    browsersimulator_result = connect_browsersimulator(args.browsersimclient,  args.browsersim_hostname, args.browsersim_port, args.eid_client_port, args.eservice_port, args.eid_server_hostname)
 
     print(f"{prefix}Exiting.")
     eid_service_thread.terminate()
     eid_service_thread.join()
-    os.killpg(os.getpgid(eid_client_process.pid), signal.SIGTERM)
-
-    print(f"{prefix}Saving logs.")
-    print(eid_client_process.stdout.read())
 
     exit(0)
 
 
 def start_server(cert_path, key_path, port: int):
     try:
-        httpd = HTTPServer(("localhost", port), TCTokenHTTPRequestHandler)
+        httpd = HTTPServer(('', port), TCTokenHTTPRequestHandler)
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         context.load_cert_chain(certfile=cert_path, keyfile=key_path)
         httpd.socket = context.wrap_socket(httpd.socket,
@@ -93,12 +82,12 @@ def start_server(cert_path, key_path, port: int):
     httpd.serve_forever()
 
 
-def connect_eid_client(eid_client_port: int, eservice_port: int):
+def connect_browsersimulator(browsersimclient: str, browsersim_hostname :str, browsersim_port :int, eid_client_port: int, eservice_port: int, eservice_hostname : str):
     try:
-        command = f'http://127.0.0.1:{eid_client_port}/eID-Client?tcTokenURL=https://localhost:{eservice_port}'
-        print(f"DUT log: Sending command '{command}' to eID Client to connect.")
-        response = requests.get(f'{command}')
-        print(f"Returned status code of eID-Client to the browser: {response.status_code}")
+        url = f'http://127.0.0.1:{eid_client_port}/eID-Client?tcTokenURL=https://{eservice_hostname}:{eservice_port}'
+        command = f'java -jar {browsersimclient} {browsersim_hostname} {browsersim_port} {url}'
+        result = os.system(command)
+        return result
     except Exception as e:
         exit(f"DUT log: Error occurred: {str(e)}")
 

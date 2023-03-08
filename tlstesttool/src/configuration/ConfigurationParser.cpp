@@ -256,6 +256,9 @@ namespace TlsTestTool {
             else if (name == "psk"){
                 configuration.setPreSharedKey(Tooling::HexStringHelper::hexStringToByteArray(value));
             }
+            else if (name == "pskIdentity"){
+                configuration.setPskIdentity(value);
+            }
             else if (name == "pskIdentityHint"){
                 configuration.setPskIdentityHint(value);
             }

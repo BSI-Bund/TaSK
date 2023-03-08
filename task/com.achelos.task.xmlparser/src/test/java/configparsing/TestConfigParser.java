@@ -99,6 +99,101 @@ class TestConfigParser {
 	}
 
 	@Test
+	void testParseEIDServerSpecificationEIDASMW() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03130-1-EID-SERVER-Specification-EIDAS-MW.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03130-1-EID-SERVER-EIDAS-MW", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseEIDServerSpecificationECARDPSK() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03130-1-EID-SERVER-Specification-ECARD-PSK.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals("TR-03130-1-EID-SERVER-ECARD-PSK", spec.getId(), "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseEIDServerSpecificationECARDNonPSK() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03130-1-EID-SERVER-Specification-ECARD-NONPSK.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals("TR-03130-1-EID-SERVER-ECARD-NONPSK", spec.getId(), "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseEIDServerSpecificationEIDInterface() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03130-1-EID-SERVER-Specification-EID-INTERFACE.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03130-1-EID-SERVER-EID-INTERFACE", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseEIDServerSpecificationSAML() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03130-1-EID-SERVER-Specification-SAML.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03130-1-EID-SERVER-SAML", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
 	void testParseTestProfiles() {
 		var testProfilesFile = new File("../data/specification/TestProfiles.xml");
 		assertTrue(testProfilesFile.exists(), "XML Test file does not exist.");

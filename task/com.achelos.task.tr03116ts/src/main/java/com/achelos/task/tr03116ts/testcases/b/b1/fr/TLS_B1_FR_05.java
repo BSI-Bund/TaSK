@@ -10,6 +10,7 @@ import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
@@ -109,21 +110,23 @@ public class TLS_B1_FR_05 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite is found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported CipherSuite: " + cipherSuite.name());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.name());
 
 		tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool,
@@ -138,6 +141,9 @@ public class TLS_B1_FR_05 extends AbstractTestCase {
 
 		testTool.assertMessageLogged(TestToolResource.ServerHello_valid);
 		String sessionID = testTool.getValue(TestToolResource.ServerHello_session_id);
+		
+		step(3, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 		if (sessionID == null) {
@@ -165,15 +171,14 @@ public class TLS_B1_FR_05 extends AbstractTestCase {
 		final int thousandMS = 1000;
 		startSleepTimer(thousandMS * waitFor);
 
-		tfClientHello.executeSteps("3", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
+		tfClientHello.executeSteps("4", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool,
-				tlsVersion, cipherSuite, TlsTestToolTlsLibrary.OpenSSL);
-		testTool.setSessionHandshakeType(TlsTestToolConfigurationHandshakeType.SessionResumptionWithSessionID);
+				tlsVersion, cipherSuite, TlsTestToolTlsLibrary.OpenSSL, TlsTestToolConfigurationHandshakeType.SessionResumptionWithSessionID);
 		testTool.setSessionCache(sessionCache.get(0));
 
 		testTool.start(2, 2);
 
-		step(4, "Receive ServerHello from TOE with session_id != $SessionID (Session resumption is refused by"
+		step(5, "Receive ServerHello from TOE with session_id != $SessionID (Session resumption is refused by"
 				+ " TOE).", "");
 
 		testTool.assertMessageLogged(TestToolResource.ServerHello_valid);

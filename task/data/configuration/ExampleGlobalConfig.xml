@@ -117,17 +117,28 @@
 				# default value: 5 -->
 			<int>5</int>
 		</parameter>
-		<parameter id="rest_api_host">
-			<!-- The hostname which the TaSK Framework should use, when executed as a REST server.
-			# optional
-			# default value: localhost -->
-			<string>localhost</string>
-		</parameter>
 		<parameter id="rest_api_port">
 			<!-- The port which the TaSK Framework should use, when executed as a REST server.
 			# optional
 			# default value: 8088 -->
 			<int>8088</int>
+		</parameter>
+		<parameter id="rest_api_credentials">
+			<!--
+			The absolute or relative path to the TLS Credentials (i.e. key and certificate chain) in a PKCS#12 format which shall
+			be used by the REST Interface of the TaSK Framework. All necessary data must be contained in this file.
+			# optional
+			-->
+			<string>/path/to/tlscredentials.p12</string>
+		</parameter>
+		<parameter id="rest_api_credential_pass">
+			<!--
+			Password of the TLS Credentials (i.e. key and certificate chain) in a PKCS#12 format which shall
+			be used by the REST Interface of the TaSK Framework. All necessary data must be contained in this file.
+			# optional
+			# default value: empty string
+			-->
+			<string>password</string>
 		</parameter>
 	</parameters>
 </configuration>

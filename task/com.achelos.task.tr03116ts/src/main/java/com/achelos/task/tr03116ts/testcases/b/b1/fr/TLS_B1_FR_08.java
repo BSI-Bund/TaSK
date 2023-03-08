@@ -6,13 +6,12 @@ import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commons.enums.TlsAlertDescription;
-import com.achelos.task.commons.enums.TlsAlertLevel;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tools.StringTools;
+import com.achelos.task.logging.BasicLogger;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
@@ -31,7 +30,6 @@ public class TLS_B1_FR_08 extends AbstractTestCase {
 	private TlsTestToolExecutor testTool = null;
 	private TSharkExecutor tShark = null;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFAlertMessageCheck tfAlertMessageCheck;
 	private final TFTLSClientHello tfClientHello;
 
@@ -41,7 +39,6 @@ public class TLS_B1_FR_08 extends AbstractTestCase {
 		setTestCasePurpose(TEST_CASE_PURPOSE);
 
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tfAlertMessageCheck = new TFAlertMessageCheck(this);
 		tfClientHello = new TFTLSClientHello(this);
 	}
@@ -105,18 +102,18 @@ public class TLS_B1_FR_08 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** any supported algorithm cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
-		logger.debug("Supported Cipher suites:" + cipherSuite);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.getName());
 
 		step(1, "The tester connects to the DUT.", "");
 
@@ -135,14 +132,20 @@ public class TLS_B1_FR_08 extends AbstractTestCase {
 
 		tFTCPIPNewConnection.executeSteps("3", "", Arrays.asList(),
 				testTool);
+		
+		step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
+		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-		step(4, "Send Heartbeat package (request).", "Expected result is checked in the following steps.");
-
-		tfAlertMessageCheck.executeSteps("5", "",
+		step(5, "The TLS client sends a \"heartbeat_request\"", "The DUT ignores the request.");
+		tfAlertMessageCheck.executeSteps("6", "",
 				Arrays.asList("level=warning/fatal"), testTool);
 
-		tFTCPIPCloseConnection.executeSteps("6", "", Arrays.asList(),
-				testTool);
+		if(tlsVersion == TlsVersion.TLS_V1_3) {
+			if (testTool.assertMessageLogged(TestToolResource.Heartbeat_message_received, BasicLogger.INFO)) {
+				logger.log(BasicLogger.ERROR, "The DUT did answered with a Heartbeat response.");
+			}
+		}
 	}
 
 

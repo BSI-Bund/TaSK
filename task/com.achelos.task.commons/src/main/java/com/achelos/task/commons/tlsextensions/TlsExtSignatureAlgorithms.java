@@ -4,45 +4,23 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsHashAlgorithm;
 import com.achelos.task.commons.enums.TlsSignatureAlgorithm;
+import com.achelos.task.commons.enums.TlsSignatureScheme;
 
 
 /**
  * Representation of a TLS Signature Algorithms extension.
  *
- * @see https://tools.ietf.org/html/rfc5246#section-7.4.1.4.1
+ * @see "https://tools.ietf.org/html/rfc5246#section-7.4.1.4.1"
  */
 public class TlsExtSignatureAlgorithms extends TlsExtension {
-	/**
-	 * Signature And HashAlgorithm Representation.
-	 */
-	private static final class SignatureAndHashAlgorithm {
-		private final TlsHashAlgorithm hash;
-		private final TlsSignatureAlgorithm signature;
 
-		/**
-		 * Default constructor.
-		 *
-		 * @param hash The hash.
-		 * @param signature The signature.
-		 */
-		private SignatureAndHashAlgorithm(final TlsHashAlgorithm hash, final TlsSignatureAlgorithm signature) {
-			this.hash = hash;
-			this.signature = signature;
-		}
-
-
-		/**
-		 * @return Algorithm hash and signature value in byte array.
-		 */
-		private byte[] getData() {
-			return new byte[] {hash.getValue(), signature.getValue()};
-		}
-	}
-
-	private final List<SignatureAndHashAlgorithm> supportedSignatureAlgorithms
+	private final List<TlsSignatureAlgorithmWithHash> supportedSignatureAlgorithms
 			= new ArrayList<>();
 
 	/**
@@ -56,12 +34,10 @@ public class TlsExtSignatureAlgorithms extends TlsExtension {
 	/**
 	 * Add a supported signature algorithm.
 	 *
-	 * @param hash Hash algorithm
-	 * @param signature Signature algorithm
+	 * @param signatureAlgorithmWithHash Signature Algorithm with Hash algorithm
 	 */
-	public final void addSupportedSignatureAlgorithm(final TlsHashAlgorithm hash,
-			final TlsSignatureAlgorithm signature) {
-		supportedSignatureAlgorithms.add(new SignatureAndHashAlgorithm(hash, signature));
+	public final void addSupportedSignatureAlgorithm(TlsSignatureAlgorithmWithHash signatureAlgorithmWithHash) {
+		supportedSignatureAlgorithms.add(signatureAlgorithmWithHash);
 	}
 
 
@@ -70,8 +46,8 @@ public class TlsExtSignatureAlgorithms extends TlsExtension {
 		final int length = 2 * supportedSignatureAlgorithms.size();
 		final ByteBuffer buffer = ByteBuffer.allocate(2 + length);
 		buffer.putShort((short) length);
-		for (SignatureAndHashAlgorithm supportedSignatureAlgorithm : supportedSignatureAlgorithms) {
-			buffer.put(supportedSignatureAlgorithm.getData());
+		for (TlsSignatureAlgorithmWithHash supportedSignatureAlgorithm : supportedSignatureAlgorithms) {
+			buffer.put(supportedSignatureAlgorithm.convertToBytes());
 		}
 		buffer.flip();
 		return buffer.array();
@@ -85,16 +61,23 @@ public class TlsExtSignatureAlgorithms extends TlsExtension {
 	 */
 	public static final TlsExtSignatureAlgorithms createDefault() {
 		final TlsExtSignatureAlgorithms extension = new TlsExtSignatureAlgorithms();
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha512, TlsSignatureAlgorithm.ecdsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha512, TlsSignatureAlgorithm.rsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha384, TlsSignatureAlgorithm.ecdsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha384, TlsSignatureAlgorithm.rsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha256, TlsSignatureAlgorithm.ecdsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha256, TlsSignatureAlgorithm.rsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha224, TlsSignatureAlgorithm.ecdsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha224, TlsSignatureAlgorithm.rsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha1, TlsSignatureAlgorithm.ecdsa);
-		extension.addSupportedSignatureAlgorithm(TlsHashAlgorithm.sha1, TlsSignatureAlgorithm.rsa);
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha512));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha384));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha256));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha224));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha1));
+
+
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha512));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha384));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha256));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha224));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha1));
+
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls13(TlsSignatureScheme.RSA_PSS_RSAE_SHA256));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls13(TlsSignatureScheme.RSA_PSS_RSAE_SHA384));
+		extension.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls13(TlsSignatureScheme.RSA_PSS_RSAE_SHA512));
+
 		return extension;
 	}
 
@@ -112,7 +95,7 @@ public class TlsExtSignatureAlgorithms extends TlsExtension {
 					TlsSignatureAlgorithm signature = TlsSignatureAlgorithm.getElement(signatureAlgorithms[i + 1]);
 					if (hash != null && signature != null) {
 						TlsExtSignatureAlgorithms extSignatureAlgorithms = new TlsExtSignatureAlgorithms();
-						extSignatureAlgorithms.addSupportedSignatureAlgorithm(hash, signature);
+						extSignatureAlgorithms.addSupportedSignatureAlgorithm(new TlsSignatureAlgorithmWithHashTls12(signature, hash));
 						return extSignatureAlgorithms;
 					}
 				} catch (Exception e) {
@@ -123,22 +106,5 @@ public class TlsExtSignatureAlgorithms extends TlsExtension {
 		}
 		return null;
 
-	}
-
-
-	/**
-	 * Create the desired signature algorithm extension.
-	 *
-	 * @param hashAlgorithms The hash algorithms.
-	 * @param signatureAlgorithm The signature algorithms.
-	 * @return the desired signature algorithm extension.
-	 */
-	public static TlsExtSignatureAlgorithms create(final List<TlsHashAlgorithm> hashAlgorithms,
-			final TlsSignatureAlgorithm signatureAlgorithm) {
-		final TlsExtSignatureAlgorithms extension = new TlsExtSignatureAlgorithms();
-		for (TlsHashAlgorithm hashAlgorithm : hashAlgorithms) {
-			extension.addSupportedSignatureAlgorithm(hashAlgorithm, signatureAlgorithm);
-		}
-		return extension;
 	}
 }

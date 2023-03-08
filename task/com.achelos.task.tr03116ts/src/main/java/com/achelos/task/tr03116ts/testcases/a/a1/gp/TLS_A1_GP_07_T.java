@@ -13,10 +13,8 @@ import com.achelos.task.commandlineexecution.genericcommandlineexecution.Iterati
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -41,6 +39,7 @@ public class TLS_A1_GP_07_T extends AbstractTestCase {
 	private final TFTLSServerHello tftlsServerHello;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
 	private final TFServerCertificate tfserverCertificate;
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_GP_07_T() {
 		setTestCaseId(TEST_CASE_ID);
@@ -51,6 +50,7 @@ public class TLS_A1_GP_07_T extends AbstractTestCase {
 		tftlsServerHello = new TFTLSServerHello(this);
 		tfserverCertificate = new TFServerCertificate(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
 	}
 
 	@Override
@@ -105,11 +105,11 @@ public class TLS_A1_GP_07_T extends AbstractTestCase {
 		// all supported tls version
 		List<TlsVersion> tlsVersions = configuration.getSupportedTLSVersions();
 		if (null == tlsVersions || tlsVersions.isEmpty()) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
 
-		logger.debug("Supported TLS versions:");
+		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.name());
 		}
@@ -157,7 +157,9 @@ public class TLS_A1_GP_07_T extends AbstractTestCase {
 						"The TLS protocol is executed without errors and the channel is established.");
 				testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-				tfLocalServerClose.executeSteps("6", "Server closed successfully", Arrays.asList(),
+				tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
+
+				tfLocalServerClose.executeSteps("7", "Server closed successfully", Arrays.asList(),
 						testTool);
 				dutExecutor.resetProperties();
 				testTool.resetProperties();

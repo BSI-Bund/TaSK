@@ -71,7 +71,7 @@ class ApplicationProfileVerifier {
 		// Go through each section and check if it is present in MICS.
 		LoggingConnector logger = LoggingConnector.getInstance();
 		var verificationSuccessful = true;
-		for (var icsSection : ICSSection.values()) {
+		for (var icsSection : ICSSection.getValuesExceptZeroRTT()) {
 			if (applicationMapping.getMandatoryICSSections().contains(icsSection)) {
 				// Mandatory
 				if (!icsSection.isPresentInMics(mics)) {

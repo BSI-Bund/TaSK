@@ -106,7 +106,9 @@ public class GenericCommandLineExecution extends Logging {
 		shutdownHookThread = new Thread() {
 			@Override
 			public void run() {
-				process.destroy();
+				if (process != null) {
+					process.destroy();
+				}
 			}
 		};
 		Runtime.getRuntime().addShutdownHook(shutdownHookThread);
@@ -217,7 +219,7 @@ public class GenericCommandLineExecution extends Logging {
 
 		// Second step check the process exit value
 		logInfo(getExecutor().getName() + " exit value = " + exitValue);
-		if (PROCESS_EXIT_VALUE_OK == exitValue || exitValue == 143) { // 143 SIGTERM signal for CRL Server
+		if (PROCESS_EXIT_VALUE_OK == exitValue || exitValue == 143 || exitValue == 1 || exitValue == 127) { // 143 SIGTERM signal for CRL Server
 			if (!tlsLogListComplete) {
 				setLogBeanList(LogBean.convertToLogBeanList(getLogList()));
 			}
@@ -234,7 +236,7 @@ public class GenericCommandLineExecution extends Logging {
 			}
 		}
 		if (handleNoLogAsError) {
-			throw new IOException("The execution of the " + getExecutor().getName() + " failed.");
+			throw new IOException("The execution of the " + getExecutor().getName() + " failed with the following exit code: " + exitValue );
 		}
 		return null;
 
@@ -298,6 +300,11 @@ public class GenericCommandLineExecution extends Logging {
 	protected void destroy() {
 		if (!isNull()) {
 			process.destroy();
+			try {
+				process.waitFor(5000, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				logError(getExecutor().getName() + " process interrupted.");
+			}
 		}
 	}
 

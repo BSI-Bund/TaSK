@@ -64,7 +64,8 @@ public class RunPlanParser {
 		if (!trpData.getSupportedPSKCipherSuites(TlsVersion.TLS_V1_2).isEmpty()) {
 			var pskValue = trpData.getPSKValue();
 			if (pskValue == null || pskValue.length == 0) {
-				throw new RuntimeException("TestRunplan contains PSK ciphersuites for TLS version v1.2, but no PSK value.");
+				var logger = LoggingConnector.getInstance();
+				logger.warning("TestRunplan contains PSK ciphersuites for TLS version v1.2, but no PSK value.");
 			}
 		}
 	}

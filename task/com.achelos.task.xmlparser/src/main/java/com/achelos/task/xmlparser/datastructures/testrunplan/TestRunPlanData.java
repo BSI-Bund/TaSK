@@ -8,14 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
-import com.achelos.task.commons.enums.TlsCipherSuite;
-import com.achelos.task.commons.enums.TlsDHGroup;
-import com.achelos.task.commons.enums.TlsExtensionTypes;
-import com.achelos.task.commons.enums.TlsHashAlgorithm;
-import com.achelos.task.commons.enums.TlsNamedCurves;
-import com.achelos.task.commons.enums.TlsSignatureAlgorithm;
-import com.achelos.task.commons.enums.TlsSignatureScheme;
-import com.achelos.task.commons.enums.TlsVersion;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
+import com.achelos.task.commons.enums.*;
 import com.achelos.task.xmlparser.datastructures.common.CertificateIdentifier;
 import com.achelos.task.xmlparser.datastructures.common.TR03145CertificationInfo;
 
@@ -96,13 +90,13 @@ public class TestRunPlanData {
 	 */
 	public List<TlsVersion> getSupportedTLSVersions() {
 		var listOfSupported = new ArrayList<TlsVersion>();
-		// for (var tlsVersion : this.tlsConfiguration.getTlsVersions().keySet()) {
-		// if (this.tlsConfiguration.getTlsVersions().get(tlsVersion)) {
-		// listOfSupported.add(tlsVersion);
-		// }
-		// }
-		// According to the BSI this should be TLS 1.2 for now
-		listOfSupported.add(TlsVersion.TLS_V1_2);
+		 for (var tlsVersion : this.tlsConfiguration.getTlsVersions().keySet()) {
+		 if (this.tlsConfiguration.getTlsVersions().get(tlsVersion)) {
+		 listOfSupported.add(tlsVersion);
+		 }
+		 }
+		 //According to the BSI this should be TLS 1.2 for now
+		//listOfSupported.add(TlsVersion.TLS_V1_3);
 
 		return listOfSupported;
 	}
@@ -129,15 +123,15 @@ public class TestRunPlanData {
 	 * @return The highest supported TLS version of the DUT.
 	 */
 	public TlsVersion getHighestSupportedTlsVersion() {
-		// var supportedTlsVersions = getSupportedTLSVersions();
-		// var currentHighestVersion = supportedTlsVersions.get(0);
-		// for (var version : supportedTlsVersions) {
-		// if (version.compareTo(currentHighestVersion) > 0) {
-		// currentHighestVersion = version;
-		// }
-		// }
+		 var supportedTlsVersions = getSupportedTLSVersions();
+		 var currentHighestVersion = supportedTlsVersions.get(0);
+		 for (var version : supportedTlsVersions) {
+		 if (version.compareTo(currentHighestVersion) > 0) {
+		 	currentHighestVersion = version;
+		 }
+		 }
 		// According to the BSI this should be TLS 1.2 for now
-		var currentHighestVersion = TlsVersion.TLS_V1_2;
+		//var currentHighestVersion = TlsVersion.TLS_V1_2;
 		return currentHighestVersion;
 	}
 
@@ -180,7 +174,7 @@ public class TestRunPlanData {
 	 * @param tlsVersion The TLS version the Named Curves should be applicable for.
 	 * @return A list of all supported Elliptic Curves and DH Groups for the specified TlsVersion.
 	 */
-	public List<TlsNamedCurves> getSupportedEllipticCurvesAndFFDHE(final TlsVersion tlsVersion) {
+	public List<TlsNamedCurves> getSupportedGroups(final TlsVersion tlsVersion) {
 		return tlsConfiguration.getSupportedGroups(tlsVersion);
 	}
 
@@ -472,7 +466,7 @@ public class TestRunPlanData {
 	 * @return true, if the given cipher suite supports elliptic curve algorithms
 	 */
 	public boolean isPFSCipherSuite(final TlsCipherSuite cipherSuite) {
-		return cipherSuite.name().contains("_ECDHE_") || cipherSuite.name().contains("_DHE_");
+		return cipherSuite.name().contains("_ECDHE_") || cipherSuite.name().contains("_DHE_") || cipherSuite.isOnlyVersionSupported(TlsVersion.TLS_V1_3);
 	}
 
 	public boolean containsPFSCipherSuite(final List<TlsCipherSuite> cipherSuites) {
@@ -495,6 +489,12 @@ public class TestRunPlanData {
 	 * @return a list of by the DUT supported PFS cipher suites for the specified TlsVersion.
 	 */
 	public List<TlsCipherSuite> getSupportedPFSCipherSuites(final TlsVersion tlsVersion) {
+
+		//in TLS 1.3 all cipher suites are PFS
+		if(tlsVersion == TlsVersion.TLS_V1_3){
+			return getSupportedCipherSuites(TlsVersion.TLS_V1_3);
+		}
+
 		var pFSSupportedCipherSuites = new ArrayList<TlsCipherSuite>();
 		for (var tlsCipherSuite : getSupportedCipherSuites(tlsVersion)) {
 			if (tlsCipherSuite.name().contains("_DHE_") || tlsCipherSuite.name().contains("_ECDHE_")) {
@@ -568,11 +568,14 @@ public class TestRunPlanData {
 	 * @param tlsVersion a {@link TlsVersion} as filter.
 	 * @return a list of cipher suites which are not supported by the DUT
 	 */
-	public List<TlsCipherSuite> getNotSupportedCipherSuites(final TlsVersion tlsVersion) {
+	public List<TlsCipherSuite> getNotSupportedCipherSuites(final TlsVersion tlsVersion, TlsTestToolMode mode) {
 		ArrayList<TlsCipherSuite> allCipherSuites
 				= new ArrayList<>(TlsCipherSuite.getCipherSuitesByVersions(tlsVersion));
 		allCipherSuites.removeAll(getSupportedCipherSuites(tlsVersion));
 		allCipherSuites.remove(TlsCipherSuite.TLS_NULL_WITH_NULL_NULL);
+		if(mode == TlsTestToolMode.server) {
+			allCipherSuites.remove(TlsCipherSuite.TLS_EMPTY_RENEGOTIATION_INFO_SCSV);
+		}
 		return allCipherSuites;
 	}
 
@@ -686,6 +689,24 @@ public class TestRunPlanData {
 	}
 
 	/**
+	 * In case of a TLS server returns the port under which the RMI for the DUT can be found.
+	 *
+	 * @return the port under which the RMI for the DUT can be found.
+	 */
+	public String getDutRMIPort() {
+		return testConfiguration.getDutRMIPort();
+	}
+
+	/**
+	 * In case of a TLS server returns the address under which theRMI for the DUT can be found.
+	 *
+	 * @return the address under which the RMI for the DUT can be found.
+	 */
+	public String getDutRMIURL() {
+		return testConfiguration.getDutRMIURL();
+	}
+
+	/**
 	 * In case of a TLS client returns the executable by which the DUT can be executed.
 	 *
 	 * @return the executable by which the DUT can be executed.
@@ -748,7 +769,7 @@ public class TestRunPlanData {
 	 * @return a single by the DUT unsupported TLS Signature Algorithm.
 	 */
 	public TlsSignatureAlgorithmWithHash getNotSupportedSignatureAlgorithm() {
-		return new TlsSignatureAlgorithmWithHash(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha1);
+		return new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha1);
 	}
 
 	/**
@@ -821,5 +842,21 @@ public class TestRunPlanData {
 	 */
 	public List<DUTCapabilities> getDutCapabilities(){
 		return testConfiguration.getDutCapabilities();
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 * @return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 */
+	public String getBrowserSimulatorURL() {
+		return testConfiguration.getBrowserSimulatorURL();
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 * @return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 */
+	public String getBrowserSimulatorPort() {
+		return testConfiguration.getBrowserSimulatorPort();
 	}
 }

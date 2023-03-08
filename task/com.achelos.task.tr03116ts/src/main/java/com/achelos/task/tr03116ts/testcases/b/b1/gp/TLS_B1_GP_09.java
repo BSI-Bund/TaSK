@@ -9,7 +9,7 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetex
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
@@ -30,7 +30,6 @@ public class TLS_B1_GP_09 extends AbstractTestCase {
 	private TSharkExecutor tShark = null;
 	private final TFTLSClientHello tfClientHello;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 
 	public TLS_B1_GP_09() {
 		setTestCaseId(TEST_CASE_ID);
@@ -39,7 +38,6 @@ public class TLS_B1_GP_09 extends AbstractTestCase {
 
 		tfClientHello = new TFTLSClientHello(this);
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 	}
 
 	@Override
@@ -94,24 +92,26 @@ public class TLS_B1_GP_09 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.getName());
 
 		/* supported cipher suites */
 		var cipherSuites = configuration.getSupportedCipherSuites(tlsVersion);
 		if (null == cipherSuites || cipherSuites.isEmpty()) {
-			logger.error("No supported Cipher suites found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
 
 		/* reverse the cipher suite order */
 		Collections.reverse(cipherSuites);
-		logger.debug("Supported Cipher suites:");
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE);
 		for (TlsCipherSuite cipherSuite : cipherSuites) {
 			logger.debug(cipherSuite.name());
 		}
@@ -124,11 +124,15 @@ public class TLS_B1_GP_09 extends AbstractTestCase {
 				+ "supported according to the ICS, however in the reverted order.", Arrays.asList(),
 				testTool);
 
-		tFTCPIPCloseConnection.executeSteps("3", "", Arrays.asList(),
-				testTool);
-
-		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
+		step(3, "Check if the DUT ignores the order of the cipher suites in the client hello and does not select any "
+				+ "interim cipher suite from the beginning of the list. Instead one of the recommended cipher suites "
+				+ "from the end of the list is selected.",
+				"One of the recommended cipher suites from the end of the list is selected.");
 		testTool.assertServerHelloCipherSuitesContains(cipherSuites.get(cipherSuites.size() - 1));
+
+		step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
+		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 	}
 
 	@Override

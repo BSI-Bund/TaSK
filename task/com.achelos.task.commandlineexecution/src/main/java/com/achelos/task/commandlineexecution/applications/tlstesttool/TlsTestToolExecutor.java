@@ -1145,6 +1145,23 @@ public class TlsTestToolExecutor extends RunLogger {
 		return assertMessageLogged(message.getInternalToolOutputMessage(), BasicLogger.ERROR);
 	}
 
+	/**
+	 * Method searches a given message constant within gathered logging and returns the proper finding or the closest
+	 * message which was found. Logs an error if the message was not found.
+	 *
+	 * @param message The message to search for as constant
+	 * @return true, if the message was found
+	 * @throws IOException
+	 */
+	public final boolean assertMessageNotLogged(final TestToolResource message) throws IOException {
+		boolean messageLogged =  assertMessageLogged(message.getInternalToolOutputMessage(), BasicLogger.INFO);
+		if(messageLogged){
+			logError(message.getInternalToolOutputMessage() + " log message was found");
+			return false;
+		}
+		return true;
+	}
+
 
 	/**
 	 * Method searches a given message constant within gathered logging and returns the proper finding or the closest
@@ -1986,6 +2003,18 @@ public class TlsTestToolExecutor extends RunLogger {
 	 */
 	public final void setPSKIdentityHint(final String pskIdentityHint) {
 		addConfigOption(TlsTestToolConfigurationOption.PSKIDENTITIYHINT, pskIdentityHint);
+	}
+
+	/**
+	 *
+	 * Sets the PSKIdentitiyHint (Pre-Shared Key) to the TLS Test Tool. Later, in the TLS handshake both parties reuse the PSK to
+	 * establish the TLS Session. Note: The configured psk is only used if a corresponding PSK-ciphersuite is set (see
+	 * https://www.rfc-editor.org/rfc/rfc4279).
+	 *
+	 * @param pskIdentity
+	 */
+	public final void setPSKIdentity(final String pskIdentity) {
+		addConfigOption(TlsTestToolConfigurationOption.PSKIDENTITY, pskIdentity);
 	}
 
 	/**

@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TestRunPlan>
-    <TestRunPlanGenerationTime>2022-08-02T12:47:16</TestRunPlanGenerationTime>
+    <TestRunPlanGenerationTime>2023-01-20T15:05:12</TestRunPlanGenerationTime>
     <TestConfiguration>
         <ApplicationType>TR-03116-4-SERVER</ApplicationType>
         <URL>tls-check.de</URL>
         <Port>443</Port>
-        <DUTExecutable></DUTExecutable>
-        <DUTCallArguments>
-            <StartConnectionArguments></StartConnectionArguments>
-            <ResumeConnectionArguments></ResumeConnectionArguments>
-        </DUTCallArguments>
         <DUTCapabilities>
             <Capability>SESSION_TICKET</Capability>
             <Capability>SESSION_ID</Capability>
@@ -73,14 +68,20 @@
             <Group tlsVersion="TLSv1.2" supported="false">
                 <Name>secp521r1</Name>
             </Group>
-            <Group tlsVersion="TLSv1.3" supported="true">
-                <Name>brainpoolP256r1tls13</Name>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe2048</Name>
             </Group>
-            <Group tlsVersion="TLSv1.3" supported="true">
-                <Name>brainpoolP384r1tls13</Name>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe3072</Name>
             </Group>
-            <Group tlsVersion="TLSv1.3" supported="true">
-                <Name>brainpoolP512r1tls13</Name>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe4096</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe6144</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.2" supported="false">
+                <Name>ffdhe8192</Name>
             </Group>
             <Group tlsVersion="TLSv1.3" supported="true">
                 <Name>secp256r1</Name>
@@ -106,6 +107,21 @@
             <Group tlsVersion="TLSv1.3" supported="false">
                 <Name>brainpoolP512r1</Name>
             </Group>
+            <Group tlsVersion="TLSv1.3" supported="false">
+                <Name>ffdhe2048</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.3" supported="false">
+                <Name>ffdhe3072</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.3" supported="false">
+                <Name>ffdhe4096</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.3" supported="false">
+                <Name>ffdhe6144</Name>
+            </Group>
+            <Group tlsVersion="TLSv1.3" supported="false">
+                <Name>ffdhe8192</Name>
+            </Group>
         </TlsSupportedGroups>
         <SupportedSignatureAlgorithms>
             <SignatureAlgorithm tlsVersion="TLSv1.2">
@@ -119,9 +135,6 @@
             <SignatureAlgorithm tlsVersion="TLSv1.2">
                 <Name>rsa</Name>
                 <HashName>sha256</HashName>
-            </SignatureAlgorithm>
-            <SignatureAlgorithm tlsVersion="TLSv1.3">
-                <Name>ecdsa_brainpoolP256r1tls13_sha256</Name>
             </SignatureAlgorithm>
             <SignatureAlgorithm tlsVersion="TLSv1.3">
                 <Name>rsa_pss_pss_sha256</Name>
@@ -216,12 +229,12 @@
             </DHE>
         </KeyLengths>
         <InformationOnTR03145Certification>
-            <NameOfTheCA>Let's Encrypt</NameOfTheCA>
-            <BSICertificateNumber>912b084acf0c18a753f6d62e25a75f5a</BSICertificateNumber>
-            <Subject>CN=R3,O=Let's Encrypt,C=US</Subject>
+            <NameOfTheCA>DummyCA Name</NameOfTheCA>
+            <BSICertificateNumber>912b084acf0c187a53f6d62e25a75f5a</BSICertificateNumber>
+            <Subject>CN=DummyCA,O=DummyOrg,C=DE</Subject>
             <ValidityNotBefore>Fri Sep 04 02:00:00 CEST 2020</ValidityNotBefore>
             <ValidityNotAfter>Mon Sep 15 18:00:00 CEST 2025</ValidityNotAfter>
-            <SubjectKeyIdentifier>142EB317B75856CBAE500940E61FAF9D8B14C2C6</SubjectKeyIdentifier>
+            <SubjectKeyIdentifier>142EB317B75856CBEA500940E61FAF9D8B14C2C6</SubjectKeyIdentifier>
         </InformationOnTR03145Certification>
         <TlsSessionLifetime>PT5M</TlsSessionLifetime>
         <ZeroRTTSupport>false</ZeroRTTSupport>
@@ -237,7 +250,7 @@
                 </Certificate>
                 <Certificate type="EndEntityCertificate">
                     <Subject>CN = www.tls-check.de</Subject>
-                    <Fingerprint>75BE292BCFD545DE1783FC98835A715BDB198773C712C86181BBD21BA287F13B</Fingerprint>
+                    <Fingerprint>238DA7970E5E3B72CC0DB456E5EB891C3689E6B1EB14659C9DF18962668AD985</Fingerprint>
                 </Certificate>
             </CertificateChain>
             <ServerDomains>

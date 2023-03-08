@@ -11,7 +11,7 @@ import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.certificatehelper.CertificateChecker;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
@@ -32,7 +32,6 @@ public class TLS_B1_FR_03 extends AbstractTestCase {
 	private TSharkExecutor tShark = null;
 	private final TFTLSClientHello tfClientHello;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 
 	public TLS_B1_FR_03() {
 		setTestCaseId(TEST_CASE_ID);
@@ -41,7 +40,6 @@ public class TLS_B1_FR_03 extends AbstractTestCase {
 
 		tfClientHello = new TFTLSClientHello(this);
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 	}
 
 
@@ -98,18 +96,18 @@ public class TLS_B1_FR_03 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite is found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported CipherSuite: " + cipherSuite.name());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.name());
 
 		tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite);
@@ -118,9 +116,8 @@ public class TLS_B1_FR_03 extends AbstractTestCase {
 		tFTCPIPNewConnection.executeSteps("2", "", Arrays.asList(),
 				testTool);
 
-		tFTCPIPCloseConnection.executeSteps("3", "", Arrays.asList(),
-				testTool);
-
+		step(3, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 		step(4, "The DUT supplies a certificate during the TLS handshake.", "The signature of the certificate"

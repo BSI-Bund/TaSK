@@ -94,17 +94,18 @@ public class TesttoolRunner implements Runnable{
 			}
 
 			// Ignore MICS verification
-			boolean ignoreMicsVerification = requestEntry.ignoreMicsVerification();
+			//boolean ignoreMicsVerification = requestEntry.ignoreMicsVerification();
 
 			// Certificate Files
-			List<File> certificateFileList = requestEntry.getServerCertificateChain();
+			//List<File> certificateFileList = requestEntry.getServerCertificateChain();
 
 			var reportDir = globalConfiguration.get(GlobalConfigParameterNames.ReportDirectory.getParameterName())
 					.getValueAsString();
 			var reportDirectory = Paths.get(reportDir, requestEntry.getUuid().toString()).toString();
 
-			TaskTestTool.executeTaskTestTool(logger, globalConfigFile, micsFile, certificateFileList,
-					ignoreMicsVerification, reportDirectory);
+			var taskExecuteParameters = requestEntry.toTaskExecutionParameters(null, globalConfigFile, reportDirectory);
+			TaskTestTool.executeTaskTestTool(taskExecuteParameters);
+
 
 			reportGeneration(reportLogger, reportDirectory);
 		} finally {
@@ -131,7 +132,8 @@ public class TesttoolRunner implements Runnable{
 					.getValueAsString();
 			var reportDirectory = Paths.get(reportDir, requestEntry.getUuid().toString()).toString();
 
-			TaskTestTool.executeTaskTestTool(logger, testRunPlanFile, globalConfigFile, reportDirectory);
+			var taskExecuteParameters = requestEntry.toTaskExecutionParameters(null, globalConfigFile, reportDirectory);
+			TaskTestTool.executeTaskTestTool(taskExecuteParameters);
 
 			reportGeneration(reportLogger, reportDirectory);
 

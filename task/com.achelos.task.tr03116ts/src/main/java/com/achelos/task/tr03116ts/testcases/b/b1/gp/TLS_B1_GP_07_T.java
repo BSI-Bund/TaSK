@@ -1,7 +1,9 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.gp;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
@@ -10,10 +12,12 @@ import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsVersion;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 import com.achelos.task.tr03116ts.testfragments.TFTLSVersionCheck;
+
+import static com.achelos.task.commons.enums.TlsVersion.TLS_V1_3;
 
 
 /**
@@ -39,7 +43,6 @@ public class TLS_B1_GP_07_T extends AbstractTestCase {
 	private TSharkExecutor tShark = null;
 	private final TFTLSClientHello tfClientHello;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFTLSVersionCheck tFTLSVersionCheck;
 
 	public TLS_B1_GP_07_T() {
@@ -49,7 +52,6 @@ public class TLS_B1_GP_07_T extends AbstractTestCase {
 
 		tfClientHello = new TFTLSClientHello(this);
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tFTLSVersionCheck = new TFTLSVersionCheck(this);
 	}
 
@@ -101,10 +103,10 @@ public class TLS_B1_GP_07_T extends AbstractTestCase {
 		/* all supported TLS versions */
 		var tlsVersions = configuration.getSupportedTLSVersions();
 		if (null == tlsVersions || tlsVersions.isEmpty()) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("Supported TLS versions:");
+		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.getName());
 		}
@@ -122,7 +124,7 @@ public class TLS_B1_GP_07_T extends AbstractTestCase {
 			}
 
 			if (cipherSuites.size() == 0) {
-				logger.error("No supported PFS Cipher suites found.");
+				logger.error("No supported PFS cipher suites found.");
 				continue;
 			}
 
@@ -148,12 +150,17 @@ public class TLS_B1_GP_07_T extends AbstractTestCase {
 
 			// repeat test for all supported pfs cipher suites
 			for (TlsCipherSuite cipherSuite : cipherSuites) {
-				boolean isECDHECipherSuite = TlsCipherSuite.filterByName("TLS_ECDHE_").contains(cipherSuite);
-				List<TlsNamedCurves> supportedGroups;
-				if (isECDHECipherSuite) {
-					supportedGroups = eccSupportedGroups;
-				} else {
-					supportedGroups = ffdheSupportedGroups;
+
+				List<TlsNamedCurves> supportedGroups= null;
+				if(tlsVersion.compareTo(TlsVersion.TLS_V1_2)<=0){
+					boolean isECDHECipherSuite = TlsCipherSuite.filterByName("TLS_ECDHE_").contains(cipherSuite);
+					if (isECDHECipherSuite) {
+						supportedGroups = eccSupportedGroups;
+					} else {
+						supportedGroups = ffdheSupportedGroups;
+					}
+				}else /*TLS 1.3*/{
+					supportedGroups = Stream.concat(eccSupportedGroups.stream(), ffdheSupportedGroups.stream()).toList();
 				}
 
 				for (TlsNamedCurves supportedGroup : supportedGroups) {
@@ -170,8 +177,8 @@ public class TLS_B1_GP_07_T extends AbstractTestCase {
 							Arrays.asList("tlsVersion=" + tlsVersion.getName(), "isSupported=true"), testTool,
 							tlsVersion, true);
 
-					tFTCPIPCloseConnection.executeSteps("4", "", Arrays.asList(), testTool);
-
+					step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+							"The TLS protocol is executed without errors and the channel is established.");
 					testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 					testTool.resetProperties();
@@ -190,14 +197,19 @@ public class TLS_B1_GP_07_T extends AbstractTestCase {
 			var eccSupportedGroups
 					= configuration.filterSupportedGroupsToEllipticCurveGroups(tlsVersion);
 			for (TlsCipherSuite cipherSuite : cipherSuites) {
-				boolean isECDHECipherSuite = TlsCipherSuite.filterByName("TLS_ECDHE_").contains(cipherSuite);
-				List<TlsNamedCurves> supportedGroups;
-				if (isECDHECipherSuite) {
-					supportedGroups = eccSupportedGroups;
-				} else {
-					supportedGroups = ffdheSupportedGroups;
+				if (tlsVersion.compareTo(TlsVersion.TLS_V1_2)<=0) {
+
+					boolean isECDHECipherSuite = TlsCipherSuite.filterByName("TLS_ECDHE_").contains(cipherSuite);
+					List<TlsNamedCurves> supportedGroups;
+					if (isECDHECipherSuite) {
+						supportedGroups = eccSupportedGroups;
+					} else {
+						supportedGroups = ffdheSupportedGroups;
+					}
+					counter += supportedGroups.size();
+				}else if (tlsVersion== TLS_V1_3){
+					counter+= configuration.getSupportedGroups(TLS_V1_3).size();
 				}
-				counter += supportedGroups.size();
 			}
 		}
 		return counter;

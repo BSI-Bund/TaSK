@@ -8,6 +8,7 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetex
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
@@ -99,18 +100,18 @@ public class TLS_B1_FR_13 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.getName());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** any supported algorithm cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported cipher suite:" + cipherSuite.getName());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.getName());
 
 		tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion, cipherSuite);
@@ -122,16 +123,18 @@ public class TLS_B1_FR_13 extends AbstractTestCase {
 		tFTCPIPNewConnection.executeSteps("2", "", Collections.emptyList(),
 				testTool);
 
+		step(3, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-		step(3, "The client tries to keep the connection running for more than the maximum"
+		step(4, "The client tries to keep the connection running for more than the maximum"
 				+ " allowed amount of time: "
 				+ configuration.getMaximumTLSSessionTime().getSeconds()
 				+ " seconds.", "The DUT closes the connection before the maximum allowed amount of time expires.");
 
 		testTool.assertMessageLogged(TestToolResource.TCP_IP_Conn_closed_before_lifetime_expired);
 
-		tFTCPIPCloseConnection.executeSteps("4", "", Collections.emptyList(),
+		tFTCPIPCloseConnection.executeSteps("5", "The TLS connection is closed by the server.", Collections.emptyList(),
 				testTool);
 	}
 

@@ -1,0 +1,11 @@
+--- a/include/mbedtls/ssl.h	2023-01-13 11:52:16.255417000 +0100
++++ b/include/mbedtls/ssl.h	2023-01-13 14:43:16.328955617 +0100
+@@ -341,7 +341,7 @@
+  * Size defines
+  */
+ #if !defined(MBEDTLS_PSK_MAX_LEN)
+-#define MBEDTLS_PSK_MAX_LEN            32 /* 256 bits */
++#define MBEDTLS_PSK_MAX_LEN            64 /* 512 bits */
+ #endif
+ 
+ /* Dummy type used only for its size */

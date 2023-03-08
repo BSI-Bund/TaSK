@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.achelos.task</groupId>
 		<artifactId>com.achelos.task</artifactId>
-		<version>0.4.2</version>
+		<version>0.5.2</version>
 	</parent>
 	<artifactId>com.achelos.task.logging</artifactId>
 	<name>com.achelos.task.logging</name>
@@ -18,7 +18,7 @@
 		<dependency>
   			<groupId>com.achelos.task</groupId>
   			<artifactId>com.achelos.task.utilities</artifactId>
-  			<version>0.4.2</version>
+  			<version>0.5.2</version>
   		</dependency>
 	</dependencies>
 </project>

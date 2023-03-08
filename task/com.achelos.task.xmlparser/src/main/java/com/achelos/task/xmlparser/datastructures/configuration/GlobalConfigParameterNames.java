@@ -38,9 +38,13 @@ public enum GlobalConfigParameterNames {
 	CrlResponderPort("crl_responder_port", false, GlobalConfigParameter.ConfigParameterType.INT,
 			new GlobalConfigParameter("8081", GlobalConfigParameter.ConfigParameterType.INT, "crl_responder_port")),
 	RestApiHost("rest_api_host", false, GlobalConfigParameter.ConfigParameterType.STRING,
-			new GlobalConfigParameter("localhost", GlobalConfigParameter.ConfigParameterType.STRING, "rest_api_host")),
+			new GlobalConfigParameter("task.achelos.de", GlobalConfigParameter.ConfigParameterType.STRING, "rest_api_host")),
 	RestApiPort("rest_api_port", false, GlobalConfigParameter.ConfigParameterType.INT,
 			new GlobalConfigParameter("8088", GlobalConfigParameter.ConfigParameterType.INT, "rest_api_port")),
+	RestApiCredentials("rest_api_credentials", false, GlobalConfigParameter.ConfigParameterType.STRING,
+			new GlobalConfigParameter("", GlobalConfigParameter.ConfigParameterType.STRING, "rest_api_credentials")),
+	RestApiCredentialPassword("rest_api_credential_pass", false, GlobalConfigParameter.ConfigParameterType.STRING,
+			new GlobalConfigParameter("", GlobalConfigParameter.ConfigParameterType.STRING, "rest_api_credential_pass")),
 	DutExecutableTimeout("dut_executable_timeout", false, GlobalConfigParameter.ConfigParameterType.INT,
 			new GlobalConfigParameter("5", GlobalConfigParameter.ConfigParameterType.INT, "dut_executable_timeout_milliseconds"));
 

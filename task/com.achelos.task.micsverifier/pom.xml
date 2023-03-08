@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.achelos.task</groupId>
 		<artifactId>com.achelos.task</artifactId>
-		<version>0.4.2</version>
+		<version>0.5.2</version>
 	</parent>
 	<artifactId>com.achelos.task.micsverifier</artifactId>
 	<packaging>jar</packaging>
@@ -44,12 +44,12 @@
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.logging</artifactId>
-			<version>0.4.2</version>
+			<version>0.5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.abstracttestsuite</artifactId>
-			<version>0.4.2</version>
+			<version>0.5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.achelos.task</groupId>
             <artifactId>com.achelos.task.configuration</artifactId>
-            <version>0.4.2</version>
+            <version>0.5.2</version>
             <scope>compile</scope>
         </dependency>
 

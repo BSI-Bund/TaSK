@@ -8,6 +8,8 @@ import java.util.List;
 import javax.management.InvalidAttributeValueException;
 
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsHashAlgorithm;
@@ -111,11 +113,11 @@ public class RunPlanTlsConfiguration {
 				var list = supportedSignatureAlgorithms.get(tlsVersion);
 				if (tlsVersion == TlsVersion.TLS_V1_3) {
 					var tlsSignatureScheme = TlsSignatureScheme.valueOf(signAlg.getName().toUpperCase());
-					list.add(new TlsSignatureAlgorithmWithHash(tlsSignatureScheme));
+					list.add(new TlsSignatureAlgorithmWithHashTls13(tlsSignatureScheme));
 				} else {
 					var tlsSignatureAlgorithm = TlsSignatureAlgorithm.valueOf(signAlg.getName());
 					var tlsHashAlgorithm = TlsHashAlgorithm.valueOf(signAlg.getHashName());
-					list.add(new TlsSignatureAlgorithmWithHash(tlsSignatureAlgorithm, tlsHashAlgorithm));
+					list.add(new TlsSignatureAlgorithmWithHashTls12(tlsSignatureAlgorithm, tlsHashAlgorithm));
 				}
 			} catch (Exception e) {
 				throw new IllegalArgumentException("Unable to parse TLS SignatureAlgorithm: " + signAlg.getName(), e);

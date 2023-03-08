@@ -14,9 +14,13 @@ public class TestConfiguration {
 	private String dutApplicationType;
 	private String dutURL;
 	private String dutPort;
+	private String dutRMIURL;
+	private String dutRMIPort;
 	private String dutExecutable;
 	private String dutCallArgumentsConnect;
 	private String dutCallArgumentsReconnect;
+	private String browserSimulatorURL;
+	private String browserSimulatorPort;
 	private Integer dutEIDClientPort;
 	private ApplicationSpecificData applicationSpecificData;
 	private List<DUTCapabilities> dutCapabilities;
@@ -36,13 +40,23 @@ public class TestConfiguration {
 	public static TestConfiguration parseFromTRPJaxb(final TestRunPlan.TestConfiguration rawTestConfig) {
 		var testConfiguration = new TestConfiguration();
 		testConfiguration.dutApplicationType = rawTestConfig.getApplicationType();
-		testConfiguration.dutURL = rawTestConfig.getURL();
-		testConfiguration.dutPort = rawTestConfig.getPort();
-		testConfiguration.dutExecutable = rawTestConfig.getDUTExecutable();
-		testConfiguration.dutCallArgumentsConnect = rawTestConfig.getDUTCallArguments().getStartConnectionArguments();
-		testConfiguration.dutCallArgumentsReconnect
-				= rawTestConfig.getDUTCallArguments().getResumeConnectionArguments();
-		testConfiguration.dutEIDClientPort = rawTestConfig.getDUTCallArguments().getEIDClientPort() != null ?  rawTestConfig.getDUTCallArguments().getEIDClientPort() : 24727;
+		testConfiguration.dutURL = rawTestConfig.getURL() != null ? rawTestConfig.getURL() : "";
+		testConfiguration.dutPort = rawTestConfig.getPort() != null ? rawTestConfig.getPort() : "";
+		testConfiguration.dutRMIURL = rawTestConfig.getRMIURL() != null ? rawTestConfig.getRMIURL() : "";
+		testConfiguration.dutRMIPort = rawTestConfig.getRMIPort() != null ? rawTestConfig.getRMIPort() : "";
+		testConfiguration.dutExecutable = rawTestConfig.getDUTExecutable() != null ? rawTestConfig.getDUTExecutable() : "";
+		if (rawTestConfig.getDUTCallArguments() != null) {
+			testConfiguration.dutCallArgumentsConnect = rawTestConfig.getDUTCallArguments().getStartConnectionArguments();
+			testConfiguration.dutCallArgumentsReconnect = rawTestConfig.getDUTCallArguments().getResumeConnectionArguments();
+		} else {
+			testConfiguration.dutCallArgumentsConnect = "";
+			testConfiguration.dutCallArgumentsReconnect = "";
+			testConfiguration.dutEIDClientPort = 24727;
+
+		}
+		testConfiguration.browserSimulatorURL = rawTestConfig.getBrowserSimulatorURL() != null ? rawTestConfig.getBrowserSimulatorURL() : "";
+		testConfiguration.browserSimulatorPort = rawTestConfig.getBrowserSimulatorPort() != null ? rawTestConfig.getBrowserSimulatorPort() : "1099";
+		testConfiguration.dutEIDClientPort = rawTestConfig.getEIDClientPort() != null ?  rawTestConfig.getEIDClientPort() : 24727;
 		testConfiguration.applicationSpecificData
 				= ApplicationSpecificData.parseFromTRPJaxb(rawTestConfig.getApplicationSpecificData());
 		var dutCapablities = rawTestConfig.getDUTCapabilities();
@@ -82,6 +96,22 @@ public class TestConfiguration {
 	 */
 	public String getDutPort() {
 		return dutPort;
+	}
+
+	/**
+	 * Returns the DUT RMIURL which is stored in this TestConfiguration.
+	 * @return the DUT RMIURL which is stored in this TestConfiguration.
+	 */
+	public String getDutRMIURL() {
+		return dutRMIURL;
+	}
+
+	/**
+	 * Returns the DUT RMIPort which is stored in this TestConfiguration.
+	 * @return the DUT RMIPort which is stored in this TestConfiguration.
+	 */
+	public String getDutRMIPort() {
+		return dutRMIPort;
 	}
 
 	/**
@@ -133,5 +163,21 @@ public class TestConfiguration {
 	 */
 	public List<DUTCapabilities> getDutCapabilities() {
 		return new ArrayList<>(dutCapabilities);
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 * @return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 */
+	public String getBrowserSimulatorURL() {
+		return browserSimulatorURL;
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 * @return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 */
+	public String getBrowserSimulatorPort() {
+		return browserSimulatorPort;
 	}
 }

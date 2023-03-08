@@ -2,6 +2,10 @@ package com.achelos.task.xmlparser.datastructures.applicationmapping;
 
 import com.achelos.task.xmlparser.datastructures.mics.MICS;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public enum ICSSection {
 
     ApplicationUnderTest("Application under Test", "3.1"),
@@ -75,5 +79,11 @@ public enum ICSSection {
                 // Unknown.
                 return false;
         }
+    }
+
+    public static List<ICSSection> getValuesExceptZeroRTT() {
+        var icsSections = new ArrayList<>(Arrays.asList(ICSSection.values()));
+        icsSections.remove(ZeroRTTData);
+        return icsSections;
     }
 }

@@ -3,7 +3,7 @@ distinguished_name = req_distinguished_name
 prompt = no
  
 name                    = root-ca
-domain_suffix           = localhost
+domain_suffix           = achelos.de
 default_ca              = ca_default
 name_opt                = utf8,esc_ctrl,multiline,lname,align
  
@@ -11,7 +11,7 @@ name_opt                = utf8,esc_ctrl,multiline,lname,align
 countryName             = "DE"
 organizationName        = "achelos GmbH"
 organizationalUnitName	= "Tests"
-commonName              = "localhost"
+commonName              = "task.achelos.de"
  
 [ca_default]
 home                    = PLACEHOLDER_BASE_DIR
@@ -64,7 +64,7 @@ subjectKeyIdentifier    = hash
 countryName             = "DE"
 organizationName        = "achelos GmbH"
 organzationalUnitName	= "Tests"
-commonName              = "localhost"
+commonName              = "task.achelos.de"
 
 [ usr_cert ]
 extendedKeyUsage        = clientAuth,serverAuth

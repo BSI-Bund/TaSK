@@ -43,18 +43,18 @@ ExternalProject_Add(${EP_MBEDTLS}
 	DEPENDS ${EP_ZLIB}
 	URL https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/mbedtls-2.2.1.tar.gz
 	URL_HASH SHA256=32819c62c20e8740a11b49daa5d09ac6f179edf120a87ac559cd63120b66b699
-	PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-EnableZlibSupport.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteClientHelloExtensions.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteClientHelloCompressionMethods.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-LongHexDump.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-LogServerHelloExtensions.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-AllowAllCipherSuites.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteHelloVersion.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-LogServerHelloCipherSuite.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-ExtensionsOutput.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteServerHelloCompressionMethods.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteEllipticCurveGroup.patch  && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteServerHelloExtensions.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-ForceCertificateUsage.patch
+	PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-EnableZlibSupport.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteClientHelloExtensions.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteClientHelloCompressionMethods.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-LongHexDump.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-LogServerHelloExtensions.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-AllowAllCipherSuites.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteHelloVersion.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-LogServerHelloCipherSuite.patch &&  patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-ExtensionsOutput.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteServerHelloCompressionMethods.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteEllipticCurveGroup.patch  && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-OverwriteServerHelloExtensions.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-ForceCertificateUsage.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/mbedTLS-SetPSKSize.patch
 	
 	BUILD_ALWAYS ON
 	INSTALL_DIR ${EP_INSTALL_DIR}
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} -DENABLE_ZLIB_SUPPORT:BOOL=ON -DENABLE_TESTING:BOOL=OFF -DENABLE_PROGRAMS:BOOL=OFF -DZLIB_LIBRARY=<INSTALL_DIR>/lib -DZLIB_INCLUDE_DIR=<INSTALL_DIR>/include
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} -DENABLE_ZLIB_SUPPORT:BOOL=ON -DENABLE_TESTING:BOOL=OFF -DENABLE_PROGRAMS:BOOL=OFF -DZLIB_LIBRARY=<INSTALL_DIR>/lib/libz.a -DZLIB_INCLUDE_DIR=<INSTALL_DIR>/include
 	TEST_BEFORE_INSTALL 0
 )
 
 ExternalProject_Add(${EP_OPENSSL}
 	URL https://www.openssl.org/source/openssl-3.0.1.tar.gz
 	URL_HASH SHA256=c311ad853353bce796edad01a862c50a8a587f62e7e2100ef465ab53ec9b06d1
-	PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-OverwriteExtensions.patch
+	PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-OverwriteExtensions.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-SendHeartbeatRecords.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-enableAllTls13Ciphersuites.patch
 	BUILD_ALWAYS ON
 	BUILD_IN_SOURCE 1
 	INSTALL_DIR ${EP_INSTALL_DIR}

@@ -1,3 +1,136 @@
+# Changelog for Version 0.5.2
+## This is fixed
+### Testbed fixes
+* Fix Nullpointer Exception during the build.
+* Remove duplicated test testMICSParser.
+
+## This is new
+### Testbed improvements
+* Update documentation
+* Update Recommended and Mandatory profiles for TR-03130-1-AM-TLS-EID-SERVER-ECARD-API-INTERFACE-PSK/NONPSK
+
+# Changelog for Version 0.5.1
+
+## This is fixed
+
+### Testbed fixes
+* Remove unused/unnecessary Dockerfile.
+* Fix documentation in ExampleGlobalConfig
+* Minor changes in README
+* RMIURL and RMIPort are not written into every TRP anymore
+* Exemplary MICS and TRP files have been made more generic
+* Fixed a timing bug, which may have resulted in the Application Specific Inspection Instructions of the eID-Client Interfaces not being tested correctly.
+* Fixed a bug regarding the TLS-2 connection of an eID-Client.
+* For negative Testcases in A1, it is additionally checked if the handshake successful message was not logged
+* For session resumption testcases TLS_A1_FR_10 and TLS_A1_FR_11, after the initial handshake it is now correctly checked if the session is closed successfully
+* TLS_B1_FR_11 and TLS_B2_FR_10 are now only executed for TLS 1.2
+
+
+# Changelog for Version 0.5.0
+
+## This is new
+
+
+### Testbed improvements
+* Global configuration value of 'tls_test_tool_path' can now be provided as a relative path.
+* Improved eID-Client motivator by using the Browsersimulator
+* eID-Server support in the Testcase Executor
+* eID-Server support in TLS Test Tool
+
+### Created documents
+* example MICS and TRP for eID Server
+
+
+### Testcases Implemented for eID-server
+
+* Module B1-FR
+  * TLS_B1_FR_15
+  * TLS_B1_FR_16
+  * TLS_B1_FR_17
+* Module B2-FR
+  * TLS_B2_FR_01_T
+  * TLS_B2_FR_11
+  * TLS_B2_FR_14
+  * TLS_B2_FR_15
+  * TLS_B2_FR_16
+* Module B2-GP
+  * TLS_B2_GP_01_T
+  * TLS_B2_GP_02
+  * TLS_B2_GP_03_T
+  * TLS_B2_GP_04
+  * TLS_B2_GP_05_T
+  * TLS_B2_GP_08
+  * TLS_B2_GP_10
+
+
+### Testcases Updated for eID-server
+
+* Module B1-GP
+  * TLS_B1_GP_01_T
+  * TLS_B1_GP_02
+  * TLS_B1_GP_03_T
+  * TLS_B1_GP_04
+  * TLS_B1_GP_05_T
+  * TLS_B1_GP_06
+  * TLS_B1_GP_07_T
+
+
+### Orphaned Testcases Implemented
+
+* Module B1-GP
+  * TLS_B1_GP_06
+* Module B1-FR
+  * TLS_B1_FR_10_T
+  * TLS_B1_FR_14
+* Module B2-GP
+  * TLS_B2_GP_06
+  * TLS_B2_GP_07_T
+* Module B2-FR
+  * TLS_B2_FR_04
+  * TLS_B2_FR_06
+  * TLS_B2_FR_07
+  * TLS_B2_FR_08
+
+
+### Testcases updated for TLS 1.3
+
+* Module B1-FR
+  * TLS_B1_FR_03
+  * TLS_B1_FR_04
+  * TLS_B1_FR_06
+  * TLS_B1_FR_07
+  * TLS_B1_FR_08
+  * TLS_B1_FR_10_T
+  * TLS_B1_FR_11
+  * TLS_B1_FR_13
+  * TLS_B1_FR_16
+* Module B1-GP
+  * TLS_B1_GP_01_T
+  * TLS_B1_GP_02
+  * TLS_B1_GP_03_T
+  * TLS_B1_GP_04
+  * TLS_B1_GP_05
+  * TLS_B1_GP_06
+  * TLS_B1_GP_07_T
+* Module B2-FR
+  * TLS_B2_FR_03
+  * TLS_B2_FR_04
+  * TLS_B2_FR_06
+  * TLS_B2_FR_07
+  * TLS_B2_FR_08
+  * TLS_B2_FR_10
+  * TLS_B2_FR_11
+  * TLS_B2_FR_13
+  * TLS_B2_FR_16
+* Module B2-GP
+  * TLS_B2_GP_01_T
+  * TLS_B2_GP_02
+  * TLS_B2_GP_03_T
+  * TLS_B2_GP_04
+  * TLS_B2_GP_05
+  * TLS_B2_GP_06
+  * TLS_B2_GP_07_T
+
 # Changelog for Version 0.4.2
 
 ## This is fixed
@@ -5,6 +138,7 @@
 * Examplary TestRunplan files for eID-Client TLS-1-2 and TLS-2 channels now correspond to examplary MICS files.
 ### Testcase fixes
 * Fixed testcase TLS_A1_GP_06_T
+
 
 # Changelog for Version 0.4.1
 

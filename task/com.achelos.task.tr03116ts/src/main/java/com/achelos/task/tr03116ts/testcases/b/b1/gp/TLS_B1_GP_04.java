@@ -4,14 +4,14 @@ import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
+import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commons.enums.TlsAlertDescription;
-import com.achelos.task.commons.enums.TlsAlertLevel;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsVersion;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.tr03116ts.testfragments.TFHandshakeNotSuccessfulCheck;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
@@ -34,10 +34,9 @@ public class TLS_B1_GP_04 extends AbstractTestCase {
 	private TlsTestToolExecutor testTool = null;
 	private TSharkExecutor tShark = null;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFTLSClientHello tfClientHello;
 	private final TFAlertMessageCheck tFAlertMessageCheck;
-
+	private final TFHandshakeNotSuccessfulCheck tfHandshakeNotSuccessfulCheck;
 
 	public TLS_B1_GP_04() {
 		setTestCaseId(TEST_CASE_ID);
@@ -45,9 +44,9 @@ public class TLS_B1_GP_04 extends AbstractTestCase {
 		setTestCasePurpose(TEST_CASE_PURPOSE);
 
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tfClientHello = new TFTLSClientHello(this);
 		tFAlertMessageCheck = new TFAlertMessageCheck(this);
+		tfHandshakeNotSuccessfulCheck = new TFHandshakeNotSuccessfulCheck(this);
 
 	}
 
@@ -99,13 +98,19 @@ public class TLS_B1_GP_04 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.getName());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported ECC algorithm cipher suite */
-		TlsCipherSuite eccCipherSuite = configuration.getSingleSupportedECCCipherSuite(tlsVersion);
+		TlsCipherSuite eccCipherSuite = null;
+		if(tlsVersion == TlsVersion.TLS_V1_2) {
+			eccCipherSuite = configuration.getSingleSupportedECCCipherSuite(tlsVersion);
+		}
+		if(tlsVersion == TlsVersion.TLS_V1_3){
+			eccCipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
+		}
 		if (eccCipherSuite == null) {
 			logger.error("No supported ECC cipher suite found.");
 			return;
@@ -141,7 +146,8 @@ public class TLS_B1_GP_04 extends AbstractTestCase {
 				+ "or another suitable error description",
 				Arrays.asList("level=warning/fatal", "description=handshake_failure"), testTool);
 
-		tFTCPIPCloseConnection.executeSteps("5", "", Arrays.asList(), testTool);
+		tfHandshakeNotSuccessfulCheck.executeSteps("5", "No TLS channel is established", null, testTool, tlsVersion);
+
 	}
 
 	@Override

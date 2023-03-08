@@ -9,14 +9,11 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.certificatehelper.ManipulateForceCertificateUsage;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
 import com.achelos.task.commons.enums.*;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSHighestVersionSupportCheck;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -44,6 +41,8 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
 	private final TFTLSHighestVersionSupportCheck fFTLSHighestVersionSupportCheck;
 	private final TFAlertMessageCheck tfAlertMessageCheck;
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
+	private final TFHandshakeNotSuccessfulCheck tfHandshakeNotSuccessfulCheck;
 
 	public TLS_A1_CH_08() {
 		setTestCaseId(TEST_CASE_ID);
@@ -56,6 +55,8 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
 		fFTLSHighestVersionSupportCheck = new TFTLSHighestVersionSupportCheck(this);
 		tfAlertMessageCheck = new TFAlertMessageCheck(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
+		tfHandshakeNotSuccessfulCheck = new TFHandshakeNotSuccessfulCheck(this);
 	}
 
 	@Override
@@ -114,20 +115,20 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 		/** highest supported TLS Version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS Version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported CipherSuite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported Cipher Suite found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported CipherSuite: " + cipherSuite.name());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.name());
 
-		step(1, "Setting TLS version: " + tlsVersion.getName() + " and Cipher suite: "
+		step(1, "Setting TLS version: " + tlsVersion.getName() + " and cipher suite: "
 				+ cipherSuite, null);
 
 		TlsSignatureAlgorithmWithHash unsupportedSignatureAlgorithmWithHash
@@ -158,7 +159,11 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 				+ "another suitable error description.",
 				Arrays.asList("level=warning/fatal"), testTool);
 
-		tfLocalServerClose.executeSteps("7", "Server closed successfully", Arrays.asList(),
+		tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
+
+		tfHandshakeNotSuccessfulCheck.executeSteps("8", "No TLS channel is established", null, testTool, tlsVersion);
+
+		tfLocalServerClose.executeSteps("9", "Server closed successfully", Arrays.asList(),
 				testTool);
 		
 	}
@@ -166,7 +171,7 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 	private TlsSignatureAlgorithmWithHash findUnsupportedSignatureAlgorithmWithHash(final TlsVersion tlsVersion) {
 		var clientSupportedSigAlg = configuration.getSupportedSignatureAlgorithms(tlsVersion);
 
-		for (TlsSignatureAlgorithmWithHash supportedCertificateType : TlsSignatureAlgorithmWithHash
+		for (TlsSignatureAlgorithmWithHash supportedCertificateType : TlsSignatureAlgorithmWithHashTls12
 				.getSupportedCertificateTypesTls12()) {
 			if (!clientSupportedSigAlg.contains(supportedCertificateType)) {
 				return supportedCertificateType;
@@ -176,7 +181,7 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 		// We proceed by choosing an uncommon signature algorithm.
 		logger.info("Client supports all common SignatureAlgorithms available.");
 		logger.info("Using uncommon signature algorithm: RSAWithSHA1");
-		return new TlsSignatureAlgorithmWithHash(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha1);
+		return new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha1);
 	}
 
 	@Override

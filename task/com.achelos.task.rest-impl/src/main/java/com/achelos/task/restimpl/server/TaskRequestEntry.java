@@ -1,5 +1,7 @@
 package com.achelos.task.restimpl.server;
 
+import com.achelos.task.abstractinterface.TaskExecutionParameters;
+import com.achelos.task.logging.LoggingConnector;
 import com.achelos.task.xmlparser.inputparsing.InputParser;
 import com.achelos.task.xmlparser.runplanparsing.RunPlanParser;
 
@@ -19,7 +21,7 @@ public class TaskRequestEntry {
 	private List<File> serverCertificateChain;
 	private boolean ignoreMicsVerification;
 
-	private List<File> clientAuthCertChain;
+	private File clientAuthCertChain;
 	private File clientAuthKeyFile;
 
 	protected TaskRequestEntry(final UUID uuid) {
@@ -28,15 +30,16 @@ public class TaskRequestEntry {
 	
 	public TaskRequestEntry(final UUID uuid,
 							final File testRunplanFile,
-							final List<File> clientAuthCertChain,
+							final List<InputStream> clientAuthCertChain,
 							final File clientAuthKeyFile) throws IOException {
 		this.uuid = uuid;
 		if (testRunplanFile == null || !testRunplanFile.exists()) {
-			throw new RuntimeException("TaSKRequestHandler: MICS file does not exist.");
+			throw new RuntimeException("TaSKRequestHandler: TRP file does not exist.");
 		}
 		// Verify TestRunplan
 		var runPlan = RunPlanParser.parseRunPlan(testRunplanFile);
-		if (!runPlan.getDUTApplicationType().toUpperCase().contains("SERVER")) {
+		if (!runPlan.getDUTApplicationType().toUpperCase().contains("TR-03124-1-EID-CLIENT-TLS")
+				&& !runPlan.getDUTApplicationType().toUpperCase().contains("SERVER")) {
 			throw new IllegalArgumentException("TestRunplan provided for invalid DUT Application Type.");
 		}
 
@@ -44,10 +47,12 @@ public class TaskRequestEntry {
 		requestDir = Files.createTempDirectory(uuid.toString());
 		this.testRunplanFile = Files.copy(testRunplanFile.toPath(), requestDir.resolve(testRunplanFile.getName())).toFile();
 		if (clientAuthCertChain != null && !clientAuthCertChain.isEmpty()) {
-			this.clientAuthCertChain = new ArrayList<>();
-			for (var certFile : clientAuthCertChain) {
-				if (certFile != null && certFile.exists()) {
-					this.clientAuthCertChain.add(Files.copy(certFile.toPath(), requestDir.resolve(certFile.getName())).toFile());
+			this.clientAuthCertChain = Files.createTempFile(null, ".pem").toFile();
+			try (OutputStream out = Files.newOutputStream(this.clientAuthCertChain.toPath(), StandardOpenOption.WRITE)) {
+				for (var certFile : clientAuthCertChain) {
+					if (certFile != null) {
+						certFile.transferTo(out);
+					}
 				}
 			}
 		}
@@ -70,7 +75,8 @@ public class TaskRequestEntry {
 		}
 		// Verify TestRunplan
 		var mics = InputParser.parseMICS(micsFile);
-		if (!mics.getApplicationType().toUpperCase().contains("SERVER")) {
+		if (!mics.getApplicationType().toUpperCase().contains("TR-03124-1-EID-CLIENT-TLS")
+				&& !mics.getApplicationType().toUpperCase().contains("SERVER")) {
 			throw new IllegalArgumentException("MICS provided for invalid DUT Application Type.");
 		}
 
@@ -89,14 +95,12 @@ public class TaskRequestEntry {
 		}
 		this.ignoreMicsVerification = ignoreMicsVerification;
 		if (clientAuthCertChain != null && !clientAuthCertChain.isEmpty()) {
-			this.clientAuthCertChain = new ArrayList<>();
-			var cert_number = 0;
-			for (var certFile : clientAuthCertChain) {
-				if (certFile != null) {
-					var fileName = "client_cert_chain_" + Integer.toString(cert_number);
-					Files.copy(certFile, requestDir.resolve(fileName));
-					this.clientAuthCertChain.add(requestDir.resolve(fileName).toFile());
-					cert_number++;
+			this.clientAuthCertChain = Files.createTempFile(null, ".pem").toFile();
+			try (OutputStream out = Files.newOutputStream(this.clientAuthCertChain.toPath(), StandardOpenOption.WRITE)) {
+				for (var certFile : clientAuthCertChain) {
+					if (certFile != null) {
+						certFile.transferTo(out);
+					}
 				}
 			}
 		}
@@ -140,8 +144,8 @@ public class TaskRequestEntry {
 	/**
 	 * @return the clientAuth Certificate Chain
 	 */
-	public List<File> getClientAuthCertChain() {
-		return new ArrayList<>(clientAuthCertChain);
+	public File getClientAuthCertChain() {
+		return clientAuthCertChain;
 	}
 
 	/**
@@ -150,6 +154,37 @@ public class TaskRequestEntry {
 	 */
 	public File getClientAuthKeyFile() {
 		return clientAuthKeyFile;
+	}
+
+	/**
+	 * Return a TaSKExecutionParameter object containing the data of this TaSKRequestEntry.
+	 * @param logger The logger which shall be used when executing task.
+	 * @param configFile The configurationFile which shall be used when executing task.
+	 * @param reportDirectory The Report Directory which shall be used when executing task.
+	 * @return A TaSKExecutionParameter object containing the data of this TaSKRequestEntry.
+	 */
+	public TaskExecutionParameters toTaskExecutionParameters(final LoggingConnector logger, final File configFile, final String reportDirectory) {
+		var clientAuthCertChain = this.clientAuthCertChain == null ? null : this.clientAuthCertChain.getAbsolutePath();
+		var clientAuthKeyFile = this.clientAuthKeyFile == null ? null : this.clientAuthKeyFile.getAbsolutePath();
+
+		if (testRunplanFile != null) {
+			return new TaskExecutionParameters(logger,
+				testRunplanFile,
+				configFile,
+				reportDirectory,
+				clientAuthCertChain,
+				clientAuthKeyFile);
+		} else {
+			return new TaskExecutionParameters(logger,
+					configFile,
+					micsFile,
+					serverCertificateChain,
+					ignoreMicsVerification,
+					reportDirectory,
+					clientAuthCertChain,
+					clientAuthKeyFile);
+
+		}
 	}
 
 	@Override

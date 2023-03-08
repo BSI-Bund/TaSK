@@ -200,6 +200,8 @@ public class TFTLSServerHello extends AbstractTestFragment {
 		if(configuration.getPSKValue()!=null && configuration.getPSKValue().length>0){
 			step(prefix, stepCounter++, "Set the PreSharedKey value for the TLS server", "");
 			testTool.setPSK(configuration.getPSKValue());
+			// Always set default PSK Identity.
+			testTool.setPSKIdentity("Client_identity");
 			if(configuration.getPSKIdentityHint()!=null && !configuration.getPSKIdentityHint().isEmpty()){
 				testTool.setPSKIdentityHint(configuration.getPSKIdentityHint());
 			}

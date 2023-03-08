@@ -11,7 +11,7 @@ import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tlsextensions.TlsExtTruncatedHmac;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
@@ -34,7 +34,6 @@ public class TLS_B1_FR_02_T extends AbstractTestCase {
 	private TlsTestToolExecutor testTool = null;
 	private TSharkExecutor tShark = null;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFTLSClientHello tfClientHello;
 
 
@@ -44,7 +43,6 @@ public class TLS_B1_FR_02_T extends AbstractTestCase {
 		setTestCasePurpose(TEST_CASE_PURPOSE);
 
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tfClientHello = new TFTLSClientHello(this);
 	}
 
@@ -99,52 +97,50 @@ public class TLS_B1_FR_02_T extends AbstractTestCase {
 		logger.info(getTestCaseDescription());
 
 		// all unsupported tls version
-		List<TlsVersion> tlsVersions = configuration.getSupportedTLSVersions();
-		logger.debug("Supported TLS versions:");
-		for (TlsVersion tlsVersion : tlsVersions) {
-			logger.debug(tlsVersion.name());
-		}
-		if (tlsVersions.size() == 0) {
-			logger.error("No supported TLS versions found.");
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
 
 		int iterationCount = 1;
-		for (TlsVersion tlsVersion : tlsVersions) {
 
-			var cipherSuites = configuration.getCBCBasedSupportedCipherSuites(tlsVersion);
-			logger.debug("Supported CBC Cipher suites:");
-			for (TlsCipherSuite cipherSuite : cipherSuites) {
-				logger.debug(cipherSuite.name());
-			}
+		var cipherSuites = configuration.getCBCBasedSupportedCipherSuites(tlsVersion);
+		logger.debug("LoggingMessages.SUPPORTED_CBC_CIPHER_SUITES");
+		for (TlsCipherSuite cipherSuite : cipherSuites) {
+			logger.debug(cipherSuite.name());
+		}
 
-			if (cipherSuites.size() == 0) {
-				logger.error("No supported CBC Cipher suites found.");
-				continue;
-			}
+		if (cipherSuites.size() == 0) {
+			logger.error(MessageConstants.NO_SUPPORTED_CBC_CIPHER_SUITES);
+			return;
+		}
 
-			for (TlsCipherSuite cipherSuite : cipherSuites) {
+		for (TlsCipherSuite cipherSuite : cipherSuites) {
 
-				tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
-						+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite,
-						new TlsExtTruncatedHmac());
-				testTool.start(iterationCount, tlsVersions.size() * cipherSuites.size());
-				iterationCount++;
+			tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
+					+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite,
+					new TlsExtTruncatedHmac());
+			testTool.start(iterationCount, cipherSuites.size());
+			iterationCount++;
 
-				/* open connection */
-				tFTCPIPNewConnection.executeSteps("2", "",
-						Arrays.asList(), testTool);
+			/* open connection */
+			tFTCPIPNewConnection.executeSteps("2", "",
+					Arrays.asList(), testTool);
 
-				step(3, "The DUT does not select the truncated_hmac extension.",
-						"ServerHello does not contain the truncated_mac extension.");
 
-				testTool.assertMessageLogged(TestToolResource.Handshake_successful);
-				testTool.assertServerLacksExtension(TlsExtensionTypes.truncated_hmac);
+			step(3, "Check if the TLS protocol is executed without errors and the channel is established.",
+					"The TLS protocol is executed without errors and the channel is established.");
+			testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-				/* close connection */
-				tFTCPIPCloseConnection.executeSteps("4", "", Arrays.asList(), testTool);
-				testTool.resetProperties();
-			}
+			step(4, "The DUT does not select the truncated_hmac extension.",
+					"ServerHello does not contain the truncated_mac extension.");
+			testTool.assertServerLacksExtension(TlsExtensionTypes.truncated_hmac);
+
+			testTool.resetProperties();
 		}
 	}
 

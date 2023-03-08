@@ -19,12 +19,14 @@
 #include "TlsMessageLogger.h"
 #include "logging/Logger.h"
 #include "openssl/ssl.h"
+#include "strings/HexStringHelper.h"
 #include "strings/StringHelper.h"
 #include "tls/TlsLogConstants.h"
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <cstring>
 
 namespace TlsTestTool {
 namespace OpenSsl {
@@ -32,9 +34,12 @@ namespace OpenSsl {
 #define CONTENT_TYPE_CHANGE_CIPHER_SPEC 20
 #define CONTENT_TYPE_ALERT 21
 #define CONTENT_TYPE_HANDSHAKE 22
+#define CONTENT_TYPE_APPLICATION_DATA 23
+#define CONTENT_TYPE_HEARTBEAT 24
 
 
-void TlsLogger::logInternalTls(Tooling::Logger * logger, int write_p, int version, int content_type, const void * buf, size_t len) {
+
+        void TlsLogger::logInternalTls(Tooling::Logger * logger, int write_p, int version, int content_type, const void * buf, size_t len) {
 	// This code is taken from the internal libressl function and only slightly changed to use the logger
 	const char *str_write_p, *str_version, *str_content_type = "",
 	    *str_details1 = "", *str_details2 = "";
@@ -301,6 +306,9 @@ void TlsLogger::logInternalTls(Tooling::Logger * logger, int write_p, int versio
 				}
 			}
 		}
+                if(content_type == SSL3_RT_INNER_CONTENT_TYPE){
+                    str_details1 = "InnerRecordType";
+                }
 	}
 	std::stringbuf buffer;
 	std::ostream os (&buffer);
@@ -367,6 +375,12 @@ void TlsLogger::logTls(Tooling::Logger * logger, int write_p, int version, int c
 				}
 			}
 			break;
+                case SSL3_RT_INNER_CONTENT_TYPE: //TLS 1.3
+                        if (len == 1 && static_cast<const uint8_t*>(buf)[0] == CONTENT_TYPE_HEARTBEAT) {
+                            logger->log(Tooling::LogLevel::HIGH, "TLS", __FILE__, __LINE__,
+                                        (write_p ? TlsLogConstants::HEARTBEATMESSAGE_TRANSMITTED_TLS13 : TlsLogConstants::HEARTBEATMESSAGE_RECEIVED_TLS13));
+                        }
+                        break;
 		case CONTENT_TYPE_HANDSHAKE:
 			if (len > 0) {
 				TlsHandshakeType handshakeType = static_cast<TlsHandshakeType>(static_cast<const uint8_t *>(buf)[0]);
@@ -426,6 +440,8 @@ void TlsLogger::logTls(Tooling::Logger * logger, int write_p, int version, int c
 								(write_p ? TlsLogConstants::FINISHED_TX : TlsLogConstants::FINISHED_RX_VALID));
 					break;
 				case TlsHandshakeType::CERTIFICATE_STATUS:
+                                        logger->log(Tooling::LogLevel::HIGH, "TLS", __FILE__, __LINE__,
+                                                (write_p ? TlsLogConstants::CERTIFICATE_STATUS_TX : TlsLogConstants::CERTIFICATE_STATUS_RX));
 					break;
 				case TlsHandshakeType::KEY_UPDATE:
 					break;

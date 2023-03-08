@@ -5,12 +5,15 @@ import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
+import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commons.enums.TlsAlertLevel;
 import com.achelos.task.commons.enums.TlsCipherSuite;
+import com.achelos.task.commons.enums.TlsTestToolLogLevel;
 import com.achelos.task.commons.enums.TlsVersion;
+import com.achelos.task.logging.BasicLogger;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.tr03116ts.testfragments.TFHandshakeNotSuccessfulCheck;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
@@ -33,8 +36,8 @@ public class TLS_B1_GP_05_T extends AbstractTestCase {
 	private TSharkExecutor tShark = null;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
 	private final TFAlertMessageCheck tfAlertMessageCheck;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFTLSClientHello tfClientHello;
+	private final TFHandshakeNotSuccessfulCheck tfHandshakeNotSuccessfulCheck;
 
 	public TLS_B1_GP_05_T() {
 		setTestCaseId(TEST_CASE_ID);
@@ -43,8 +46,8 @@ public class TLS_B1_GP_05_T extends AbstractTestCase {
 
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
 		tfAlertMessageCheck = new TFAlertMessageCheck(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tfClientHello = new TFTLSClientHello(this);
+		tfHandshakeNotSuccessfulCheck = new TFHandshakeNotSuccessfulCheck(this);
 	}
 
 	@Override
@@ -99,7 +102,7 @@ public class TLS_B1_GP_05_T extends AbstractTestCase {
 			logger.error("No unsupported TLS versions found.");
 			return;
 		}
-		logger.debug("Supported TLS versions:");
+		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.getName());
 		}
@@ -108,10 +111,10 @@ public class TLS_B1_GP_05_T extends AbstractTestCase {
 		TlsCipherSuite cipherSuite
 				= configuration.getSingleSupportedCipherSuite(TlsVersion.TLS_V1_2);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported Cipher suites:" + cipherSuite.getName());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.getName());
 
 		step(1, "The tester connects to the DUT.", "");
 
@@ -126,12 +129,15 @@ public class TLS_B1_GP_05_T extends AbstractTestCase {
 
 			tFTCPIPNewConnection.executeSteps("3", "", Arrays.asList(), testTool);
 
+			if(testTool.assertMessageLogged(TestToolResource.Handshake_successful, BasicLogger.INFO)){
+				logger.error("The handshake was successful");
+			}
+
 			tfAlertMessageCheck.executeSteps("4",
 					"The DUT rejects the ClientHello with a \"protocol_version\" alert or "
 							+ "	another suitable error description",
 					Arrays.asList("level=warning/fatal", "description=protocol_version"), testTool);
-
-			tFTCPIPCloseConnection.executeSteps("5", "", Arrays.asList(), testTool);
+			tfHandshakeNotSuccessfulCheck.executeSteps("5", "No TLS channel is established", null, testTool, tlsVersion);
 
 			testTool.resetProperties();
 		}

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
+import com.achelos.task.logging.LoggingConnector;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.achelos.task.xmlparser.configparsing.ConfigParser;
@@ -11,7 +13,10 @@ import com.achelos.task.xmlparser.configparsing.ConfigPrinter;
 
 public class TestConfigPrinter {
 
-	
+	@BeforeAll
+	static void initLogging() {
+		LoggingConnector.getInstance("DEBUG");
+	}
 	@Test
 	void testPrintTlsServerSpecification() {
 		var xmlSpecFile= new File("../data/specification/ApplicationSpecifications/TR-03116-4-SERVER-Specification.xml");

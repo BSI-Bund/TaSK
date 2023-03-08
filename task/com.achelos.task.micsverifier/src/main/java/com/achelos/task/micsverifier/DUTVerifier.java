@@ -30,12 +30,17 @@ class DUTVerifier {
 		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Running DUT verifier on the provided MICS file.");
 		boolean result = false;
 
-		if (mics.getApplicationType().contains("SERVER")) {
-			logger.debug(MICSVerifier.LOGGER_COMPONENT + "DUT is of type: " + mics.getApplicationType());
+		var dUTApplicationType = mics.getApplicationType();
+
+		if (dUTApplicationType.contains("EID-CLIENT")) {
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "DUT is of EID-Client type: " + mics.getApplicationType());
+			result = verifyEIDClientDUT(mics,logger);
+		} else if (dUTApplicationType.contains("SERVER")) {
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "DUT is of TLS Server type: " + mics.getApplicationType());
 			// Verify Server DUT
 			result = verifyServerDUT(mics, logger);
-		} else if (mics.getApplicationType().contains("CLIENT")) {
-			logger.debug(MICSVerifier.LOGGER_COMPONENT + "DUT is of type: " + mics.getApplicationType());
+		} else if (dUTApplicationType.contains("CLIENT")) {
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "DUT is of TLS-Client type: " + mics.getApplicationType());
 			// Verify Client DUT
 			result = verifyClientDUT(mics, logger);
 		} else {
@@ -146,4 +151,44 @@ class DUTVerifier {
 		}
 		return true;
 	}
+
+	private static boolean verifyEIDClientDUT(final MICS mics, final LoggingConnector logger) {
+		// Check Server URL
+		if (mics.getBrowserSimulatorURL() == null || mics.getBrowserSimulatorURL().isBlank()) {
+			logger.error(MICSVerifier.LOGGER_COMPONENT + "DUT has a eID-Client type, but no BrowserSimulator URL is provided in the MICS file.");
+			return false;
+		}
+		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Verifying BrowserSimulator URL: " + mics.getBrowserSimulatorURL() + ".");
+		try {
+			// Check if that throws any exceptions.
+			InetAddress.getByName(mics.getBrowserSimulatorURL());
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "Parsed BrowserSimulator URL: " + mics.getBrowserSimulatorURL() + "successfully verified.");
+		} catch (Exception e) {
+			logger.error(
+					MICSVerifier.LOGGER_COMPONENT + "DUT has a eID-Client type, but the provided BrowserSimulator URL could not be verified.",
+					e);
+			return false;
+		}
+		// Check Server Port
+		if (mics.getBrowserSimulatorPort() == null || mics.getBrowserSimulatorPort().isBlank()) {
+			logger.error(MICSVerifier.LOGGER_COMPONENT + "DUT has a eID-Client type, but no BrowserSimulator port is provided in the MICS file.");
+			return false;
+		}
+		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Verifying BrowserSimulator port: " + mics.getBrowserSimulatorPort() + ".");
+		try {
+			var port = Integer.parseInt(mics.getBrowserSimulatorPort());
+			if (port < 0 || port > MAX_PORT_NUMBER) {
+				logger.error(MICSVerifier.LOGGER_COMPONENT + "DUT has a eID-Client type, but no BrowserSimulator port could not be verified.");
+				return false;
+			}
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "Parsed BrowserSimulator port: " + mics.getBrowserSimulatorPort() + "successfully verified.");
+		} catch (Exception e) {
+			logger.error(
+					MICSVerifier.LOGGER_COMPONENT + "DUT has a eID-Client type, but the provided BrowserSimulator port could not be parsed to a number.",
+					e);
+			return false;
+		}
+		return true;
+	}
+
 }

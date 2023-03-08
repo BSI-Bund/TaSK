@@ -15,11 +15,25 @@
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="ApplicationType" minOccurs="0" maxOccurs="1" type="xsd:string" />
-							<xsd:element name="URL" minOccurs="0" maxOccurs="1" type="xsd:string" />
-							<!-- A port to use to establish a connection to the DUT/ TLS server -->
-							<xsd:element name="Port" minOccurs="0" maxOccurs="1" type="xsd:string" />
-							<xsd:element name="DUTExecutable" type="xsd:string" minOccurs="0" maxOccurs="1" />
-							<xsd:element name="DUTCallArguments" type="DUTCallArguments" minOccurs="0" maxOccurs="1" />
+							<xsd:choice>
+								<xsd:sequence>
+									<xsd:element name="URL" type="xsd:string" minOccurs="1" maxOccurs="1" />
+									<xsd:element name="Port" type="xsd:string" minOccurs="1" maxOccurs="1" />
+									<!-- In the case of an eID Server, an RMI Interface may be necessary. -->
+									<xsd:element name="RMIURL" type="xsd:string" minOccurs="0" maxOccurs="1" />
+									<xsd:element name="RMIPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
+								</xsd:sequence>
+								<xsd:sequence>
+									<xsd:element name="DUTExecutable" type="xsd:string" minOccurs="1" maxOccurs="1" />
+									<xsd:element name="DUTCallArguments" type="DUTCallArguments" minOccurs="0" maxOccurs="1" />
+								</xsd:sequence>
+								<xsd:sequence>
+									<xsd:element name="BrowserSimulatorURL" minOccurs="1" maxOccurs="1" type="xsd:string" />
+									<!-- A port to use to establish a connection to the DUT/ TLS server -->
+									<xsd:element name="BrowserSimulatorPort" minOccurs="0" maxOccurs="1" type="xsd:string" />
+									<xsd:element name="EIDClientPort" type="xsd:int" minOccurs="0" maxOccurs="1" />
+								</xsd:sequence>
+							</xsd:choice>
 							<xsd:element name="ApplicationSpecificData" type="AppSpecificData" minOccurs="0" maxOccurs="1" />
 							<xsd:element name="DUTCapabilities" type="DUTCapabilities" minOccurs="0" maxOccurs="1" />
 						</xsd:sequence>
@@ -341,7 +355,6 @@
 		<xsd:sequence>
 			<xsd:element name="StartConnectionArguments" type="xsd:string" minOccurs="1" maxOccurs="1" />
 			<xsd:element name="ResumeConnectionArguments" type="xsd:string" minOccurs="0" maxOccurs="1" />
-			<xsd:element name="EIDClientPort" type="xsd:int" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:complexType name="DUTCapabilities" >

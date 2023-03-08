@@ -110,7 +110,7 @@ public class AppMapping {
 				if (icsSection == null) {
 					throw new RuntimeException("Unable to match optional ICS Section: " + sectionId);
 				}
-				appMapping.mandatoryICSSections.add(icsSection);
+				appMapping.optionalICSSections.add(icsSection);
 			}
 		}
 

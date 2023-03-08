@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ApplicationMapping id="TR-03130-1AM-TLS-EID-SERVER-EIDAS-MW">
+<ApplicationMapping id="TR-03130-1-EID-SERVER-EIDAS-MW">
 	<Title>TLS eID-Server mapping for the eIDAS-MW according to TR-03130-1</Title>
 	<Version>1.0</Version>
 	<Description></Description>
@@ -7,12 +7,6 @@
 	<ApplicationSpecificInspectionInstructions>
 		<Text>The eID-Server application is defined in [TR-03130-1]. For the TLS part it relies on the definitions from part 4 of [TR-03116]. However, it does not specify any deviations from those requirements for TLS.</Text>
 		<BaseSpecification></BaseSpecification>
-		<!-- . -->
-		<!-- . -->
-		<!-- . -->
-		<!-- . -->
-		<!-- . -->
-		<!-- special cases TODO -->
 	</ApplicationSpecificInspectionInstructions>
 	<Profiles>
 		<MandatoryProfiles>

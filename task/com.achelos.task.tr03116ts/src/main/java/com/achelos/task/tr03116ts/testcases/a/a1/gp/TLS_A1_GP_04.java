@@ -9,12 +9,11 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
+import com.achelos.task.commons.enums.TlsTestToolMode;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -38,7 +37,8 @@ public class TLS_A1_GP_04 extends AbstractTestCase {
 	private final TFServerCertificate tfserverCertificate;
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
-
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
+	private final TFHandshakeNotSuccessfulCheck tfHandshakeNotSuccessfulCheck;
 
 	public TLS_A1_GP_04() {
 		setTestCaseId(TEST_CASE_ID);
@@ -49,6 +49,8 @@ public class TLS_A1_GP_04 extends AbstractTestCase {
 		tfserverCertificate = new TFServerCertificate(this);
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
+		tfHandshakeNotSuccessfulCheck = new TFHandshakeNotSuccessfulCheck(this);
 	}
 
 	@Override
@@ -104,15 +106,15 @@ public class TLS_A1_GP_04 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** Unsupported cipher suite */
-		var unsupportedClientCipherSuites = configuration.getNotSupportedCipherSuites(tlsVersion);
+		var unsupportedClientCipherSuites = configuration.getNotSupportedCipherSuites(tlsVersion, TlsTestToolMode.server);
 		if (unsupportedClientCipherSuites == null || unsupportedClientCipherSuites.isEmpty()) {
-			logger.error("No supported cipher suite is found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
 
@@ -136,9 +138,14 @@ public class TLS_A1_GP_04 extends AbstractTestCase {
 
 		step(4, "Check if the Server rejects the connection.", "No TLS connection is established.");
 
+
 		testTool.assertMessageLogged(TestToolResource.Handshake_failed);
 
-		tfLocalServerClose.executeSteps("5", "Server closed successfully", Arrays.asList(),
+		tfApplicationCheck.executeSteps("5", "", Arrays.asList(), testTool, dutExecutor);
+
+		tfHandshakeNotSuccessfulCheck.executeSteps("6", "No TLS channel is established", null, testTool, tlsVersion);
+
+		tfLocalServerClose.executeSteps("7", "Server closed successfully", Arrays.asList(),
 				testTool);
 
 	}

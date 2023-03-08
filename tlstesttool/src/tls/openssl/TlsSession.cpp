@@ -70,18 +70,20 @@ namespace TlsTestTool {
             std::string serverNameIndication;
             bool caCertificateConfigured;
             bool verifyPeer;
-            SSL_CTX *ctx;
-            SSL *ssl;
-            BIO *web = NULL;
-            BIO *out = NULL;
+            SSL_CTX *ctx = nullptr;
+            SSL *ssl = nullptr;
+            BIO *web = nullptr;
+            BIO *out = nullptr;
             std::vector<long> flags;
             bool disabledefaultExtensions;
             std::string sessionCache;
             Configuration::HandshakeType handshakeType;
+            std::string pskIdentity;
+            std::string pskIdentityHint;
             std::vector<uint8_t> earlyData;
             std::vector<uint8_t> preSharedKey;
-            std::string pskIdentityHint;
             std::string ocspResponseFile;
+            TlsHandshakeState handshakeState;
 
             explicit Data(TlsSession &newTlsSession)
                     : tlsSession(newTlsSession),
@@ -109,10 +111,12 @@ namespace TlsTestTool {
                       disabledefaultExtensions(1),
                       sessionCache(),
                       handshakeType(Configuration::HandshakeType::NORMAL),
+                      pskIdentity(""),
+                      pskIdentityHint(""),
                       earlyData(),
                       preSharedKey(),
-                      pskIdentityHint(""),
-                      ocspResponseFile(""){
+                      ocspResponseFile(""),
+                      handshakeState(TlsHandshakeState::CLIENT_HELLO){
                 create_context();
             }
 
@@ -273,8 +277,7 @@ namespace TlsTestTool {
                                           unsigned int /*max_psk_len*/) {
             auto pskSession = tlsSession->getPreSharedKey();
             memcpy(psk, pskSession.data(), pskSession.size());
-            const char *psk_identity = "Client_identity";
-            memcpy(identity, psk_identity, strlen(psk_identity));
+            memcpy(identity, tlsSession->getPskIdentity().c_str(), tlsSession->getPskIdentity().length());
             return pskSession.size();
         }
 
@@ -297,31 +300,59 @@ namespace TlsTestTool {
          * Certificate Status callback. This callback is triggered when a client sends a status request in his ClientHello
         */
         static int certificateStatusCallback(SSL *s, void *arg) {
-            OpenSsl::TlsSession::tlsStatusExtensionContext *statusExt = static_cast<OpenSsl::TlsSession::tlsStatusExtensionContext *>(arg);
-            OCSP_RESPONSE *response = NULL;
-            unsigned char *responseDer = NULL;
-            int responseDerLength;
 
-            BIO *bioDerFile = openDerFile(statusExt->ocspResponseFile);
-            if (bioDerFile == NULL) {
-                OCSP_RESPONSE_free(response);
-                return SSL_TLSEXT_ERR_ALERT_FATAL;
-            }
-            response = d2i_OCSP_RESPONSE_bio(bioDerFile, NULL);
-            BIO_free(bioDerFile);
-            if (response == NULL) {
-                OCSP_RESPONSE_free(response);
-                return SSL_TLSEXT_ERR_ALERT_FATAL;
-            }
+            if(SSL_is_server(s)) {
+                OpenSsl::TlsSession::tlsStatusExtensionContext *statusExt = static_cast<OpenSsl::TlsSession::tlsStatusExtensionContext *>(arg);
+                OCSP_RESPONSE *response = NULL;
+                unsigned char *responseDer = NULL;
+                int responseDerLength;
 
-            responseDerLength = i2d_OCSP_RESPONSE(response, &responseDer);
-            if (responseDerLength <= 0) {
-                OCSP_RESPONSE_free(response);
-                return SSL_TLSEXT_ERR_ALERT_FATAL;
-            }
-            SSL_set_tlsext_status_ocsp_resp(s, responseDer, responseDerLength);
+                BIO *bioDerFile = openDerFile(statusExt->ocspResponseFile);
+                if (bioDerFile == NULL) {
+                    OCSP_RESPONSE_free(response);
+                    return SSL_TLSEXT_ERR_ALERT_FATAL;
+                }
+                response = d2i_OCSP_RESPONSE_bio(bioDerFile, NULL);
+                BIO_free(bioDerFile);
+                if (response == NULL) {
+                    OCSP_RESPONSE_free(response);
+                    return SSL_TLSEXT_ERR_ALERT_FATAL;
+                }
 
-            return SSL_TLSEXT_ERR_OK;
+                responseDerLength = i2d_OCSP_RESPONSE(response, &responseDer);
+                if (responseDerLength <= 0) {
+                    OCSP_RESPONSE_free(response);
+                    return SSL_TLSEXT_ERR_ALERT_FATAL;
+                }
+                SSL_set_tlsext_status_ocsp_resp(s, responseDer, responseDerLength);
+
+                return SSL_TLSEXT_ERR_OK;
+            }else{
+                const unsigned char *buffer;
+                int len;
+                OCSP_RESPONSE *ocspResponse;
+                BIO* bioOutput = tlsSession->getBioOutput();
+                len = SSL_get_tlsext_status_ocsp_resp(s, &buffer);
+                BIO_puts(bioOutput, "OCSP Response: ");
+                if (buffer == nullptr) {
+                    tlsSession->log(__FILE__, __LINE__, "The server did not send an OCSP Response\n");
+                    return 1;
+                }
+                ocspResponse = d2i_OCSP_RESPONSE(nullptr, &buffer, len);
+                if (ocspResponse == nullptr) {
+                    tlsSession->log(__FILE__, __LINE__, "ERROR: OCSP Response Message could not be parsed");
+                    return 0;
+                }
+                tlsSession->log(__FILE__, __LINE__, "OCSP Response Message received");
+                tlsSession->log(__FILE__, __LINE__, "OCSP Result: " +
+                    std::string(OCSP_response_status_str(OCSP_response_status(ocspResponse))));
+
+                BIO_puts(bioOutput, "\n------------------------------\n");
+                OCSP_RESPONSE_print(bioOutput, ocspResponse, 0);
+                BIO_puts(bioOutput, "\n------------------------------\n");
+                OCSP_RESPONSE_free(ocspResponse);
+                return 1;
+            }
         }
 
         void TlsSession::configureOpensslContext() {
@@ -329,6 +360,9 @@ namespace TlsTestTool {
             bool isServer = !isClient;
 
             if (isServer) {
+                if(impl->verifyPeer){
+                    SSL_CTX_set_verify(impl->ctx, SSL_VERIFY_PEER, NULL);
+                }
                 if (impl->handshakeType == Configuration::HandshakeType::SESSION_RESUMPTION_WITH_SESSION_ID) {
                     //if server supports session ID, then we disable session tickets
                     SSL_CTX_set_options(impl->ctx, SSL_OP_NO_TICKET);
@@ -336,11 +370,11 @@ namespace TlsTestTool {
 
                 if(impl->ocspResponseFile != std::string("")){
                     tlsStatusExt.ocspResponseFile = (char*)impl->ocspResponseFile.c_str();
-                    SSL_CTX_set_tlsext_status_cb(impl->ctx, certificateStatusCallback);
                     SSL_CTX_set_tlsext_status_arg(impl->ctx, &tlsStatusExt);
+                    SSL_CTX_set_tlsext_status_cb(impl->ctx, certificateStatusCallback);
                 }
-
             } else if (isClient) {
+                SSL_CTX_set_tlsext_status_cb(impl->ctx, certificateStatusCallback);
                 if (impl->verifyPeer && impl->caCertificateConfigured) {
                     // Verify server certificate!
                     // Since this is the default case, there is nothing to do here.
@@ -351,7 +385,6 @@ namespace TlsTestTool {
                 SSL_CTX_set_session_cache_mode(impl->ctx, SSL_SESS_CACHE_CLIENT
                                                           | SSL_SESS_CACHE_NO_INTERNAL_STORE);
             }
-
             SSL_CTX_set_min_proto_version(impl->ctx, impl->tlsVersions);
             SSL_CTX_set_max_proto_version(impl->ctx, impl->tlsVersions);
 
@@ -377,12 +410,12 @@ namespace TlsTestTool {
             //Extensions neceassray for TLS 1.2 handshake: signature algorithms
             //Extensions neceassray for TLS 1.3 handshake: supported groups, signature algorithms, supported versions
 
-            std::vector<char> data;
-            std::copy(impl->clientHelloExtensions.begin(), impl->clientHelloExtensions.end(), std::back_inserter(data));
+            char exten[impl->clientHelloExtensions.size()+1];
+            memcpy(&exten[0], impl->clientHelloExtensions.data(), impl->clientHelloExtensions.size());
+            exten[impl->clientHelloExtensions.size()] = '\0';
 
             if (impl->clientHelloExtensions.size() > 0) {
-                SSL_CTX_set_overwrite_client_hello_ext(impl->ctx, &data[0], data.size() +
-                                                                            1);//reinterpret_cast<char *>(impl->clientHelloExtensions.data()),impl->clientHelloExtensions.size() );
+                SSL_CTX_set_overwrite_client_hello_ext(impl->ctx, &exten[0], impl->clientHelloExtensions.size()+1);//reinterpret_cast<char *>(impl->clientHelloExtensions.data()),impl->clientHelloExtensions.size() );
             }
             SSL_CTX_sess_set_new_cb(impl->ctx, new_session_cb);
         }
@@ -390,17 +423,30 @@ namespace TlsTestTool {
         void TlsSession::setupSession() {
             bool isClient = impl->tlsSession.isClient();
             bool isServer = !isClient;
-            SSL *ssl;
             int res;
+
+            impl->ssl = SSL_new(impl->ctx);
+            SSL_set_fd(impl->ssl, getSocket()->getSocketFileDesriptor());
+            // since socket functionality in OpenSSL does not always work as perfectly as with MbedTLS, we set a timeout for receiving to avoid endless waiting/blocking
+            struct timeval tv;
+            tv.tv_sec = 5; // 5 seconds
+            tv.tv_usec = 0;
+            setsockopt(getSocket()->getSocketFileDesriptor(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+
+            log(__FILE__, __LINE__,
+                std::string{"Set cipher suites: "} + impl->tlsCipherSuites + ":EMPTY-RENEGOTIATION-INFO-SCSV");
+            if (impl->tlsVersions == TLS1_3_VERSION) {
+                res = SSL_set_ciphersuites(impl->ssl, impl->tlsCipherSuites.c_str());
+            } else {
+                res = SSL_set_cipher_list(impl->ssl, impl->tlsCipherSuites.c_str());
+            }
+            if (res != 1) {
+                throw std::runtime_error("Set ciphersuites failed");
+            }
+
             if (isServer) {
-                ssl = SSL_new(impl->ctx);
-                impl->ssl = ssl;
-                SSL_set_fd(ssl, getSocket()->getSocketFileDesriptor());
             } else if (isClient) {
                 //all config options (cipher+ssl_options) have to work for client+server, try to use SSL_CTX API functions
-                impl->ssl = SSL_new(impl->ctx);
-                SSL_set_fd(impl->ssl, getSocket()->getSocketFileDesriptor());
-
                 if (!impl->sessionCache.empty()) {
                     SSL_SESSION *sess;
                     std::replace(impl->sessionCache.begin(), impl->sessionCache.end(), '#', '\n');
@@ -418,22 +464,10 @@ namespace TlsTestTool {
                     SSL_SESSION_free(sess);
                 }
 
-                log(__FILE__, __LINE__,
-                    std::string{"Set cipher suites: "} + impl->tlsCipherSuites + ":EMPTY-RENEGOTIATION-INFO-SCSV");
-                if (impl->tlsVersions == TLS1_3_VERSION) {
-                    res = SSL_set_ciphersuites(impl->ssl, impl->tlsCipherSuites.c_str());
-                } else {
-                    res = SSL_set_cipher_list(impl->ssl, impl->tlsCipherSuites.c_str());
-                }
-                if (res != 1) {
-                    throw std::runtime_error("Set ciphersuites failed");
-                }
-
                 if ((impl->disabledefaultExtensions && impl->clientHelloExtensions.size() <=
                                                        0)) {/*overwrite extensions and setting flags does not work at the same time*/
                     long flags = SSL_OP_NO_COMPRESSION | SSL_OP_NO_ENCRYPT_THEN_MAC |
-                                 SSL_OP_NO_EXTENDED_MASTER_SECRET | SSL_OP_NO_TICKET;
-
+                                 SSL_OP_NO_EXTENDED_MASTER_SECRET;
 
                     //disable sessionTicket extension except we want to resume with session ticket
                     if (impl->handshakeType != Configuration::HandshakeType::SESSION_RESUMPTION_WITH_TICKET) {
@@ -448,7 +482,6 @@ namespace TlsTestTool {
                 if (res != 1) {
                     throw std::runtime_error("Set sni failed");
                 }
-
                 impl->out = BIO_new_fp(stdout, BIO_NOCLOSE);
 
                 if (impl->out == NULL) {
@@ -491,10 +524,10 @@ namespace TlsTestTool {
                 impl->waitForExpectedAlertMessage(true);
                 throw;
             }
-            if (impl->tlsVersions == TLS1_3_VERSION) {
-                receiveApplicationData();
-            }
+            impl->handshakeState=TlsHandshakeState::HANDSHAKE_DONE;
+
             log(__FILE__, __LINE__, "Handshake successful.");
+            std::cout.flush();
         }
 
         void TlsSession::performHandshakeStep() {
@@ -557,11 +590,16 @@ namespace TlsTestTool {
         }
 
         void TlsSession::close() {
+            log(__FILE__, __LINE__, "OpenSSL final state before close: " + std::string(SSL_state_string(impl->ssl)));
+            log(__FILE__, __LINE__, "Closing the TLS session.");
+            if(std::string(SSL_state_string(impl->ssl)) == "SSLOK"){
+                log(__FILE__, __LINE__, "No error occured after handshake finished.");
+            }
             SSL_shutdown(impl->ssl);
         }
 
         TlsHandshakeState TlsSession::getState() const {
-            return TlsHandshakeState::CLIENT_HELLO;
+            return impl->handshakeState;
         }
 
         void TlsSession::setState(TlsHandshakeState /*manipulatedState*/) {
@@ -709,8 +747,10 @@ namespace TlsTestTool {
             throw std::runtime_error("Function not supported with OpenSSL");
         }
 
-        void TlsSession::setPreSharedKey(const std::vector<uint8_t> &preSharedKey, const std::string pskIdentityHint) {
+        void TlsSession::setPreSharedKey(const std::vector<uint8_t> &preSharedKey, const std::string pskIdentity, const std::string pskIdentityHint) {
             impl->preSharedKey = preSharedKey;
+            impl->pskIdentity= pskIdentity;
+            impl->pskIdentityHint= pskIdentityHint;
             if (isClient()) {
                 SSL_CTX_set_psk_client_callback(impl->ctx, psk_client_cb);
             } else {
@@ -721,8 +761,9 @@ namespace TlsTestTool {
             }
         }
 
-        void TlsSession::sendRecord(const uint8_t /*type*/, const std::size_t /*msglen*/, const uint8_t * /*data*/) {
-            throw std::runtime_error("Function sendRecord not supported with OpenSSL");
+        void TlsSession::sendRecord(const uint8_t type, const std::vector<u_int8_t> data) {
+            SSL_CTX_set_handshake_type(impl->ctx, 1, type);
+            sendApplicationData(data);
         }
 
         void TlsSession::overwriteEllipticCurveGroup(TlsEllipticCurveGroupID /*ellipticCurve*/) {
@@ -745,6 +786,14 @@ namespace TlsTestTool {
 
         std::vector<u_int8_t> TlsSession::getPreSharedKey() const {
             return impl->preSharedKey;
+        }
+
+        std::string TlsSession::getPskIdentity() const {
+            return impl->pskIdentity;
+        }
+
+        BIO* TlsSession::getBioOutput() const{
+            return impl->out;
         }
 
         void TlsSession::setOcspResponderFile(std::string responderFile) {

@@ -87,6 +87,7 @@ public:
               earlyData(),
               sessionLifetime(0),
               preSharedKey(),
+              pskIdentity(),
               pskIdentityHint(),
               ocspResponseFile("")
 	{
@@ -372,6 +373,15 @@ public:
     void setPreSharedKey(const std::vector<uint8_t> &preSharedKey) {
         Configuration::preSharedKey = preSharedKey;
     }
+
+    const std::string &getPskIdentity() const {
+        return pskIdentity;
+    }
+
+    void setPskIdentity(const std::string &pskIdentity) {
+        Configuration::pskIdentity = pskIdentity;
+    }
+
     const std::string &getPskIdentityHint() const {
         return pskIdentityHint;
     }
@@ -419,6 +429,7 @@ private:
     std::vector<uint8_t> clientHelloExtension; //only for OpenSSL
     int sessionLifetime;
     std::vector<uint8_t> preSharedKey;
+    std::string pskIdentity;
     std::string pskIdentityHint;
     std::string ocspResponseFile;
 

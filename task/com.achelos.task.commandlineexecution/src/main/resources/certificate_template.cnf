@@ -3,10 +3,10 @@ distinguished_name = req_distinguished_name
 prompt = no
  
 name                    = root-ca
-domain_suffix           = localhost
-aia_url                 = http://127.0.0.1:PLACEHOLDER_PORT_CRL/$name.crt
-crl_url                 = http://127.0.0.1:PLACEHOLDER_PORT_CRL/$name.crl
-ocsp_url                = http://127.0.0.1:PLACEHOLDER_PORT_OCSP
+domain_suffix           = achelos.de
+aia_url                 = http://task.achelos.de:PLACEHOLDER_PORT_CRL/$name.crt
+crl_url                 = http://task.achelos.de:PLACEHOLDER_PORT_CRL/$name.crl
+ocsp_url                = http://task.achelos.de:PLACEHOLDER_PORT_OCSP
 default_ca              = ca_default
 name_opt                = utf8,esc_ctrl,multiline,lname,align
  
@@ -94,8 +94,8 @@ crlDistributionPoints   = @crl_info
 subjectAltName = @server_alt_names
 
 [server_alt_names]
-DNS.1 = localhost
-DNS.2 = *.localhost
+DNS.1 = task.achelos.de
+DNS.2 = *.achelos.de
 IP.3 = 127.0.0.1
 IP.4 = ::1
  

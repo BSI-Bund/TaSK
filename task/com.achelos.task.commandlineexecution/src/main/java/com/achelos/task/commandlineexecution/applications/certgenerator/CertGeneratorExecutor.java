@@ -1,6 +1,7 @@
 package com.achelos.task.commandlineexecution.applications.certgenerator;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,8 +20,6 @@ import com.achelos.task.logging.LoggingConnector;
  * A class to generates CRL/OCSP certificates on runtime.
  */
 public class CertGeneratorExecutor {
-
-	private static boolean certsGenerated = false;
 	private static final String SCRIPT_RESOURCE_PATH = "generate_crl_ocsp_certificates.sh";
 	private static final String CONFIGURATION_TEMPLATE_RESOURCE_PATH = "certificate_template.cnf";
 	private final Path script;
@@ -130,15 +129,40 @@ public class CertGeneratorExecutor {
 	 */
 	public static void generateOcspCrlCertificates(final LoggingConnector logger,
 													final TestRunPlanConfiguration configuration) throws IOException {
-		if (!certsGenerated) {
+		var crlOcspCertDir = configuration.getCrlOcspCertDirectory();
+		if (null == crlOcspCertDir) {
+			throw new IOException("Parameter 'CrlOcspCertDirectory' is empty. Check configuration!");
+		}
+		if (isDirAndNotEmpty(crlOcspCertDir)) {
+			logger.debug("CertGeneratorExecutor: Generation skipped since certificates were generated previously.");
+		} else {
 			var certGenerator = new CertGeneratorExecutor(logger, configuration);
 			certGenerator.execute();
 			certGenerator.printResults();
-			certsGenerated = true;
-		} else {
-			logger.debug("CertGeneratorExecutor: Generation skipped since certificates were generated previously.");
 		}
 
+	}
+	
+	/**
+	 * Workaround for spotbugs.
+	 * 
+	 * @param dir
+	 * @return true, if dir exists, is a directory and contains at least one file. 
+	 * 			Otherwise false
+	 */
+	private static boolean isDirAndNotEmpty(File dir) {
+
+		if (! (null != dir &&
+				dir.exists() && 
+				dir.isDirectory())) 
+			return false;
+		
+		String[] files = dir.list();
+		if (null == files || 
+				files.length == 0)
+			return false;
+		
+		return true;
 	}
 
 

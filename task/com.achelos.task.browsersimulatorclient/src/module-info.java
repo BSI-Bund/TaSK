@@ -1,0 +1,9 @@
+/**
+ * 
+ */
+/**
+ * @author csr
+ *
+ */
+module RmiBrowserTest {
+}

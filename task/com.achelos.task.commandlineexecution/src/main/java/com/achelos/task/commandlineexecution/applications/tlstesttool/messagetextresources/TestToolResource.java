@@ -31,8 +31,20 @@ public enum TestToolResource {
 	ClientHello_session_id("ClientHello.session_id"),
 	/** ClientHello.random. */
 	ClientHello_random("ClientHello.random"),
+	/** ClientHello.random. */
+	Closed_TLS_Session("Closing the TLS session."),
 	/** Certificate.certificate_list.size. */
 	Certificate_list_size("Certificate.certificate_list.size"),
+	/** Valid CertificateRequest message received.. */
+	CertificateRequest_valid("Valid CertificateRequest message received."),
+	/** Certificate message transmitted.. */
+	Certificate_transmitted("Certificate message transmitted."),
+	/** Certificate message transmitted.. */
+	Certificate_received_valid("Valid Certificate message received."),
+	/** Certificate Status message received by server when using OCSP stapling*/
+	Certificate_status_received("Certificate status message received."),
+	/** Certificate Status message transmitted by server when using OCSP stapling*/
+	Certificate_status_transmitted("Certificate status message transmitted."),
 	/** 00. */
 	Compression_null("00"),
 	/** 01. */
@@ -85,7 +97,15 @@ public enum TestToolResource {
 	Server_handled_all_connections("Server handled all connections"),
 	/** Initial handshake finished. Wait for resumption handshake. */
 	Initial_handshake_finished_Wait_for_resumption_handshake(
-			"Initial handshake finished. Wait for resumption handshake.");
+			"Initial handshake finished. Wait for resumption handshake."), 
+	/** ServerKeyExchange.params.dh_p. */
+	ServerKeyExchange_params_dh_p("ServerKeyExchange.params.dh_p"),
+	Heartbeat_message_received("Heartbeat message received"),
+	Heartbeat_message_transmitted("Heartbeat message transmitted"),
+	OCSP_response_received("OCSP Response Message received"),
+	OCSP_response_successful("OCSP Result: successful"),
+	No_Error_After_Hs_Finished("No error occured after handshake finished.");
+
 
 	private String internalToolOutputMessage;
 

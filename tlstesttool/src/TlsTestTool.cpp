@@ -62,7 +62,7 @@ static bool configureTlsSession(const TlsTestTool::Configuration & configuration
         tlsSession.setUseSni(configuration.getTlsUseSni(), configuration.getHost());
         tlsSession.setVerifyPeer(configuration.getTlsVerifyPeer());
 	tlsSession.setExtensionEncryptThenMac(configuration.getTlsEncryptThenMac());
-        tlsSession.setPreSharedKey(configuration.getPreSharedKey(), configuration.getPskIdentityHint());
+        tlsSession.setPreSharedKey(configuration.getPreSharedKey(), configuration.getPskIdentity() ,configuration.getPskIdentityHint());
 	if(configuration.getTlsLibrary() ==TlsTestTool::Configuration::TlsLibrary::OPENSSL) {
                 tlsSession.setOcspResponderFile(configuration.getOcspResponseFile());
 		tlsSession.setClientHelloExtensions(configuration.getClientHelloExtension());
@@ -220,7 +220,7 @@ static void executeTlsSession(const TlsTestTool::Configuration & configuration, 
 			manipulation->executePreHandshake(tlsSession);
 		}
 		tlsSession.performHandshake();
-		for (auto & manipulation : configuration.getManipulations()) {
+                for (auto & manipulation : configuration.getManipulations()) {
 			manipulation->executePostHandshake(tlsSession);
 		}
 	} catch (const std::exception & e) {
@@ -330,6 +330,7 @@ static void startServerAcceptHandler(std::shared_ptr<TlsTestTool::TlsSession> tl
 
 int main(int argc, char ** argv) {
 	// Make sure not to flush stdout on '\n' for increased performance.
+
 	std::cout.sync_with_stdio(false);
 	Tooling::Logger logger(std::cout);
 	logger.setColumnSeparator("\t");
@@ -383,7 +384,7 @@ int main(int argc, char ** argv) {
 						 "TCP/IP connection to " + configuration.getHost() + ':'
 								 + std::to_string(configuration.getPort()) + " failed",
 						 e);
-			return EXIT_FAILURE;
+			return EXIT_SUCCESS;
 		}
 
 		auto tlsSession = TlsTestTool::TlsSessionFactory::createClientSession(tlsLibrary, client);

@@ -5,7 +5,8 @@ package com.achelos.task.xmlparser.datastructures.testrunplan;
  */
 public enum DUTCapabilities {
     SESSION_TICKET("SESSION_TICKET"),
-    SESSION_ID("SESSION_ID");
+    SESSION_ID("SESSION_ID"),
+    PSK("PSK");
     final private String profileName;
     DUTCapabilities(final String profileName) {
         this.profileName = profileName;

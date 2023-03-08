@@ -309,8 +309,10 @@ class MICSChecklistVerifier {
 							MICSVerifier.LOGGER_COMPONENT + "Cipher suite " + specifiedCipherSuite.getDescription() + " is mandatory.");
 					if (specifiedCipherSuite.getType().equals(PSK_CIPHER_SUITES_TYPE)
 							|| specifiedCipherSuite.getType().equals(PSK_AND_CERT_CIPHER_SUITES_TYPE)) {
-						logger.debug(MICSVerifier.LOGGER_COMPONENT + "Skipping the PSK cipher suites for now.");
-						continue;
+						if (!mics.getProfiles().contains("PSK")) {
+							logger.debug(MICSVerifier.LOGGER_COMPONENT + "Skipping the PSK cipher suites, as the PSK profile is not set.");
+							continue;
+						}
 					}
 					var included = false;
 					for (var supportedCipherSuite : tls12Support.getSupportedCipherSuites()) {

@@ -106,9 +106,9 @@ public class TlsExtSupportedGroups extends TlsExtension {
 			TlsNamedCurves curve = TlsNamedCurves.valueOf(supportedGroups[i], supportedGroups[i + 1]);
 			if (curve != null) {
 				try {
-					TlsExtSupportedGroups extention = new TlsExtSupportedGroups();
-					extention.addNamedGroup(curve);
-					return extention;
+					TlsExtSupportedGroups extension = new TlsExtSupportedGroups();
+					extension.addNamedGroup(curve);
+					return extension;
 				} catch (Exception e) {
 					// Ignore
 				}

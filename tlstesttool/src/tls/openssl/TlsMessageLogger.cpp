@@ -380,6 +380,15 @@ static void logCertificateVerifyMessage(Tooling::Logger & logger, const std::vec
 					   + Tooling::HexStringHelper::byteArrayToHexString({ptr, ptr + signatureLength.get()}));
 }
 
+static void logCertificateStatusMessage(Tooling::Logger & logger, const std::vector<uint8_t> & msg) {
+        auto ptrBegin = msg.cbegin();
+        auto ptrEnd = msg.cend();
+        uint32_t len = ptrEnd - ptrBegin;
+        logger.log(Tooling::LogLevel::HIGH, "TLS", __FILE__, __LINE__,
+                   "CertificateStatus message data="
+                   + Tooling::HexStringHelper::byteArrayToHexString({ptrBegin, ptrBegin + len}));
+    }
+
 void TlsMessageLogger::logTlsHandshakeMessage(Tooling::Logger & logger, const TlsHandshakeType & type,
 											  const bool /*isSent*/, const std::vector<uint8_t> & msg) {
     if (TlsHandshakeType::SERVER_HELLO == type) {
@@ -392,6 +401,9 @@ void TlsMessageLogger::logTlsHandshakeMessage(Tooling::Logger & logger, const Tl
         logNewSessionTicketMessage(logger, msg);
     } else if (TlsHandshakeType::CERTIFICATE_VERIFY == type) {
         logCertificateVerifyMessage(logger, msg);
+    }
+    else if (TlsHandshakeType::CERTIFICATE_STATUS == type) {
+        logCertificateStatusMessage(logger, msg);
     }
 	else if (TlsHandshakeType::ENCRYPTED_EXTENSION == type) {
 		logEncryptedExtensionsMessage(logger, msg);

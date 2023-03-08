@@ -39,6 +39,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <iostream>
 
 namespace TlsTestTool {
 namespace MbedTls {
@@ -427,6 +428,7 @@ void TlsSession::performHandshake() {
 	log(__FILE__, __LINE__, "Handshake successful.");
 	log(__FILE__, __LINE__, std::string{"Protocol: "} + mbedtls_ssl_get_version(&impl->ssl));
 	log(__FILE__, __LINE__, std::string{"Cipher suite: "} + mbedtls_ssl_get_ciphersuite(&impl->ssl));
+        std::flush(std::cout);
 }
 
 void TlsSession::performHandshakeStep() {
@@ -641,14 +643,13 @@ void TlsSession::setServerHelloExtensions(const std::vector<uint8_t> & serverHel
     impl->conf.overwrite_extensions_len = impl->serverHelloExtensions.size();
 }
 
-void TlsSession::setPreSharedKey(const std::vector<uint8_t> &preSharedKey, const std::string /*pskIdentityHint*/) {
+void TlsSession::setPreSharedKey(const std::vector<uint8_t> &preSharedKey, const std::string pskIdentity,const std::string /*pskIdentityHint*/) {
     impl->preSharedKey = preSharedKey;
     if(!preSharedKey.empty()) {
-        const char *psk_identity = "Client_identity";
         assertSuccess("mbedtls_ssl_conf_psk", mbedtls_ssl_conf_psk(&impl->conf, preSharedKey.data(),
                                                                    preSharedKey.size(),
-                                                                   (const unsigned char *) psk_identity,
-                                                                   strlen(psk_identity)));
+                                                                   (const unsigned char *) pskIdentity.c_str(),
+                                                                   pskIdentity.length()));
     }
 }
 
@@ -656,10 +657,10 @@ void TlsSession::setExtensionEncryptThenMac(const bool enable) {
 	mbedtls_ssl_conf_encrypt_then_mac(&impl->conf, enable ? MBEDTLS_SSL_ETM_ENABLED : MBEDTLS_SSL_ETM_DISABLED);
 }
 
-void TlsSession::sendRecord(const uint8_t type, const std::size_t msglen, const uint8_t * data) {
+void TlsSession::sendRecord(const uint8_t type, const std::vector<u_int8_t> data) {
 	impl->ssl.out_msgtype = type;
-	impl->ssl.out_msglen = msglen;
-	for (std::size_t i = 0; i < msglen; i++) {
+	impl->ssl.out_msglen = data.size();
+	for (std::size_t i = 0; i < data.size(); i++) {
 		impl->ssl.out_msg[i] = data[i];
 	}
 	auto result = mbedtls_ssl_write_record(&impl->ssl);

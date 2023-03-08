@@ -12,16 +12,14 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetex
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolMode;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSHighestVersionSupportCheck;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -49,6 +47,7 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
 	private final TFTLSHighestVersionSupportCheck fFTLSHighestVersionSupportCheck;
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_GP_02_T() {
 		setTestCaseId(TEST_CASE_ID);
@@ -60,6 +59,7 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
 		fFTLSHighestVersionSupportCheck = new TFTLSHighestVersionSupportCheck(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
 	}
 
 	@Override
@@ -115,10 +115,10 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 		// all supported tls version
 		List<TlsVersion> tlsVersions = configuration.getSupportedTLSVersions();
 		if (null == tlsVersions || tlsVersions.isEmpty()) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("Supported TLS versions:");
+		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.name());
 		}
@@ -174,7 +174,7 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 						TlsExtensionTypes.signature_algorithms);
 				try {
 					supportedSignatureAndHashAlgorithms
-							= TlsSignatureAlgorithmWithHash.parseSignatureAlgorithmWithHashByteList(data);
+							= TlsSignatureAlgorithmWithHashTls12.parseSignatureAlgorithmWithHashByteList(data);
 				} catch (Exception e) {
 					// Unknown_signature algorithm.
 					logger.error("Found known signature algorithm" + e);
@@ -207,7 +207,9 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 						"The TLS protocol is executed without errors and the channel is established.");
 				testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-				tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
+				tfApplicationCheck.executeSteps("8", "", Arrays.asList(), testTool, dutExecutor);
+
+				tfLocalServerClose.executeSteps("9", "Server closed successfully", Arrays.asList(),
 						testTool);
 
 				dutExecutor.resetProperties();

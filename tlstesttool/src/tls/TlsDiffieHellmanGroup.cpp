@@ -352,8 +352,6 @@ static const TlsDiffieHellmanGroup ffdhe_4096(
             "97D11D49F7A8443D0822E506A9F4614E011E2A94838FF88C"
             "D68C8BB7C5C6424CFFFFFFFFFFFFFFFF", "02");
 
-//TODO @Simon add other ffdhe curves from RFC
-
 const TlsDiffieHellmanGroup & TlsDiffieHellmanGroup::getPredefined(const std::string & key) {
 	if ("rfc3526_1536" == key) {
 		return rfc3526_1536;

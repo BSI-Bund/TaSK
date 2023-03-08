@@ -115,7 +115,7 @@ public class ExecuteApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "503", description = "Service Unavailable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public Response executeFromRunplan(@FormDataParam("testRunPlanFile") File testRunPlanFile, @FormDataParam("clientAuthCertificateChain") List<File> clientAuthCertificateChain, @FormDataParam("clientAuthKey") File clientAuthKey) {
+    public Response executeFromRunplan(@FormDataParam("testRunPlanFile") File testRunPlanFile, @FormDataParam("clientAuthCertificateChain") List<InputStream> clientAuthCertificateChain, @FormDataParam("clientAuthKey") File clientAuthKey) {
 
         try {
             Response.ResponseBuilder response;

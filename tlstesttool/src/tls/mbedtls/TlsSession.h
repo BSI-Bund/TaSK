@@ -203,7 +203,7 @@ public:
      * set the PreShared Key
      * @param List of bytes that will be used as PSK
      */
-    virtual void setPreSharedKey(const std::vector<uint8_t> & preSharedKey, const std::string pskIdentityHint) override;
+    virtual void setPreSharedKey(const std::vector<uint8_t> & preSharedKey, const std::string pskIdentity, const std::string pskIdentityHint) override;
 
 	/**
 	 * Configure the usage of the encrypt-then-MAC extension.
@@ -217,7 +217,7 @@ public:
 	 * @param msglen the length of record data to send.
 	 * @param data the record data.
 	 */
-	virtual void sendRecord(const uint8_t type, const std::size_t msglen, const uint8_t * data) override;
+	virtual void sendRecord(const uint8_t type, const std::vector<u_int8_t> data) override;
 
 	/**
 	 * Overwrite negotiated elliptic curve group with the given group on server side before sending ServerKeyExchange

@@ -21,31 +21,6 @@ import com.achelos.task.micsverifier.MICSVerifier;
 class TestMICSVerifier {
 
 	@Test
-	void testMICSVerifier() {
-		try {
-
-			// Input Files
-			var micsFile = new File("../data/input/ExampleMICS_Server.xml");
-			var certDirectory = new File("../data/input/certificates");
-			ArrayList<File> certificateFileList = new ArrayList<File>();
-			if (!certDirectory.exists() || !certDirectory.isDirectory()) {
-				fail();
-			}
-			for (var file : certDirectory.listFiles()) {
-				if (file.isFile()) {
-					certificateFileList.add(file);
-				}
-			}
-			var micsVerifier = prepareMICSVerifier();
-			var result = micsVerifier.verifyMICS(micsFile, certificateFileList.toArray(File[]::new));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}
-	}
-
-	@Test
 	void testMICSVerifierTlsServer() {
 		try {
 

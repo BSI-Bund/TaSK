@@ -8,7 +8,7 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetex
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
@@ -27,7 +27,6 @@ public class TLS_B1_FR_12 extends AbstractTestCase {
 	private TlsTestToolExecutor testTool = null;
 	private TSharkExecutor tShark = null;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFTLSClientHello tfClientHello;
 
 	public TLS_B1_FR_12() {
@@ -37,7 +36,6 @@ public class TLS_B1_FR_12 extends AbstractTestCase {
 		setTestCasePurpose(TEST_CASE_PURPOSE);
 
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tfClientHello = new TFTLSClientHello(this);
 	}
 
@@ -91,21 +89,23 @@ public class TLS_B1_FR_12 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.getName());
 
 		/** any supported algorithm cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported Cipher suites:" + cipherSuite.getName());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.getName());
 
 		tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite);
@@ -115,18 +115,19 @@ public class TLS_B1_FR_12 extends AbstractTestCase {
 		tFTCPIPNewConnection.executeSteps("2", "", Collections.emptyList(),
 				testTool);
 
-		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-		tFTCPIPCloseConnection.executeSteps("3", "", Collections.emptyList(),
-				testTool);
-
+		step(3, "Check if the DUT did not select the DEFLATE compression.",
+				"The DUT did not select the DEFLATE compression.");
 		String compression = testTool.getValue(TestToolResource.ServerHello_compression_method);
-
 		if (TestToolResource.Compression_DEFLATE.getInternalToolOutputMessage().equals(compression)) {
 			logger.error("The DUT did select the DEFLATE compression.");
 		} else {
 			logger.info("The DUT did not select the DEFLATE compression.");
 		}
+		
+		step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
+		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 	}
 

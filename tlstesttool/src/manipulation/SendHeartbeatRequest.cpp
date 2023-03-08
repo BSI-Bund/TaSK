@@ -77,10 +77,11 @@ void SendHeartbeatRequest::send(TlsSession & session) {
     }
     SendHeartbeatRequest::Manipulation::log(__FILE__, __LINE__, "Message content: " + Tooling::HexStringHelper::byteArrayToHexString(bytes));
 
+
     if (session.getState() == TlsTestTool::TlsHandshakeState::HANDSHAKE_DONE) {
-        session.sendRecord(static_cast<int>(TlsContentType::HEARTBEAT),
-                           sizeof(HeartbeatMessageHeader) + payload.size() + padding.size(),
-                           &bytes[sizeof(TlsPlaintextHeader)]);
+        std::vector<uint8_t> finalMessage;
+        finalMessage.insert( finalMessage.end(), bytes.begin()+ sizeof(TlsPlaintextHeader) , bytes.end() );
+        session.sendRecord(static_cast<int>(TlsContentType::HEARTBEAT), finalMessage);
     }
     else {
         session.getSocket()->write(message);

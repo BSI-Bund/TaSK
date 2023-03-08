@@ -1,4 +1,7 @@
 # TLS Test Tool
+
+*Version 0.5.2*
+
 The TLS Test Tool is able to test a huge variety of TLS clients and servers. This README gives an overview over the structure of the TLS Test Tool and its usage. Furthermore, interfaces on different levels as well as the input and output formats for their correct usage are explained.
 
 As a client, the TLS Test Tool establishes a TCP/IP connection and starts a TLS handshake by sending a [ClientHello message](https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.1.2). The user can influence this default behaviour by using one or more of the provided manipulations.
@@ -292,6 +295,14 @@ If a session resumption is performed (type = `{resumptionWithSessionID, resumpti
 
   Sets the psk (Pre-Shared Key) to the TLS Test Tool.
   Later, in the TLS handshake both parties reuse the psk to establish the TLS Session.
+
+* `pskIdentity=[string]`
+
+  (with **bytes** given as *STRING*)
+
+  Note: The configured **pskIdentity** is only used if a corresponding *PSK-ciphersuite* is set (see https://www.rfc-editor.org/rfc/rfc4279).
+
+  Sets the pskIdentity (Pre-Shared Key) to the TLS Test Tool.
 
 * `pskIdentityHint=[string]`
 

@@ -12,7 +12,7 @@ import com.achelos.task.commons.certificatehelper.CertificateChecker;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 import com.achelos.task.tr03116ts.testfragments.TFTLSVersionCheck;
@@ -37,7 +37,6 @@ public class TLS_B1_GP_03_T extends AbstractTestCase {
 	private TlsTestToolExecutor testTool = null;
 	private TSharkExecutor tShark = null;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFTLSVersionCheck tFTLSVersionCheck;
 	private final TFTLSClientHello tfClientHello;
 
@@ -48,7 +47,6 @@ public class TLS_B1_GP_03_T extends AbstractTestCase {
 
 
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tFTLSVersionCheck = new TFTLSVersionCheck(this);
 		tfClientHello = new TFTLSClientHello(this);
 	}
@@ -101,26 +99,32 @@ public class TLS_B1_GP_03_T extends AbstractTestCase {
 
 		/** supported TLS versions */
 		List<TlsVersion> tlsVersions = configuration.getSupportedTLSVersions();
-		logger.debug("Supported TLS versions:");
+		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.name());
 		}
 		if (tlsVersions.size() == 0) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
 
-		// repeat test for each supported TLS version with signature algorithms
+		//Find out the number of iterations
 		int iterationCount = 1;
+		int totalNumberOfIterations = 0;
+		for(TlsVersion tlsVersion : tlsVersions){
+			totalNumberOfIterations  += configuration.getSupportedSignatureAlgorithms(tlsVersion).size();
+		}
+
+		// repeat test for each supported TLS version with signature algorithms
 		for (TlsVersion tlsVersion : tlsVersions) {
 
 			/** any supported algorithm cipher suite */
 			TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
-			logger.debug("Supported Cipher suites:" + cipherSuite);
 			if (cipherSuite == null) {
-				logger.error("No supported cipher suite found.");
+				logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 				continue;
 			}
+			logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.getName());
 
 			/** supported signature algorithms */
 			var sigAlgorithms = configuration.getSupportedSignatureAlgorithms(tlsVersion);
@@ -134,11 +138,11 @@ public class TLS_B1_GP_03_T extends AbstractTestCase {
 
 				tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 						+ ", cipher suite " + cipherSuite.name() + ", signature algorithm "
-						+ sigAlgorithm.getSignatureAlgorithm().name() + "With" + sigAlgorithm.getHashAlgorithm().name()
+						+ sigAlgorithm.toString()
 						+ " .",
 						null, testTool, tlsVersion, cipherSuite, sigAlgorithm);
 
-				testTool.start(iterationCount, tlsVersions.size() * sigAlgorithms.size());
+				testTool.start(iterationCount, totalNumberOfIterations);
 				iterationCount++;
 
 				tFTCPIPNewConnection.executeSteps("2", "", Arrays.asList(), testTool);
@@ -147,8 +151,8 @@ public class TLS_B1_GP_03_T extends AbstractTestCase {
 						Arrays.asList("tlsVersion=" + tlsVersion.getName(), "isSupported=true"), testTool, tlsVersion,
 						true);
 
-				tFTCPIPCloseConnection.executeSteps("4", "", Arrays.asList(), testTool);
-
+				step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+						"The TLS protocol is executed without errors and the channel is established.");
 				testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 				final List<X509Certificate> certList = testTool.findServerCertificateList();

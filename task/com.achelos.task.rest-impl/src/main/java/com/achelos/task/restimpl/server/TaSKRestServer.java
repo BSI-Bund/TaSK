@@ -10,7 +10,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
-import java.net.InetAddress;
 import java.net.URI;
 
 public class TaSKRestServer {
@@ -45,24 +44,13 @@ public class TaSKRestServer {
 			}
 		});
 	}
-	
-	public TaSKRestServer(final String host, final int port, final SSLContext sslContext, final LoggingConnector logger, final File globalConfigFile) {
-		this(buildAndCheckUri(host, port, sslContext), sslContext, logger, globalConfigFile);
-	}
-	
-	private static URI buildAndCheckUri(final String host, final int port, final SSLContext sslContext) {
-		final int MAX_PORT_NUMBER = 65535; // 2^16 - 1
 
-		// Check hostname.
-		if (host == null || host.isBlank()) {
-			throw new RuntimeException("TaSK Framework was executed in server mode, but no server URL is provided");
-		}
-		try {
-			// Check if that throws any exceptions.
-			var ignored = InetAddress.getByName(host);
-		} catch (Exception e) {
-			throw new RuntimeException("TaSK Framework was executed in server mode, but the provided server URL could not be verified");
-		}
+	public TaSKRestServer(final int port, final SSLContext sslContext, final LoggingConnector logger, final File globalConfigFile) {
+		this(buildAndCheckUri(port, sslContext), sslContext, logger, globalConfigFile);
+	}
+
+	private static URI buildAndCheckUri(final int port, final SSLContext sslContext) {
+		final int MAX_PORT_NUMBER = 65535; // 2^16 - 1
 
 		// Check port.
 		if (port < 0 || port > MAX_PORT_NUMBER) {
@@ -76,8 +64,8 @@ public class TaSKRestServer {
 		} else {
 			scheme = "https";
 		}
-		
-		return URI.create(scheme + "://" + host + ":" + port + "/");
+
+		return URI.create(scheme + "://" + "0.0.0.0" + ":" + port + "/");
 	}
 
 	

@@ -134,9 +134,6 @@
 				<!-- Table 7 
 					In case the SUPP_GROUPS profile was selected, the named groups MUST be given in Table 7 in the order of preference.
 					This is mandatory if the SUPP_GROUPS profile was selected -->
-				<Group>brainpoolP256r1tls13</Group>
-				<Group>brainpoolP384r1tls13</Group>
-				<Group>brainpoolP512r1tls13</Group>
 				<Group>secp256r1</Group>
 				<Group>secp384r1</Group>
 			</SupportedEllipticCurves-DHGroups>
@@ -144,9 +141,6 @@
 			<SupportedSignatureAlgorithms>
 				<!-- Table 8 
 					The vendor SHALL list the signature algorithms supported by the DUT -->
-				<SignatureAlgorithm>
-					<Name>ecdsa_brainpoolP256r1tls13_sha256</Name>
-				</SignatureAlgorithm>
 				<SignatureAlgorithm>
 					<Name>rsa_pss_pss_sha256</Name>
 				</SignatureAlgorithm>
@@ -191,17 +185,17 @@
 		</SupportedTLSVersion>		
 		
 	</SupportedCryptography>
-		
-	
+
+
 	<InformationOnTR03145Certification>
 		<!-- Chapter 3.4 Table 11
 			only if the CERTIFIED_CA profile was selected, the applicant must provide information on this CA. -->
-		<NameOfTheCA>Let's Encrypt</NameOfTheCA>
-		<BSICertificateNumber>912b084acf0c18a753f6d62e25a75f5a</BSICertificateNumber>
-		<Subject>CN=R3,O=Let's Encrypt,C=US</Subject>
+		<NameOfTheCA>DummyCA Name</NameOfTheCA>
+		<BSICertificateNumber>912b084acf0c187a53f6d62e25a75f5a</BSICertificateNumber>
+		<Subject>CN=DummyCA,O=DummyOrg,C=DE</Subject>
 		<ValidityNotBefore>Fri Sep 04 02:00:00 CEST 2020</ValidityNotBefore>
 		<ValidityNotAfter>Mon Sep 15 18:00:00 CEST 2025</ValidityNotAfter>
-		<SubjectKeyIdentifier>142EB317B75856CBAE500940E61FAF9D8B14C2C6</SubjectKeyIdentifier>
+		<SubjectKeyIdentifier>142EB317B75856CBEA500940E61FAF9D8B14C2C6</SubjectKeyIdentifier>
 	</InformationOnTR03145Certification>
 	
 		

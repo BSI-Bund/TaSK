@@ -12,11 +12,8 @@ import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -40,7 +37,8 @@ public class TLS_A1_GP_05 extends AbstractTestCase {
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFAlertMessageCheck tfAlertMessageCheck;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
-
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
+	private final TFHandshakeNotSuccessfulCheck tfHandshakeNotSuccessfulCheck;
 
 	public TLS_A1_GP_05() {
 		setTestCaseId(TEST_CASE_ID);
@@ -52,6 +50,8 @@ public class TLS_A1_GP_05 extends AbstractTestCase {
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tfAlertMessageCheck = new TFAlertMessageCheck(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
+		tfHandshakeNotSuccessfulCheck = new TFHandshakeNotSuccessfulCheck(this);
 	}
 
 	@Override
@@ -112,10 +112,10 @@ public class TLS_A1_GP_05 extends AbstractTestCase {
 		var unsupportedVersions = configuration.getNotSupportedTLSVersions();
 
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		List<TlsVersion> lowerUnsupportedVersions = new ArrayList<>();
 		for (TlsVersion unsupportedVersion : unsupportedVersions) {
@@ -147,7 +147,11 @@ public class TLS_A1_GP_05 extends AbstractTestCase {
 							"a \"protocol_version\" alert or another suitable error description.",
 					Arrays.asList("level=warning/fatal"), testTool);
 
-			tfLocalServerClose.executeSteps("6", "Server closed successfully", Arrays.asList(),
+			tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
+
+			tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
+
+			tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 					testTool);
 			dutExecutor.resetProperties();
 			testTool.resetProperties();

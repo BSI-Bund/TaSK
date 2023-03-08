@@ -23,9 +23,13 @@ public class MICS {
 	private String applicationType;
 	private String serverURL;
 	private String serverPort;
+	private String dutRMIURL;
+	private String dutRMIPort;
 	private String dutExecutable;
 	private String dutCallArgumentsConnect;
 	private String dutCallArgumentsReconnect;
+	private String browserSimulatorURL;
+	private String browserSimulatorPort;
 	private Integer dutEIDClientPort;
 	private String respectiveGuideline;
 	private List<String> profiles;
@@ -72,16 +76,19 @@ public class MICS {
 				: "";
 		mics.serverPort = aut.getPort() != null ? aut.getPort() : "";
 		mics.serverURL = aut.getURL() != null ? aut.getURL() : "";
+		mics.dutRMIURL = aut.getRMIURL() != null ? aut.getRMIURL() : "";
+		mics.dutRMIPort = aut.getRMIPort() != null ? aut.getRMIPort() : "";
 		mics.dutExecutable = aut.getDUTExecutable() != null ? aut.getDUTExecutable() : "";
+		mics.browserSimulatorURL = aut.getBrowserSimulatorURL() != null ? aut.getBrowserSimulatorURL() : "";
+		mics.browserSimulatorPort = aut.getBrowserSimulatorPort() != null ? aut.getBrowserSimulatorPort() : "1099";
+		mics.dutEIDClientPort = aut.getEIDClientPort() != null ? aut.getEIDClientPort() : 24727;
 		if (aut.getDUTCallArguments() != null) {
 			mics.dutCallArgumentsConnect = aut.getDUTCallArguments().getStartConnectionArguments();
 			mics.dutCallArgumentsReconnect = aut.getDUTCallArguments().getResumeConnectionArguments() != null
 					? aut.getDUTCallArguments().getResumeConnectionArguments() : "";
-			mics.dutEIDClientPort = aut.getDUTCallArguments().getEIDClientPort() != null ? aut.getDUTCallArguments().getEIDClientPort() : -1;
 		} else {
 			mics.dutCallArgumentsConnect = "";
 			mics.dutCallArgumentsReconnect = "";
-			mics.dutEIDClientPort = -1;
 		}
 
 		// Profiles
@@ -313,6 +320,22 @@ public class MICS {
 	}
 
 	/**
+	 * Return the DUT Server RMI URL of the MICS.
+	 * @return the DUT Server RMI URL of the MICS.
+	 */
+	public String getDutRMIURL() {
+		return dutRMIURL;
+	}
+
+	/**
+	 * Return the DUT Server RMI Port of the MICS.
+	 * @return the DUT Server RMI Port of the MICS.
+	 */
+	public String getDutRMIPort() {
+		return dutRMIPort;
+	}
+
+	/**
 	 * Return the DUT Client Executable of the MICS.
 	 * @return the DUT Client Executable of the MICS.
 	 */
@@ -334,6 +357,22 @@ public class MICS {
 	 */
 	public String getDutCallArgumentsReconnect() {
 		return dutCallArgumentsReconnect;
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator URL of the MICS.
+	 * @return the DUT BrowserSimulator URL of the MICS.
+	 */
+	public String getBrowserSimulatorURL() {
+		return browserSimulatorURL;
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator Port of the MICS.
+	 * @return the DUT BrowserSimulator Port of the MICS.
+	 */
+	public String getBrowserSimulatorPort() {
+		return browserSimulatorPort;
 	}
 
 	/**

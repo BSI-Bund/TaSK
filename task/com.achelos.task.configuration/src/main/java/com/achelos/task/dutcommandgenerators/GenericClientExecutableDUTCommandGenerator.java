@@ -1,6 +1,7 @@
 package com.achelos.task.dutcommandgenerators;
 
 import com.achelos.task.configuration.TestRunPlanConfiguration;
+import com.achelos.task.utilities.logging.LogBean;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,5 +53,15 @@ public class GenericClientExecutableDUTCommandGenerator implements DUTCommandGen
     @Override
     public List<String> connectToServer(final boolean isSessionResumption) {
         return this.callExecutionScript(isSessionResumption);
+    }
+
+    @Override
+    public String applicationSpecificInspectionSearchString(boolean handshakeSuccessful) {
+        return null;
+    }
+
+    @Override
+    public boolean applicationSpecificInspection(boolean handshakeSuccessful, LogBean logBean) {
+        return true;
     }
 }

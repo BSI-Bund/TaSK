@@ -98,7 +98,7 @@ public class TaskTestTool {
 	}
 
 	private void executeTaskTestTool(final File micsFile, final List<File> certificateFileList,
-			final boolean ignoreMicsVerification, final String reportDirectory) {
+			final boolean ignoreMicsVerification, final String reportDirectory, final String clientAuthCertChainFile, final String clientAuthKeyFile) {
 
 		// Check if the MICS verifier has been initialized.
 		if (micsVerifier == null) {
@@ -167,16 +167,63 @@ public class TaskTestTool {
 		}
 
 		// Start of Phase II: Execute the test cases in the TRP
-		executeTaskTestToolRun(testRunPlanFile, reportDirectory, false);
+		executeTaskTestToolRun(testRunPlanFile, reportDirectory, false, clientAuthCertChainFile, clientAuthKeyFile);
 	}
 
-	private void executeTaskTestTool(final File testRunPlanFile, final String reportDirectory) {
+	private void executeTaskTestTool(final File testRunPlanFile, final String reportDirectory, final String clientAuthCertChainFile, final String clientAuthKeyFile) {
 		logger.warning(
 				"TaSK: test run plan file is provided. Skipping the MICS file verification and running provided test run plan.");
-		executeTaskTestToolRun(testRunPlanFile, reportDirectory, true);
+		executeTaskTestToolRun(testRunPlanFile, reportDirectory, true, clientAuthCertChainFile, clientAuthKeyFile);
 	}
 
+
 	/**
+	 * Execute the TaSK Test Tool with the given set of parameters.
+	 * @param executionParameters The Parameters to use when executing the TaSK Framework.
+	 */
+	public static void executeTaskTestTool(final TaskExecutionParameters executionParameters) {
+		try {
+			// Start time
+			var entry = new AbstractMap.SimpleEntry<>(
+					ReportMetadataFields.START_OF_EXECUTION,
+					DateTimeUtils.getISOFormattedTimeStamp());
+			executionParameters.getLogger().tellLogger(BasicLogger.MSG_METADATA, entry);
+
+			var taskTestTool = new TaskTestTool(executionParameters.getLogger(), executionParameters.getConfigFile());
+			taskTestTool.executeTaskTesttool(executionParameters);
+
+		} catch (Exception e) {
+			executionParameters.getLogger().error(e.getMessage(), e);
+		} finally {
+			var entry = new AbstractMap.SimpleEntry<>(ReportMetadataFields.END_OF_EXECUTION,
+					DateTimeUtils.getISOFormattedTimeStamp());
+			executionParameters.getLogger().tellLogger(BasicLogger.MSG_METADATA, entry);
+			waitForLogger();
+		}
+	}
+
+	private void executeTaskTesttool(TaskExecutionParameters executionParameters) {
+		switch (executionParameters.getExecutionMode()) {
+			case MICS:
+				this.executeTaskTestTool(executionParameters.getMicsFile(),
+						executionParameters.getCertificateFileList(),
+						executionParameters.isIgnoreMicsVerification(),
+						executionParameters.getReportDirectory(),
+						executionParameters.getClientAuthCertChain(),
+						executionParameters.getClientAuthKeyFile());
+				break;
+			case TRP:
+				this.executeTaskTestTool(executionParameters.getTestRunPlanFile(),
+						executionParameters.getReportDirectory(),
+						executionParameters.getClientAuthCertChain(),
+						executionParameters.getClientAuthKeyFile());
+				break;
+			default:
+				throw new RuntimeException("Executionmode is not implemented.");
+		}
+	}
+
+	/*
 	 * Execute the TaSK Test Tool with a MICS file as parameter.
 	 * @param logger The LoggingConnector instance to use.
 	 * @param configFile The GlobalConfiguration File to use.
@@ -184,10 +231,13 @@ public class TaskTestTool {
 	 * @param certificateFileList A List of Certificate Files referenced by the MICS.
 	 * @param ignoreMicsVerification A boolean flag indicating whether a failing result of the MICS Verifier shall be ignored.
 	 * @param reportDirectory The Directory Path in which reports and results shall be saved in.
+	 * @param clientAuthCertChain Absolute Path to PEM encoded Client Authentication Certificate Chain
+	 * @param clientAuthKey Absolute Path to PEM encoded Private Key for Client Authentication Certificate
 	 */
+	/*
 	public static void executeTaskTestTool(final LoggingConnector logger,
 			final File configFile, final File micsFile, final List<File> certificateFileList,
-			final boolean ignoreMicsVerification, final String reportDirectory) {
+			final boolean ignoreMicsVerification, final String reportDirectory, final String clientAuthCertChain, final String clientAuthKey) {
 		try {
 			// Start time
 			var entry = new AbstractMap.SimpleEntry<>(
@@ -196,7 +246,7 @@ public class TaskTestTool {
 			logger.tellLogger(BasicLogger.MSG_METADATA, entry);
 
 			var taskTesTool = new TaskTestTool(logger, configFile);
-			taskTesTool.executeTaskTestTool(micsFile, certificateFileList, ignoreMicsVerification, reportDirectory);
+			taskTesTool.executeTaskTestTool(micsFile, certificateFileList, ignoreMicsVerification, reportDirectory, clientAuthCertChain, clientAuthKey);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		} finally {
@@ -207,6 +257,7 @@ public class TaskTestTool {
 			waitForLogger();
 		}
 	}
+	*/
 
 	private static void waitForLogger() {
 		// We need to wait for the logger to finish because end time in the XML/PDF report is sometimes missing.
@@ -218,16 +269,21 @@ public class TaskTestTool {
 		}
 	}
 
-	/**
+	/*
 	 * Execute the TaSK Test Tool with a Test Run Plan file as parameter.
 	 * @param logger The LoggingConnector instance to use.
 	 * @param testRunPlanFile The Test Run Plan File to use.
 	 * @param configFile The GlobalConfiguration File to use.
 	 * @param reportDirectory The Directory Path in which reports and results shall be saved in.
+	 * @param clientAuthCertChain Absolute Path to PEM encoded Client Authentication Certificate Chain
+	 * @param clientAuthKeyFile Absolute Path to PEM encoded Private Key for Client Authentication Certificate
 	 */
+	/*
 	public static void executeTaskTestTool(final LoggingConnector logger, final File testRunPlanFile,
-			final File configFile,
-			final String reportDirectory) {
+										   final File configFile,
+										   final String reportDirectory,
+										   final String clientAuthCertChain,
+										   final String clientAuthKeyFile) {
 		try {
 			// Start time
 			var entry = new AbstractMap.SimpleEntry<>(
@@ -236,7 +292,7 @@ public class TaskTestTool {
 			logger.tellLogger(BasicLogger.MSG_METADATA, entry);
 
 			var taskTesTool = new TaskTestTool(logger, configFile);
-			taskTesTool.executeTaskTestTool(testRunPlanFile, reportDirectory);
+			taskTesTool.executeTaskTestTool(testRunPlanFile, reportDirectory, clientAuthCertChain, clientAuthKeyFile);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		} finally {
@@ -246,9 +302,11 @@ public class TaskTestTool {
 			waitForLogger();
 		}
 	}
+	*/
+
 
 	private void executeTaskTestToolRun(final File testRunPlanFile, final String reportDirectory,
-			final boolean doLogDutInformation) {
+			final boolean doLogDutInformation, final String clientAuthCertChainFile, final String clientAuthKeyFile) {
 		// Start of Phase II: Execute the test cases in the TRP
 		// Parse the contents of the TRP
 		// Initialize the TRP Library
@@ -259,7 +317,7 @@ public class TaskTestTool {
 				logDutInputFile(logger, testRunPlanFile);
 			}
 			testRunPlanConfig = TestRunPlanConfiguration.parseRunPlanConfiguration(testRunPlanFile, globalConfiguration,
-					reportDirectory);
+					reportDirectory, clientAuthCertChainFile, clientAuthKeyFile);
 			if (testRunPlanConfig == null) {
 				throw new Exception("Unable to parse the test run plan file.");
 			}

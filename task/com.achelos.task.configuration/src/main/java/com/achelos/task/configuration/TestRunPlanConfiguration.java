@@ -1,6 +1,7 @@
 package com.achelos.task.configuration;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -12,10 +13,14 @@ import javax.management.InvalidAttributeValueException;
 
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
 import com.achelos.task.commons.enums.*;
+import com.achelos.task.dutcommandgenerators.DUTCommandGenerator;
 import com.achelos.task.dutcommandgenerators.EIDClientTls12DUTCommandGenerator;
 import com.achelos.task.dutcommandgenerators.EIDClientTls2DUTCommandGenerator;
 import com.achelos.task.dutcommandgenerators.GenericClientExecutableDUTCommandGenerator;
-import com.achelos.task.dutcommandgenerators.DUTCommandGenerator;
+import com.achelos.task.dutpreparation.DUTPreparer;
+import com.achelos.task.dutpreparation.EIdECardAPIDUTPreparer;
+import com.achelos.task.dutpreparation.GenericServerDUTPreparer;
+import com.achelos.task.logging.LoggingConnector;
 import com.achelos.task.xmlparser.datastructures.common.CertificateIdentifier;
 import com.achelos.task.xmlparser.datastructures.common.TR03145CertificationInfo;
 import com.achelos.task.xmlparser.datastructures.configuration.GlobalConfigChecker;
@@ -26,6 +31,7 @@ import com.achelos.task.xmlparser.datastructures.testrunplan.RunPlanMicsInfo;
 import com.achelos.task.xmlparser.datastructures.testrunplan.TestRunPlanData;
 import com.achelos.task.xmlparser.runplanparsing.RunPlanParser;
 
+
 /**
  * Internal data structure combining all configuration values necessary to execute the TaSK Test Tool from an Test Run Plan file.
  * Currently implemented as a singleton.
@@ -33,10 +39,14 @@ import com.achelos.task.xmlparser.runplanparsing.RunPlanParser;
 public class TestRunPlanConfiguration {
 	private static final String CRL_OCSP_CERT_DIR_NAME = "ocsp_crl_testtool_certificates";
 	private static final String MOTIVATOR_CERT_DIR_NAME = "motivator_test_certificates";
+	private static final String LOGGING_COMPONENT = "TaSK: ";
 	private HashMap<String, GlobalConfigParameter> globalConfiguration;
 	private TestRunPlanData testRunPlanData;
 	private DUTCommandGenerator dutCallCommandGenerator;
+	private DUTPreparer dutPreparer;
 	private String reportDirectory;
+	private String clientAuthCertChainFile;
+	private String clientAuthKeyFile;
 
 	private static TestRunPlanConfiguration singleton;
 
@@ -45,18 +55,37 @@ public class TestRunPlanConfiguration {
 	 * @param runPlanFile Test Run Plan file to parse
 	 * @param globalConfiguration Global Configuration to use.
 	 * @param reportDirectory The report directory to store the output in.
+	 * @param clientAuthCertChainFile The client authentication certificate chain file.
+	 * @param clientAuthKeyFile The client authentication private key file.
 	 * @return TestRunPlanConfiguration instance used for the execution of the TaSK Test Tool.
 	 */
 	public static TestRunPlanConfiguration parseRunPlanConfiguration(final File runPlanFile,
-			final HashMap<String, GlobalConfigParameter> globalConfiguration, final String reportDirectory) {
+			final HashMap<String, GlobalConfigParameter> globalConfiguration, final String reportDirectory, final String clientAuthCertChainFile, final String clientAuthKeyFile) {
 		singleton = new TestRunPlanConfiguration();
 		singleton.setTestRunPlanData(RunPlanParser.parseRunPlan(runPlanFile));
 		singleton.setGlobalConfiguration(globalConfiguration);
 		singleton.setReportDirectory(reportDirectory);
+		// Maybe he following two lines maybe should be a single call?
 		singleton.setDUTCommandGenerator(singleton.getTestRunPlanData().getDUTApplicationType());
+		singleton.setDUTPreparator(singleton.getTestRunPlanData().getDUTApplicationType());
+		singleton.clientAuthCertChainFile = clientAuthCertChainFile;
+		singleton.clientAuthKeyFile = clientAuthKeyFile;
 
 		return singleton;
 	}
+
+	/*
+	 * Parse the Test Run Plan file, and combine it with the other provided information. Store as singleton instance.
+	 * @param runPlanFile Test Run Plan file to parse
+	 * @param globalConfiguration Global Configuration to use.
+	 * @param reportDirectory The report directory to store the output in.
+	 * @return TestRunPlanConfiguration instance used for the execution of the TaSK Test Tool.
+
+	public static TestRunPlanConfiguration parseRunPlanConfiguration(final File runPlanFile,
+																	 final HashMap<String, GlobalConfigParameter> globalConfiguration, final String reportDirectory) {
+		return parseRunPlanConfiguration(runPlanFile, globalConfiguration, reportDirectory, null, null);
+	}
+	 */
 
 	/**
 	 * If a TestRunPlanConfiguration has been parsed and stored as singleton instance, get the instance.
@@ -108,12 +137,37 @@ public class TestRunPlanConfiguration {
 		}
 	}
 
+	private void setDUTPreparator(final String applicationType) {
+		if (applicationType.equalsIgnoreCase("TR-03130-1-EID-SERVER-ECARD-PSK")) {
+			if (getDUTCapabilities().contains(DUTCapabilities.PSK)) {
+				if (getDutRMIURL().isBlank()) {
+					throw new RuntimeException("RMI for DUT is required, but no address is provided in TRP file.");
+				}
+				var rmiUrl = getDutRMIURL();
+				var rmiPort = !getDutRMIPort().isBlank() ? getDutRMIPort() : "1099";
+				this.dutPreparer = new EIdECardAPIDUTPreparer(rmiUrl, Integer.parseInt(rmiPort));
+			} else {
+				this.dutPreparer = new GenericServerDUTPreparer();
+			}
+		} else {
+			this.dutPreparer = new GenericServerDUTPreparer();
+		}
+	}
+
 	/**
 	 * Returns the contained DUT Call Command Generator instance.
 	 * @return the contained DUT Call Command Generator instance.
 	 */
 	public DUTCommandGenerator getDutCallCommandGenerator() {
 		return this.dutCallCommandGenerator;
+	}
+
+	/**
+	 * Returns the contained DUT Preparer instance;
+	 * @return the contained DUT Preparer instance.
+	 */
+	public DUTPreparer getDutPreparer() {
+		return this.dutPreparer;
 	}
 
 
@@ -153,9 +207,45 @@ public class TestRunPlanConfiguration {
 	 */
 	public Path getTLSTestToolExecutable() {
 		if (isGlobalConfigParameterSet(GlobalConfigParameterNames.TlsTestToolPath)) {
-			return Paths.get(getGlobalConfigParameter(GlobalConfigParameterNames.TlsTestToolPath).getValueAsString());
+			var logger = LoggingConnector.getInstance();
+
+			Path path = Paths
+					.get(getGlobalConfigParameter(GlobalConfigParameterNames.TlsTestToolPath).getValueAsString());
+
+			logger.debug(LOGGING_COMPONENT + "TLS Test Tool executable path: '" + path + "'");
+			// Check if the TLS Test Tool executable exists
+			if (path.toFile().exists() && !startsWithSpecialNames(path) && path.toFile().isFile()) {
+				return path;
+			}
+
+			logger.debug(
+					LOGGING_COMPONENT + "Unable to retrieve the TLS Test Tool executable from the path: '" + path
+							+ "'. Trying to resolve using relative path.");
+
+			// TLS Test Tool file is not found. Maybe its a relative path. Try to find it from relative path to the jar
+			// file.
+			try {
+				Path jarFileDirectory = getJarFileDirectory();
+
+				if (jarFileDirectory != null) {
+					logger.debug(
+							LOGGING_COMPONENT + "Relative path: '" + jarFileDirectory + "'");
+
+					File tlsTestToolFileRelativePath
+							= Paths.get(jarFileDirectory.toString(), path.toString()).normalize().toFile();
+
+					logger.debug(LOGGING_COMPONENT + "The relative path: '" + tlsTestToolFileRelativePath + "'");
+
+					if (tlsTestToolFileRelativePath.exists() && tlsTestToolFileRelativePath.isFile()) {
+						return tlsTestToolFileRelativePath.toPath();
+					}
+				}
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e.toString());
+			}
+
 		}
-		throw new RuntimeException("Unable to retrieve TLS Test Tool Path.");
+		throw new RuntimeException("Unable to retrieve the TLS Test Tool executable.");
 	}
 
 	/**
@@ -184,13 +274,70 @@ public class TestRunPlanConfiguration {
 	 */
 	public String getTlsTestToolCertificatesPath() {
 		if (isGlobalConfigParameterSet(GlobalConfigParameterNames.TlsTestToolCertificatesPath)) {
-			String path = Paths.get(getGlobalConfigParameter(GlobalConfigParameterNames.TlsTestToolCertificatesPath).getValueAsString()).toString();
 
-			if (!path.isEmpty()) {
-				return path;
+			var logger = LoggingConnector.getInstance();
+
+			Path path = Paths.get(getGlobalConfigParameter(GlobalConfigParameterNames.TlsTestToolCertificatesPath)
+					.getValueAsString());
+
+			// Check if user has specified the path.
+			if (path.toString().isEmpty()) {
+				// Path is not set get the certificates directory from TLS Test Tool path.
+				return getCertificatePathFromTlsTestTool();
 			} 
+
+			logger.debug(LOGGING_COMPONENT + "Certificates directory path: '" + path + "'");
+
+				// Check if the directory exists. or else throw an error.
+				if (path.toFile().exists() && !startsWithSpecialNames(path)) {
+
+					return path.toString();
+				} else {
+					// A relative path is set.
+					Path jarFileDirectory;
+					try {
+						jarFileDirectory = getJarFileDirectory();
+
+						if (jarFileDirectory != null) {
+							// Its a relative path, Try to find certificates directory from relative path to the jar
+							// file.
+							logger.debug(
+									LOGGING_COMPONENT + "Trying to find certificates directory in the base directory: '"
+											+ jarFileDirectory + "'");
+
+							File tlsTestToolFileRelativePath
+									= Paths.get(jarFileDirectory.toString(), path.toString()).normalize().toFile();
+
+							logger.debug(LOGGING_COMPONENT + "Relative path: '" + tlsTestToolFileRelativePath + "'");
+
+							if (tlsTestToolFileRelativePath.exists()) {
+								return tlsTestToolFileRelativePath.toPath().toString();
+							}
+						}
+					} catch (URISyntaxException e) {
+						throw new RuntimeException(e.toString());
+					}
+
+				}
+
+
+		} else {
+			// Global configuration parameter is not set. Get the certificates directory from TLS Test Tool path.
+			return getCertificatePathFromTlsTestTool();
 		}
-		
+		throw new RuntimeException("Unable to retrieve the certificates path.");
+	}
+
+	private boolean startsWithSpecialNames(final Path path) {
+		return path.startsWith(".") || path.startsWith("..");
+	}
+
+	private Path getJarFileDirectory() throws URISyntaxException {
+		return Paths
+				.get(getClass().getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+	}
+
+	private String getCertificatePathFromTlsTestTool() {
 		var tlsTestToolExecPath = getTLSTestToolExecutable();
 		var parentPath = tlsTestToolExecPath.getParent();
 		if (parentPath == null) {
@@ -520,8 +667,8 @@ public class TestRunPlanConfiguration {
 	 * @param tlsVersion The TLS version the Named Curves should be applicable for.
 	 * @return A list of all supported Elliptic Curves and DH Groups for the specified TlsVersion.
 	 */
-	public List<TlsNamedCurves> getSupportedEllipticCurvesAndFFDHE(TlsVersion tlsVersion) {
-		return testRunPlanData.getSupportedEllipticCurvesAndFFDHE(tlsVersion);
+	public List<TlsNamedCurves> getSupportedGroups(TlsVersion tlsVersion) {
+		return testRunPlanData.getSupportedGroups(tlsVersion);
 	}
 
 	/**
@@ -826,8 +973,8 @@ public class TestRunPlanConfiguration {
 	 * @param tlsVersion a {@link TlsVersion} as filter.
 	 * @return a list of cipher suites which are not supported by the DUT
 	 */
-	public List<TlsCipherSuite> getNotSupportedCipherSuites(TlsVersion tlsVersion) {
-		return testRunPlanData.getNotSupportedCipherSuites(tlsVersion);
+	public List<TlsCipherSuite> getNotSupportedCipherSuites(TlsVersion tlsVersion, TlsTestToolMode mode) {
+		return testRunPlanData.getNotSupportedCipherSuites(tlsVersion, mode);
 	}
 
 	/**
@@ -940,6 +1087,24 @@ public class TestRunPlanConfiguration {
 	}
 
 	/**
+	 * In case of a TLS server returns the address under which the RMI for the DUT can be found.
+	 *
+	 * @return the address under which the RMI of the DUT can be found.
+	 */
+	public String getDutRMIURL() {
+		return testRunPlanData.getDutRMIURL();
+	}
+
+	/**
+	 * In case of a TLS server returns the port under which the RMI for the DUT can be found.
+	 *
+	 * @return the port under which the RMI of the DUT can be found.
+	 */
+	public String getDutRMIPort() {
+		return testRunPlanData.getDutRMIPort();
+	}
+
+	/**
 	 * In case of a TLS client returns the executable by which the DUT can be executed.
 	 *
 	 * @return the executable by which the DUT can be executed.
@@ -1048,5 +1213,51 @@ public class TestRunPlanConfiguration {
 	 */
 	public List<DUTCapabilities> getDUTCapabilities() {
 		return testRunPlanData.getDutCapabilities();
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 * @return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 */
+	public String getBrowserSimulatorURL() {
+		return testRunPlanData.getBrowserSimulatorURL();
+	}
+
+	/**
+	 * Return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 * @return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 */
+	public String getBrowserSimulatorPort() {
+		return testRunPlanData.getBrowserSimulatorPort();
+	}
+
+	public boolean isClientAuthCertAvailable() {
+		if (clientAuthCertChainFile == null || clientAuthKeyFile == null) {
+			return false;
+		} else if (clientAuthKeyFile.isBlank() || clientAuthCertChainFile.isBlank()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Client Auth Cert Chain File Path
+	 * @return Client Auth Cert Chain File Path
+	 */
+	public String getClientAuthCertChainFile() {
+		return this.clientAuthCertChainFile;
+	}
+
+	/**
+	 * Client Auth Key File Path
+	 * @return Client Auth Key File Path
+	 */
+	public String getClientAuthKeyFile() {
+		return this.clientAuthKeyFile;
+	}
+
+	public String getTaSKServerAddress() {
+		return getGlobalConfigParameter(GlobalConfigParameterNames.RestApiHost).getValueAsString();
 	}
 }

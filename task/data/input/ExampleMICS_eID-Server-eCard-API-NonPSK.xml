@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Example ICS according to BSI-TR-03116-TS Chapter 3 
+	This example uses the requirements from BSI-TR-03116-TS_Annex Chapter 2.4 eID-Servers eID-Servers eCard API-->
+<ICS>	
+	<Title>Test Application - eID-Server-eCard API NonPSK</Title> <!-- Optional-->
+	<Version>3.0.0</Version>
+	<Description>This is an example ICS that will be used as the input to the TaSK test framework.</Description> <!-- Optional-->
+		
+	<ApplicationUnderTest>
+		<!-- Chapter 3.1 
+			Basic information about the DUT. -->
+		<ApplicationType>TR-03130-1-EID-SERVER-ECARD-NONPSK</ApplicationType>
+		<RespectiveTechnicalGuideline>TR-03130-1</RespectiveTechnicalGuideline> <!-- Optional-->
+		<URL>localhost</URL> <!-- Address of the eID-Servers eCard API -->
+		<Port>8443</Port> <!--  Port of the eID-Servers eCard API -->
+	</ApplicationUnderTest>
+		
+	<Profiles>
+		<!-- Chapter 3.2 Table 3
+			An applicant SHALL provide a declaration containing information on the supported profiles. -->
+			<!-- mandatory profiles from TR-03116-TS_Annex, Table 8 -->
+		<Profile>CHECK_CERTS</Profile>
+		<Profile>INTERIM_SUITES_SRV</Profile>
+		<Profile>NO_CLIENT_CERT</Profile>
+		<Profile>PFS</Profile>
+		<Profile>TLS_1.2</Profile>
+		<Profile>TLS_SERVER</Profile>
+
+		<!-- recommended profiles from TR-03116-TS_Annex, Table 8 -->
+		<Profile>ECC</Profile>
+		<Profile>ENC_THEN_MAC</Profile>
+		<Profile>SESSION_ID</Profile>
+		<Profile>SESSION_TICKET</Profile>
+
+	</Profiles>
+		
+	<SupportedCryptography>
+		<!-- Chapter 3.3 
+			one element 'SupportedTLSVersion' for each line in Table 4 -->
+		<SupportedTLSVersion version="TLSv1.2">
+			<SupportedCipherSuites>
+				<!-- Table 5 
+					The order of the cipher suites MUST reflect the preference of the DUT-->
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_GCM_SHA384</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</CipherSuite>
+
+			</SupportedCipherSuites>
+			
+			<SupportedKeyLengths>
+				<!-- Table 6 
+					mandates the minimal supported key lengths to be provided for each TLS version and algorithm separately -->
+				<MinimalKeyLength>
+					<Algorithm>ECDSA</Algorithm>
+					<MinimalSupportedKeyLength>256</MinimalSupportedKeyLength>
+				</MinimalKeyLength>
+				<MinimalKeyLength>
+					<Algorithm>ECDH</Algorithm>
+					<MinimalSupportedKeyLength>256</MinimalSupportedKeyLength>
+				</MinimalKeyLength>
+				<MinimalKeyLength>
+					<Algorithm>RSA</Algorithm>
+					<MinimalSupportedKeyLength>2048</MinimalSupportedKeyLength>
+				</MinimalKeyLength>
+			</SupportedKeyLengths>
+			
+			<SupportedEllipticCurves-DHGroups>
+				<!-- Table 7 
+					In case the SUPP_GROUPS profile was selected, the named groups MUST be given in Table 7 in the order of preference.
+					This is mandatory if the SUPP_GROUPS profile was selected -->
+				<Group>brainpoolP256r1</Group>
+				<Group>secp256r1</Group>
+				<Group>secp384r1</Group>
+			</SupportedEllipticCurves-DHGroups>
+						
+			<SupportedSignatureAlgorithms>
+				<!-- Table 8 
+					The vendor SHALL list the signature algorithms supported by the DUT -->
+				<SignatureAlgorithm>
+					<Name>ecdsa</Name>
+					<HashName>SHA256</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>ecdsa</Name>
+					<HashName>SHA384</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>ecdsa</Name>
+					<HashName>SHA512</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA256</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA384</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA512</HashName>
+				</SignatureAlgorithm>
+			</SupportedSignatureAlgorithms>
+				
+			<SupportedTLSExtensions>
+				<!-- Table 10 
+					The supported extensions SHALL be provided
+					The names shall match https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml-->
+				<Extension>encrypt_then_mac</Extension>
+				<Extension>status_request_v2</Extension>
+				<Extension>supported_groups</Extension>
+			</SupportedTLSExtensions>
+			
+		</SupportedTLSVersion>
+		
+	</SupportedCryptography>
+
+		
+	<!-- Chapter 3.6 Table 14 
+		mandatory -->
+	<ConnectionTimeout>5m</ConnectionTimeout>
+		
+	<!-- <Zero-RTTData> -->
+		<!-- Chapter 3.7 Table 15
+			This is only mandatory if TLS version TLSv1.3 is supported -->
+	<!-- </Zero-RTTData> -->
+		
+	<TLSCertificates>
+		<!-- Chapter 3.8 Table 16
+			This is only mandatory, if the CHECK_CERTS profile was selected -->
+	
+		<CertificateChain>
+			<!-- Table 16	
+				The vendor must provide the chain of X.509 certificates used by the test object in hierarchical order. -->
+			<Certificate type="RootCACertificate">
+				<Subject>C = DE, O = Dummy-Org, CN = Dummy-RootCA</Subject>
+				<Fingerprint>bd6681410fb05ecd2b414afa3b02e285132cd289f9cad10e5c850fc9888e576e</Fingerprint>
+			</Certificate>
+			<Certificate type="IntermediateCertificate">
+				<Subject>C = DE, O = Dummy-Org, CN = Dummy-SubCA</Subject>
+				<Fingerprint>c298ec17b9257dbfb7f36280caade22c6317186c146b5fdd5792bcb77afced29</Fingerprint>
+			</Certificate>
+			<Certificate type="EndEntityCertificate">
+				<Subject>CN = Dummy-EndEntity</Subject>
+				<Fingerprint>238da7970e5e3b72cc0db456e5eb891c3689e6b1eb14659c9df18962668ad985</Fingerprint>
+			</Certificate>
+		</CertificateChain>
+		
+		<ServerDomains>
+			<!-- Table 17
+				In case of a TLS server certificate, the applicant must specify what (sub-)domain names it is used for. -->
+			<SubDomain>localhost</SubDomain>
+		</ServerDomains>
+	</TLSCertificates>
+	
+</ICS>

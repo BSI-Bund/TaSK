@@ -75,7 +75,9 @@ public enum TlsTestToolConfigurationOption {
 	/** psk. */
 	PSK("psk"),
 	/** psk. */
-	PSKIDENTITIYHINT("pskIdentityHint");;
+	PSKIDENTITIYHINT("pskIdentityHint"),
+	/** psk identity */
+	PSKIDENTITY("pskIdentity");
 
 	private final String value;
 

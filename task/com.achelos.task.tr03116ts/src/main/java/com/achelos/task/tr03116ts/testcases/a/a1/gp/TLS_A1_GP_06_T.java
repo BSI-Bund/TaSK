@@ -13,11 +13,8 @@ import com.achelos.task.commons.enums.TlsAlertLevel;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -45,7 +42,8 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 	private final TFAlertMessageCheck tfAlertMessageCheck;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
 	private final TFServerCertificate tfserverCertificate;
-
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
+	private final TFHandshakeNotSuccessfulCheck tfHandshakeNotSuccessfulCheck;
 
 	public TLS_A1_GP_06_T() {
 		setTestCaseId(TEST_CASE_ID);
@@ -57,6 +55,8 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 		tfserverCertificate = new TFServerCertificate(this);
 		tfAlertMessageCheck = new TFAlertMessageCheck(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
+		tfHandshakeNotSuccessfulCheck = new TFHandshakeNotSuccessfulCheck(this);
 	}
 
 	@Override
@@ -117,11 +117,11 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 		// all supported tls version
 		List<TlsVersion> tlsVersions = configuration.getSupportedTLSVersions();
 		if (null == tlsVersions || tlsVersions.isEmpty()) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
 
-		logger.debug("Supported TLS versions:");
+		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.name());
 		}
@@ -181,7 +181,9 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 					tfAlertMessageCheck.executeSteps("5", "The TLS client does not accept the ServerHello " +
 									"and sends a \"handshake_failure\" alert or another suitable error description.",
 							Arrays.asList("level=warning/fatal"), testTool);
-					tfLocalServerClose.executeSteps("6", "Server closed successfully", Arrays.asList(),
+					tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
+					tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
+					tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 							testTool);
 					dutExecutor.resetProperties();
 					testTool.resetProperties();
@@ -214,7 +216,11 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 							Arrays.asList("level=fatal"), testTool, TlsAlertLevel.fatal,
 							null);
 
-					tfLocalServerClose.executeSteps("6", "Server closed successfully", Arrays.asList(),
+					tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
+
+					tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
+
+					tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 							testTool);
 					dutExecutor.resetProperties();
 					testTool.resetProperties();
@@ -245,7 +251,11 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 							Arrays.asList("level=fatal"), testTool, TlsAlertLevel.fatal,
 							null);
 
-					tfLocalServerClose.executeSteps("6", "Server closed successfully", Arrays.asList(),
+					tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
+
+					tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
+
+					tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 							testTool);
 					dutExecutor.resetProperties();
 					testTool.resetProperties();

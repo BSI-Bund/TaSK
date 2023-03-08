@@ -12,11 +12,8 @@ import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tools.StringTools;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -39,6 +36,7 @@ public class TLS_A1_FR_03 extends AbstractTestCase {
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
 	private final TFAlertMessageCheck tfAlertMessageCheck;
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_FR_03() {
 		setTestCaseId(TEST_CASE_ID);
@@ -50,6 +48,7 @@ public class TLS_A1_FR_03 extends AbstractTestCase {
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
 		tfAlertMessageCheck = new TFAlertMessageCheck(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
 	}
 
 	@Override
@@ -113,20 +112,20 @@ public class TLS_A1_FR_03 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite is found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported CipherSuite: " + cipherSuite.name());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.name());
 
-		step(1, "Setting TLS version: " + tlsVersion.getName() + " and Cipher suite: "
+		step(1, "Setting TLS version: " + tlsVersion.getName() + " and cipher suite: "
 				+ cipherSuite.getName(), null);
 		
 		tfserverCertificate.executeSteps("2", "The TLS server supplies the certificate chain [CERT_DEFAULT].",
@@ -158,6 +157,8 @@ public class TLS_A1_FR_03 extends AbstractTestCase {
 
 		tfAlertMessageCheck.executeSteps("7", "",
 				Arrays.asList("level=warning/fatal"), testTool);
+
+		tfApplicationCheck.executeSteps("5", "", Arrays.asList(), testTool, dutExecutor);
 
 		tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 				testTool);

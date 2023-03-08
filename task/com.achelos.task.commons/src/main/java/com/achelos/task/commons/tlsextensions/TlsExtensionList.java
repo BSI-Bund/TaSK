@@ -55,6 +55,26 @@ public class TlsExtensionList {
 	}
 
 	/**
+	 * Create a default list of TLS client extensions for TLS 1.3
+	 *
+	 * @return TLS extension list for a ClientHello message
+	 */
+	public static TlsExtensionList createDefaultClientExtensionsTls13(boolean minimumExtensions) {
+		final TlsExtensionList extensionList = new TlsExtensionList();
+		extensionList.add(TlsExtSupportedGroups.createDefault());
+		extensionList.add(TlsExtSignatureAlgorithms.createDefault());
+		extensionList.add(TlsExtSupportedVersions.createDefault());
+
+		if(minimumExtensions){
+			extensionList.add(TlsExtPskExchangeModesTls13.createDefault());
+			extensionList.add(new TlsExtEncryptThenMac());
+			extensionList.add(new TlsExtExtendedMasterSecret());
+			extensionList.add(TlsExtEcPointFormats.createDefault());
+		}
+		return extensionList;
+	}
+
+	/**
 	 * Creates an empty list of TLS client extensions for a ClientHello message.
 	 *
 	 * @return TLS extension list

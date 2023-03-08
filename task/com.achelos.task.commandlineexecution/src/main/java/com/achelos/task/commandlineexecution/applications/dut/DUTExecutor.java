@@ -1,29 +1,25 @@
 package com.achelos.task.commandlineexecution.applications.dut;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import com.achelos.task.commandlineexecution.genericcommandlineexecution.Executor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.GenericCommandLineExecution;
 import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.commandlineexecution.genericcommandlineexecution.RunLogger;
 import com.achelos.task.dutcommandgenerators.DUTCommandGenerator;
 import com.achelos.task.logging.BasicLogger;
+import com.achelos.task.utilities.logging.LogBean;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.*;
 
 /**
  * Generic motivator that calls a given command or executable with command line parameters for triggering a TLS
  * connection to a remote management server that is represented by the Test Suite. It expects that a connection to its
  * IP address and port is possible.
  */
-public class DUTExecutor extends GenericCommandLineExecution {
+public class DUTExecutor extends RunLogger {
 	private final DUTCommandGenerator dutCommandGenerator;
 
 	/**
@@ -35,7 +31,7 @@ public class DUTExecutor extends GenericCommandLineExecution {
 	 * @param dutCommandGenerator Command Generator for DUT ApplicationType.
 	 */
 	public DUTExecutor(final String testCaseName, final BasicLogger log, final DUTCommandGenerator dutCommandGenerator) throws IOException, URISyntaxException {
-		super(Executor.DUT, testCaseName, log);
+		super(testCaseName,Executor.DUT, log);
 		setIterationCounter(null);
 		this.dutCommandGenerator = dutCommandGenerator;
 	}
@@ -62,8 +58,7 @@ public class DUTExecutor extends GenericCommandLineExecution {
 		// Get Command to call the DUT.
 		var commands = dutCommandGenerator.connectToServer(isSessionResumption);
 
-		var logFile = createLogFile();
-		start(commands, logFile, null);
+		start(commands, null, null);
 
 	}
 
@@ -96,9 +91,12 @@ public class DUTExecutor extends GenericCommandLineExecution {
 	 *
 	 * @see #stop()
 	 */
-	public void resetProperties() {
+	public void resetProperties() throws IOException {
 		logDebug("Reset current " + getExecutor().getName() + " configuration.");
-		
+		processLoggingOutput();
+		if (null != getIterationCounter() && processLoggingOutputDone) {
+			writeLogsToFile((ArrayList<LogBean>) getLogBeanList().clone());
+		}
 		if (isRunning()) {
 			int dutExecutableTimeoutSeconds = getConfiguration().getDutExecutableTimeout();
 			ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -118,7 +116,7 @@ public class DUTExecutor extends GenericCommandLineExecution {
 				executor.shutdownNow();
 			}
 		}
-
+		resetLog();
 		stop();
 		logFileCreated();
 
@@ -139,12 +137,43 @@ public class DUTExecutor extends GenericCommandLineExecution {
 		}
 	}
 
+	@Override
+	public final void logEndOfIteration(final Writer writer) throws IOException {
+		if (null != getIterationCounter()) {
+			logInfo("End iteration " + getIterationCounter().getCurrentIteration() + " of "
+					+ getIterationCounter().getTotalNumberOfIterations() + ".");
+		}
+
+	}
+
+	/**
+	 * Checks the Application Specific Inspection Instructions
+	 * @param handshakeSuccessful Information whether the handshake was successful.
+	 * @return Information whether the application specific inspection instructions are fulfilled.
+	 * @throws IOException In case of an IO Error.
+	 */
+	public final boolean checkApplicationSpecificInspectionInstructions(boolean handshakeSuccessful) throws IOException {
+		var searchString = dutCommandGenerator.applicationSpecificInspectionSearchString(handshakeSuccessful);
+		if (searchString == null || searchString.isBlank()) {
+			return true;
+		}
+		var logBean = findMessageMatch(searchString);
+		var appSpecInspInstrSuccessful = dutCommandGenerator.applicationSpecificInspection(handshakeSuccessful, logBean);
+		if (!appSpecInspInstrSuccessful) {
+			logError("Unable to verify Application Specific Inspection Instructions.");
+		} else {
+			logInfo("Successfully verified Application Specific Inspection Instructions.");
+		}
+		return appSpecInspInstrSuccessful;
+	}
+
+	/*
 	/**
 	 * Stops the DUT executor process after 60 seconds if not stopped already. De-registers a previously-registered
 	 * virtual-machine shutdown hook.
 	 *
 	 * @see #stop()
-	 */
+	 *
 	public final void cleanAndExit() {
 		final int sixty = 60;
 		final int thousand = 1000;
@@ -158,6 +187,10 @@ public class DUTExecutor extends GenericCommandLineExecution {
 					removeShutdownHook();
 				}
 			}, sixty * thousand);
+
+			//writeLogsToFile(processLoggingOutput(true, false));
+
+
 			logFileCreated();
 			timer.cancel();
 		} catch (Exception e) {
@@ -165,5 +198,6 @@ public class DUTExecutor extends GenericCommandLineExecution {
 			logError("An error occurred while trying to process the logging dump", e);
 		}
 	}
+	*/
 
 }

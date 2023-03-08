@@ -7,8 +7,9 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
+import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 import com.achelos.task.tr03116ts.testfragments.TFTLSVersionCheck;
@@ -35,7 +36,6 @@ public class TLS_B1_GP_01_T extends AbstractTestCase {
 	private TSharkExecutor tShark = null;
 	private final TFTCPIPNewConnection tFTCPIPNewConnection;
 	private final TFTLSVersionCheck tFTLSVersionCheck;
-	private final TFTCPIPCloseConnection tFTCPIPCloseConnection;
 	private final TFTLSClientHello tfClientHello;
 
 	public TLS_B1_GP_01_T() {
@@ -46,7 +46,6 @@ public class TLS_B1_GP_01_T extends AbstractTestCase {
 
 		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
 		tFTLSVersionCheck = new TFTLSVersionCheck(this);
-		tFTCPIPCloseConnection = new TFTCPIPCloseConnection(this);
 		tfClientHello = new TFTLSClientHello(this);
 	}
 
@@ -96,22 +95,28 @@ public class TLS_B1_GP_01_T extends AbstractTestCase {
 		/* all supported TLS versions */
 		var tlsVersions = configuration.getSupportedTLSVersions();
 		if (null == tlsVersions || tlsVersions.isEmpty()) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("Supported TLS versions:");
+		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.getName());
 		}
 
-		// repeat test for each supported TLS version
+		//Find out the number of iterations
 		int iterationCount = 1;
+		int totalNumberOfIterations = 0;
+		for(TlsVersion tlsVersion : tlsVersions){
+			totalNumberOfIterations  += configuration.getSupportedNonECCCipherSuites(tlsVersion).size();
+		}
+		// repeat test for each supported TLS version
 		for (TlsVersion tlsVersion : tlsVersions) {
 
 			/* supported non-ECC algorithm cipher suites */
 			var cipherSuites = configuration.getSupportedNonECCCipherSuites(tlsVersion);
+
 			if (null == cipherSuites || cipherSuites.isEmpty()) {
-				logger.error("No supported non-ECC Cipher suites found.");
+				logger.error("No supported non-ECC cipher suites found.");
 				continue;
 			}
 			logger.debug("Supported non-ECC Cipher suites:");
@@ -119,13 +124,12 @@ public class TLS_B1_GP_01_T extends AbstractTestCase {
 				logger.debug(cipherSuite.getName());
 			}
 
-
 			// repeat test for all supported non-ecc cipher suite
 			for (TlsCipherSuite cipherSuite : cipherSuites) {
 
 				tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
-						+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite);
-				testTool.start(iterationCount, tlsVersions.size() * cipherSuites.size());
+						+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, TlsTestToolTlsLibrary.OpenSSL, cipherSuite, tlsVersion);
+				testTool.start(iterationCount, totalNumberOfIterations);
 				iterationCount++;
 
 				tFTCPIPNewConnection.executeSteps("2", "", Arrays.asList(), testTool);
@@ -134,11 +138,13 @@ public class TLS_B1_GP_01_T extends AbstractTestCase {
 						Arrays.asList("tlsVersion=" + tlsVersion.getName(), "isSupported=true"), testTool, tlsVersion,
 						true);
 
-				tFTCPIPCloseConnection.executeSteps("4", "", Arrays.asList(), testTool);
 
+				step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+						"The TLS protocol is executed without errors and the channel is established.");
 				testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 				testTool.resetProperties();
+
 			}
 		}
 	}

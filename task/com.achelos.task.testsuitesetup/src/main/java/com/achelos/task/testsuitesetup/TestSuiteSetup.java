@@ -76,20 +76,8 @@ public class TestSuiteSetup {
 	private static TestRunPlan.TestConfiguration getTestConfiguration(final MICS mics, final MICSConfiguration config) {
 		var testConfiguration = new TestRunPlan.TestConfiguration();
 
-		// Which ApplicationType is the DUT.
-		testConfiguration.setApplicationType(mics.getApplicationType());
-
-		// How to call DUT.
-		testConfiguration.setURL(mics.getServerURL());
-		testConfiguration.setPort(mics.getServerPort());
-		testConfiguration.setDUTExecutable(mics.getDutExecutable());
-		var callArguments = new DUTCallArguments();
-		callArguments.setStartConnectionArguments(mics.getDutCallArgumentsConnect());
-		callArguments.setResumeConnectionArguments(mics.getDutCallArgumentsReconnect());
-		if (mics.getDutEIDClientPort() > 0) {
-			callArguments.setEIDClientPort(mics.getDutEIDClientPort());
-		}
-		testConfiguration.setDUTCallArguments(callArguments);
+		// Set the DUT Application Type and Information
+		setDUTApplicationType(testConfiguration, mics);
 
 		// ApplicationSpecificData
 		if (mics.getAppSpecificData().isTestClientCertSet()) {
@@ -130,4 +118,32 @@ public class TestSuiteSetup {
 		}
 		return dutCapabilities;
 	}
+
+	private static void setDUTApplicationType(TestRunPlan.TestConfiguration testConfiguration, final MICS mics) {
+		var dUTApplicationType = mics.getApplicationType();
+		testConfiguration.setApplicationType(dUTApplicationType);
+
+		if (dUTApplicationType.contains("EID-CLIENT")) {
+			testConfiguration.setBrowserSimulatorPort(mics.getBrowserSimulatorPort());
+			testConfiguration.setBrowserSimulatorURL(mics.getBrowserSimulatorURL());
+			testConfiguration.setEIDClientPort(mics.getDutEIDClientPort());
+
+		} else if (dUTApplicationType.contains("SERVER")) {
+			testConfiguration.setURL(mics.getServerURL());
+			testConfiguration.setPort(mics.getServerPort());
+			if (mics.getDutRMIURL() != null && !mics.getDutRMIURL().isBlank()) {
+				testConfiguration.setRMIURL(mics.getDutRMIURL());
+				testConfiguration.setRMIPort(mics.getDutRMIPort());
+			}
+		} else if (dUTApplicationType.contains("CLIENT")) {
+			testConfiguration.setDUTExecutable(mics.getDutExecutable());
+			var callArguments = new DUTCallArguments();
+			callArguments.setStartConnectionArguments(mics.getDutCallArgumentsConnect());
+			callArguments.setResumeConnectionArguments(mics.getDutCallArgumentsReconnect());
+			testConfiguration.setDUTCallArguments(callArguments);
+		} else {
+			throw new RuntimeException("DUT is of unknown type: " + dUTApplicationType);
+		}
+	}
+
 }

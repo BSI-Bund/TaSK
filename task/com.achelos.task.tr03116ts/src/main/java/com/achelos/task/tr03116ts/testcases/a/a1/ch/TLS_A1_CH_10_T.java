@@ -11,17 +11,14 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
-import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsSignatureScheme;
 import com.achelos.task.commons.enums.TlsTestToolMode;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -51,6 +48,7 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 	private final TFServerCertificate tfserverCertificate;
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_CH_10_T() {
 		setTestCaseId(TEST_CASE_ID);
@@ -61,6 +59,7 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 		tfserverCertificate = new TFServerCertificate(this);
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
 	}
 
 	@Override
@@ -117,10 +116,10 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		int iterationCount = 1;
 
@@ -140,8 +139,6 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 			step(1, "Setting TLS version: " + tlsVersion.getName() + " and signature algorithm: "
 					+ sigAlg.toString(), null);
 
-			// TODO @snl make server certificate fragment compatible with TlsSignatureScheme object. 
-			
 			tfserverCertificate.executeSteps("2", "A certificate chain [CERT_DEFAULT] with certificates that are signed"
 					+ " using [SIG_ALGORITHM_CERT] is supplied.",
 					Arrays.asList(), testTool, tlsVersion, sigAlg, TlsTestToolCertificateTypes.CERT_DEFAULT);
@@ -167,7 +164,7 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 					TlsExtensionTypes.signature_algorithms_cert);
 			if (data == null) {
 				logger.error("The TLS ClientHello does not offer the \"signature_algorithms_cert\" extension.");
-//				continue; // TODO continue? 
+//				continue;
 			}
 			
 			try {
@@ -176,7 +173,7 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 			} catch (Exception e) {
 				// Unknown_signature algorithm.
 				logger.error("Found unknown signature algorithm" + e);
-//				continue; // TODO continue? 
+//				continue;
 			}
 
 			// Find difference in sigAlgorithms with respect to supportedSignatureAndHashAlgorithms.
@@ -206,7 +203,9 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 					"The TLS protocol is executed without errors and the channel is established.");
 			testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-			tfLocalServerClose.executeSteps("7", "Server closed successfully", Arrays.asList(),
+			tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
+
+			tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 					testTool);
 
 			dutExecutor.resetProperties();

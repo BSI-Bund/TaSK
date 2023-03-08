@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TestRunPlan>
-    <TestRunPlanGenerationTime>2022-12-06T13:34:51</TestRunPlanGenerationTime>
+    <TestRunPlanGenerationTime>2023-01-20T14:41:37</TestRunPlanGenerationTime>
     <TestConfiguration>
         <ApplicationType>TR-03124-1-EID-CLIENT-TLS-2</ApplicationType>
-        <URL></URL>
-        <Port></Port>
-        <DUTExecutable>/usr/bin/AusweisApp2</DUTExecutable>
-        <DUTCallArguments>
-            <StartConnectionArguments></StartConnectionArguments>
-            <ResumeConnectionArguments></ResumeConnectionArguments>
-        </DUTCallArguments>
+        <BrowserSimulatorURL>192.168.178.63</BrowserSimulatorURL>
+        <BrowserSimulatorPort>1099</BrowserSimulatorPort>
+        <EIDClientPort>24727</EIDClientPort>
         <DUTCapabilities>
             <Capability>SESSION_TICKET</Capability>
             <Capability>SESSION_ID</Capability>
+            <Capability>PSK</Capability>
         </DUTCapabilities>
     </TestConfiguration>
     <MICSInfo>
@@ -110,8 +107,9 @@
             <Extension tlsVersion="TLSv1.2">SessionTicket TLS</Extension>
             <Extension tlsVersion="TLSv1.2">extended_master_secret</Extension>
             <Extension tlsVersion="TLSv1.2">signature_algorithms</Extension>
-            <Extension tlsVersion="TLSv1.2">server_name</Extension>
             <Extension tlsVersion="TLSv1.2">status_request</Extension>
+            <Extension tlsVersion="TLSv1.2">server_name</Extension>
+            <Extension tlsVersion="TLSv1.2">application_layer_protocol_negotiation</Extension>
         </SupportedExtensions>
         <KeyLengths>
             <RSA>

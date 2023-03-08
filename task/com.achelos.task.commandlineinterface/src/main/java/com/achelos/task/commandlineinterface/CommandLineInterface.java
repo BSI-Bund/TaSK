@@ -1,11 +1,15 @@
 package com.achelos.task.commandlineinterface;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.achelos.task.abstractinterface.TaskExecutionParameters;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -25,12 +29,15 @@ import com.achelos.task.xmlparser.datastructures.configuration.GlobalConfigParam
 import com.achelos.task.xmlparser.datastructures.testrunplan.TestRunPlanData;
 import com.achelos.task.xmlparser.runplanparsing.RunPlanParser;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
 /**
  * Class representing the CommandLine Interface of the TaSK Test Tool. Provides a main method.
  */
 public class CommandLineInterface {
+
+	private final static String VERSION = "0.5.1";
 
 	private enum EXEC_MODES {
 		LOCAL_MICS_MODE,
@@ -51,6 +58,8 @@ public class CommandLineInterface {
 	private static Option pdfReportOption;
 	private static Option ignoreMicsVerificationOption;
 	private static Option restServerOption;
+	private static Option clientAuthCertChainOption;
+	private static Option clientAuthKeyOption;
 
 	/**
 	 * Hide default Constructor.
@@ -114,6 +123,16 @@ public class CommandLineInterface {
 		restServerOption.setRequired(false);
 		options.addOption(restServerOption);
 
+		clientAuthCertChainOption = new Option(null, "client-auth-certchain", true,
+				"Specifies the PEM encoded client authentication certificate chain to be used by a test client to test the client authentication mechanism of a server.");
+		clientAuthCertChainOption.setRequired(false);
+		options.addOption(clientAuthCertChainOption);
+
+		clientAuthKeyOption = new Option(null, "client-auth-key", true,
+				"Specifies the PEM encoded private key file for the client authentication certificate to be used by a test client to test the client authentication mechanism of a server.");
+		clientAuthKeyOption.setRequired(false);
+		options.addOption(clientAuthKeyOption);
+
 		var defaultParser = new DefaultParser();
 		helpFormatter = new HelpFormatter();
 		CommandLine cmd = null;
@@ -121,7 +140,7 @@ public class CommandLineInterface {
 		try {
 			cmd = defaultParser.parse(options, args);
 		} catch (Exception e) {
-			exit(1, e.getMessage(), e);
+			exit(1, e.getMessage());
 		}
 		if (cmd == null) {
 			exit(1, "Command line Parsing failed.");
@@ -176,7 +195,7 @@ public class CommandLineInterface {
 		}
 		var configFile = new File(cmd.getOptionValue(configOption));
 		if (!configFile.exists()) {
-			exit(1, "File provided as " + configOption.getArgName() + " does not exist.");
+			exit(1, "File provided as " + configOption.getLongOpt() + " does not exist.");
 		}
 		HashMap<String, GlobalConfigParameter> configuration = null;
 		try {
@@ -196,15 +215,33 @@ public class CommandLineInterface {
 
 		// Start Server
 		// Get HostName and Port from GlobalConfig
-		var hostName = configuration.get(GlobalConfigParameterNames.RestApiHost.getParameterName()).getValueAsString();
 		var port = configuration.get(GlobalConfigParameterNames.RestApiPort.getParameterName()).getValueAsInteger();
 		// Optionally, get SSL Credentials from Global Configuration
 		SSLContext sslContext = null;
-		logger.info("Trying to run TaSK REST Server on HostName " + hostName + " and port " + Integer.toString(port));
+		var tlsCredentialsConfig = configuration.get(GlobalConfigParameterNames.RestApiCredentials.getParameterName());
+		if (tlsCredentialsConfig != null && !tlsCredentialsConfig.getValueAsString().isBlank()) {
+			var tlsCredentials = configuration.get(GlobalConfigParameterNames.RestApiCredentials.getParameterName()).getValueAsString();
+			var tlsCredentialPassword = configuration.get(GlobalConfigParameterNames.RestApiCredentialPassword.getParameterName()).getValueAsString();
+			try(var keyInput = new FileInputStream(tlsCredentials);) {
+				KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+				KeyStore keyStore = KeyStore.getInstance("PKCS12");
+				keyStore.load(keyInput, tlsCredentialPassword.toCharArray());
+				keyInput.close();
+				keyManagerFactory.init(keyStore, tlsCredentialPassword.toCharArray());
+
+				sslContext = SSLContext.getInstance("TLS");
+				sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
+			} catch (Exception e) {
+				logger.error("Error creating TLS context, running without TLS.", e);
+			}
+		} else {
+			logger.warning("No TLS Credentials provided for REST Server. Running without TLS.");
+		}
+		logger.info("Trying to run TaSK REST Server on port " + Integer.toString(port));
 
 		TaSKRestServer server = null;
 		try {
-			server = new TaSKRestServer(hostName, port, sslContext, logger, configFile);
+			server = new TaSKRestServer(port, sslContext, logger, configFile);
 			server.start();
 			System.in.read(); //Maybe we should do something else here? This should be okay for now.
 		} catch (Exception e) {
@@ -243,13 +280,13 @@ public class CommandLineInterface {
 		// Config File
 		var configFile = new File(cmd.getOptionValue(configOption));
 		if (!configFile.exists()) {
-			exit(1, "File provided as " + configOption.getArgName() + " does not exist.");
+			exit(1, "File provided as " + configOption.getLongOpt() + " does not exist.");
 		}
 
 		// Input Files
 		var micsFile = new File(cmd.getOptionValue(micsOption));
 		if (!micsFile.exists()) {
-			exit(1, "File provided as " + micsOption.getArgName() + " does not exist.");
+			exit(1, "File provided as " + micsOption.getLongOpt() + " does not exist.");
 		}
 
 		// Ignore MICS verification
@@ -261,11 +298,11 @@ public class CommandLineInterface {
 		if (certDirOptionValue != null) {
 			var certDir = new File(certDirOptionValue);
 			if (certDir == null || !certDir.exists() || !certDir.isDirectory() || certDir.listFiles() == null) {
-				exit(1, "Directory provided as " + certOption.getArgName() + " does not exist.");
+				exit(1, "Directory provided as " + certOption.getLongOpt() + " does not exist.");
 			} else {
 				var fileList = certDir.listFiles();
 				if (fileList == null) {
-					exit(1, "Directory provided as " + certOption.getArgName() + " could not be read.");
+					exit(1, "Directory provided as " + certOption.getLongOpt() + " could not be read.");
 					return;
 				} else {
 					for (var file : fileList) {
@@ -276,6 +313,25 @@ public class CommandLineInterface {
 				}
 			}
 		}
+
+		// Client Authentication Certificate Chain File and Private Key File
+		var clientAuthCertChainOptionValue = cmd.getOptionValue(clientAuthCertChainOption);
+		String clientAuthCertChainFile = "";
+		if (clientAuthCertChainOptionValue != null) {
+			clientAuthCertChainFile = clientAuthCertChainOptionValue;
+			if (!(new File(clientAuthCertChainFile).exists())) {
+				exit(1, "File provided as " + clientAuthCertChainOption.getLongOpt() + " does not exist.");
+			}
+		}
+		var clientAuthKeyOptionValue = cmd.getOptionValue(clientAuthKeyOption);
+		String clientAuthKeyFile = "";
+		if (clientAuthKeyOptionValue != null) {
+			clientAuthKeyFile = clientAuthKeyOptionValue;
+			if (!(new File(clientAuthKeyFile).exists())) {
+				exit(1, "File provided as " + clientAuthKeyOption.getLongOpt() + " does not exist.");
+			}
+		}
+
 		HashMap<String, GlobalConfigParameter> configuration = null;
 		try {
 			configuration = ConfigParser.parseGlobalConfig(configFile);
@@ -297,8 +353,10 @@ public class CommandLineInterface {
 		var date = DateTimeUtils.getTimeStampForFileAndDirectoryNames();
 		var reportDirectory = Paths.get(reportDir, date + "_TestReport").toString();
 
-		TaskTestTool.executeTaskTestTool(logger, configFile, micsFile, certificateFileList,
-				ignoreMicsVerification, reportDirectory);
+		var executionParameters = new TaskExecutionParameters(logger, configFile, micsFile, certificateFileList,
+				ignoreMicsVerification, reportDirectory, clientAuthCertChainFile, clientAuthKeyFile);
+
+		TaskTestTool.executeTaskTestTool(executionParameters);
 
 		if (pdfReportSet) {
 			pdfReportGeneration(reportLogger, reportDirectory, configuration);
@@ -345,9 +403,28 @@ public class CommandLineInterface {
 			exit(1, "An error occurred while trying to parse test run plan file.", e);
 		}
 
+		// Client Authentication Certificate Chain File and Private Key File
+		var clientAuthCertChainOptionValue = cmd.getOptionValue(clientAuthCertChainOption);
+		String clientAuthCertChainFile = "";
+		if (clientAuthCertChainOptionValue != null) {
+			clientAuthCertChainFile = clientAuthCertChainOptionValue;
+			if (!(new File(clientAuthCertChainFile).exists())) {
+				exit(1, "File provided as " + clientAuthCertChainOption.getLongOpt() + " does not exist.");
+			}
+		}
+		var clientAuthKeyOptionValue = cmd.getOptionValue(clientAuthKeyOption);
+		String clientAuthKeyFile = "";
+		if (clientAuthKeyOptionValue != null) {
+			clientAuthKeyFile = clientAuthKeyOptionValue;
+			if (!(new File(clientAuthKeyFile).exists())) {
+				exit(1, "File provided as " + clientAuthKeyOption.getLongOpt() + " does not exist.");
+			}
+		}
+
+
 		var configFile = new File(cmd.getOptionValue(configOption));
 		if (!configFile.exists()) {
-			exit(1, "File provided as " + configOption.getArgName() + " does not exist.");
+			exit(1, "File provided as " + configOption.getLongOpt() + " does not exist.");
 		}
 		HashMap<String, GlobalConfigParameter> configuration = ConfigParser.parseGlobalConfig(configFile);
 		if (configuration == null || configuration.isEmpty()) {
@@ -363,8 +440,9 @@ public class CommandLineInterface {
 		var date = DateTimeUtils.getTimeStampForFileAndDirectoryNames();
 		var reportDirectory = Paths.get(reportDir, date + "_TestReport").toString();
 
-		TaskTestTool.executeTaskTestTool(logger, testRunPlanFile, configFile, reportDirectory);
+		var executionParameters = new TaskExecutionParameters(logger, testRunPlanFile, configFile, reportDirectory, clientAuthCertChainFile, clientAuthKeyFile);
 
+		TaskTestTool.executeTaskTestTool(executionParameters);
 		if (pdfReportSet) {
 			pdfReportGeneration(reportLogger, reportDirectory, configuration);
 		} else if (xmlReportSet) {
@@ -400,8 +478,8 @@ public class CommandLineInterface {
 
 	private static void exit(final int returnCode, final String errorMessage, final Throwable t) {
 		logger.error(LOGGER_PREFIX + errorMessage, t);
-		helpFormatter.printHelp("TaSK CLI", options);
 		stopLogger();
+		helpFormatter.printHelp("TaSK CLI " + VERSION , options);
 		System.exit(returnCode);
 	}
 

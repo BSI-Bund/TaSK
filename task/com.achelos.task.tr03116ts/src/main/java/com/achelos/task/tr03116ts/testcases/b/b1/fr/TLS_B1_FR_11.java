@@ -1,5 +1,7 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.fr;
 
+import java.util.Collections;
+
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
@@ -9,6 +11,8 @@ import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tlsextensions.TlsExtExtendedMasterSecret;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
@@ -28,6 +32,7 @@ public class TLS_B1_FR_11 extends AbstractTestCase {
 	private TlsTestToolExecutor testTool = null;
 	private TSharkExecutor tShark = null;
 	private final TFTLSClientHello tfClientHello;
+	private final TFTCPIPNewConnection tFTCPIPNewConnection;
 
 	public TLS_B1_FR_11() {
 		setTestCaseId(TEST_CASE_ID);
@@ -35,6 +40,7 @@ public class TLS_B1_FR_11 extends AbstractTestCase {
 		setTestCasePurpose(TEST_CASE_PURPOSE);
 
 		tfClientHello = new TFTLSClientHello(this);
+		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
 	}
 
 	@Override
@@ -84,21 +90,23 @@ public class TLS_B1_FR_11 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.getName());
 
 		/** any supported algorithm cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported cipher suite:" + cipherSuite.getName());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.getName());
 
 		step(1, "Send ClientHello message with extensions containing the extended_master_secret extension.",
 				"Receive ServerHello message from TOE.\r\n"
@@ -106,13 +114,20 @@ public class TLS_B1_FR_11 extends AbstractTestCase {
 
 		tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion,
-				cipherSuite, new TlsExtExtendedMasterSecret(), TlsTestToolTlsLibrary.OpenSSL);
+				cipherSuite,new TlsExtExtendedMasterSecret(), TlsTestToolTlsLibrary.OpenSSL);
 
 		testTool.start();
 
+		tFTCPIPNewConnection.executeSteps("3", "", Collections.emptyList(),
+				testTool);
+		
+		step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
+		
+		step(5, "Check if the TLS server selects the Extended-Master-Secret extension.",
+				"The TLS server selects the Extended-Master-Secret extension.");
 		testTool.assertServerSupportsExtension(TlsExtensionTypes.extended_master_secret);
-
 	}
 
 	@Override

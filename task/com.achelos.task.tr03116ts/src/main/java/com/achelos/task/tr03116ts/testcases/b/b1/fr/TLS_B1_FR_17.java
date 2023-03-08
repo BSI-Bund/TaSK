@@ -1,5 +1,6 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.fr;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
@@ -12,6 +13,8 @@ import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.logging.BasicLogger;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
@@ -27,6 +30,7 @@ public class TLS_B1_FR_17 extends AbstractTestCase {
 
 	private TlsTestToolExecutor testTool = null;
 	private TSharkExecutor tShark = null;
+	private final TFTCPIPNewConnection tFTCPIPNewConnection;
 	private final TFTLSClientHello tfClientHello;
 
 	public TLS_B1_FR_17() {
@@ -35,6 +39,7 @@ public class TLS_B1_FR_17 extends AbstractTestCase {
 		setTestCasePurpose(TEST_CASE_PURPOSE);
 
 		tfClientHello = new TFTLSClientHello(this);
+		tFTCPIPNewConnection = new TFTCPIPNewConnection(this);
 	}
 
 	@Override
@@ -108,26 +113,38 @@ public class TLS_B1_FR_17 extends AbstractTestCase {
 		logger.info(getTestCaseDescription());
 		/** highest supported TLS version */
 
+		// all unsupported tls version
 		TlsVersion tlsVersion = TlsVersion.TLS_V1_3;
-		logger.debug("TLS version: " + tlsVersion.getName());
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION13_NOT_SUPPORTED);
+			return;
+		}
 
 		/** any supported algorithm cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported Cipher suites:" + cipherSuite.getName());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.getName());
 
 		tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion,
 				cipherSuite, TlsTestToolTlsLibrary.OpenSSL);
 
 		testTool.start(1, 2);
-
+		
+		tFTCPIPNewConnection.executeSteps("2", "", Arrays.asList(), testTool);
+		
+		step(3, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
+		boolean handshakeSuccessful = testTool.assertMessageLogged(TestToolResource.Handshake_successful);
+		
 		// response contains session ticket
 		boolean ticketLogged = testTool.assertMessageLogged(TestToolResource.NewSessionTicket_ticket);
-		boolean handshakeSuccessful = testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 		if (!ticketLogged) {
 			logger.error("The DUT did not supply a valid ticket in the NewSessionTicket handshake message.");
@@ -145,23 +162,22 @@ public class TLS_B1_FR_17 extends AbstractTestCase {
 			return;
 		}
 
-		/* Step 2: Close Connection */
-		step(2, "\tThe tester closes the connection to the DUT and stores the Session\n" +
+		/* Step 4: Close Connection */
+		step(4, "\tThe tester closes the connection to the DUT and stores the Session\n" +
 				"\t * Ticket.", "");
 		logger.info("Initial handshake was successfully executed and the session ticket was stored");
 
-		/* Step 3: Perform a 0-RTT connection */
-		step(3, "Less than the maximum allowed amount of time later, the tester reconnects "
+		/* Step 5: Perform a 0-RTT connection */
+		step(5, "Less than the maximum allowed amount of time later, the tester reconnects "
 				+ "to the DUT and performs 0-RTT connection establishment with early data",
 				"The DUT ignores the early data and forces regular 1-RTT handshake.");
 
 		testTool.resetProperties();
 
-		tfClientHello.executeSteps("4", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
+		tfClientHello.executeSteps("6", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion,
-				cipherSuite, TlsTestToolTlsLibrary.OpenSSL);
+				cipherSuite, TlsTestToolConfigurationHandshakeType.ZERO_RTT);
 
-		testTool.setSessionHandshakeType(TlsTestToolConfigurationHandshakeType.ZERO_RTT);
 		testTool.setSessionCache(sessionCache.get(0));
 		testTool.setEarlyData("0123456789");
 

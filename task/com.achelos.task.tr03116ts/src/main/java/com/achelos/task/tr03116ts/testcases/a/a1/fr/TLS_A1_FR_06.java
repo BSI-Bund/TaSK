@@ -15,10 +15,8 @@ import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tlsextensions.TlsExtEncryptThenMac;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
@@ -42,6 +40,7 @@ public class TLS_A1_FR_06 extends AbstractTestCase {
 	private final TFServerCertificate tfserverCertificate;
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_FR_06() {
 		setTestCaseId(TEST_CASE_ID);
@@ -52,6 +51,7 @@ public class TLS_A1_FR_06 extends AbstractTestCase {
 		tfserverCertificate = new TFServerCertificate(this);
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
 	}
 
 	@Override
@@ -109,25 +109,25 @@ public class TLS_A1_FR_06 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** All supported cipher suites */
 		var cipherSuites = configuration.getCBCBasedSupportedCipherSuites(tlsVersion);
 
 		if (cipherSuites.size() == 0) {
-			logger.error("No supported CBC Cipher suites found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CBC_CIPHER_SUITES);
 			return;
 		}
 
-		logger.debug("Supported CBC Cipher suites:");
+		logger.debug("LoggingMessages.SUPPORTED_CBC_CIPHER_SUITES");
 		for (TlsCipherSuite cipherSuite : cipherSuites) {
 			logger.debug(cipherSuite.name());
 		}
 
-		step(1, "Setting TLS version: " + tlsVersion.getName() + " and Cipher suites: "
+		step(1, "Setting TLS version: " + tlsVersion.getName() + " and cipher suites: "
 				+ cipherSuites + " and Encrypt-then-MAC extension", null);
 
 		tfserverCertificate.executeSteps("2", "The TLS server supplies the certificate chain [CERT_DEFAULT].",
@@ -160,7 +160,9 @@ public class TLS_A1_FR_06 extends AbstractTestCase {
 				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-		tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
+		tfApplicationCheck.executeSteps("8", "", Arrays.asList(), testTool, dutExecutor);
+
+		tfLocalServerClose.executeSteps("9", "Server closed successfully", Arrays.asList(),
 				testTool);
 
 	}

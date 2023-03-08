@@ -23,11 +23,8 @@ import com.achelos.task.commons.enums.TlsTestToolMode;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
-import com.achelos.task.tr03116ts.testfragments.TFConnectionCloseCheck;
-import com.achelos.task.tr03116ts.testfragments.TFDUTClientNewConnection;
-import com.achelos.task.tr03116ts.testfragments.TFLocalServerClose;
-import com.achelos.task.tr03116ts.testfragments.TFServerCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTLSServerHello;
+import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.*;
 import com.achelos.task.utilities.logging.LogBean;
 
 
@@ -54,6 +51,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
 	private final TFConnectionCloseCheck tFConnectionCloseCheck;
+	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_FR_12_T() {
 		setTestCaseId(TEST_CASE_ID);
@@ -65,6 +63,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
 		tFConnectionCloseCheck = new TFConnectionCloseCheck(this);
+		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
 	}
 
 	@Override
@@ -155,18 +154,18 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite is found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported CipherSuite: " + cipherSuite.name());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.name());
 
 		List<TlsTestToolConfigurationHandshakeType> resumptionType =
 				TlsTestToolConfigurationHandshakeType.getHandshakeTypeFromDUTCapabilities(configuration.getDUTCapabilities());
@@ -180,7 +179,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 		for (int i = 0; i < resumptionType.size(); i++) {
 			logger.info("Start iteration " + iterationNumber + " of " + totalIterations + ".");
 
-			step(1, "Setting TLS version: " + tlsVersion.getName() + " and Cipher suite: "
+			step(1, "Setting TLS version: " + tlsVersion.getName() + " and cipher suite: "
 					+ cipherSuite, null);
 
 			tfserverCertificate.executeSteps("2", "The TLS server supplies the certificate chain [CERT_DEFAULT].",
@@ -240,9 +239,10 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 					"The TLS protocol is executed without errors and the channel is established.");
 			
 			boolean handshakeSuccessfulFound = testTool.assertMessageLogged(TestToolResource.Handshake_successful);
-			
 
-			tFConnectionCloseCheck.executeSteps("8", "The Tls connection is closed.", Arrays.asList(), testTool);
+			tfApplicationCheck.executeSteps("8", "", Arrays.asList(), testTool, dutExecutor);
+
+			tFConnectionCloseCheck.executeSteps("9", "The Tls connection is closed.", Arrays.asList(), testTool);
 			testTool.assertMessageLogged(TestToolResource.Initial_handshake_finished_Wait_for_resumption_handshake);
 
 
@@ -293,23 +293,23 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 			testTool.resetProperties();
 
 			logger.info("Start iteration " + iterationNumber + " of " + totalIterations + ".");
-			step(9, "Setting TLS version: " + tlsVersion.getName() + " and Cipher suite: "
+			step(10, "Setting TLS version: " + tlsVersion.getName() + " and cipher suite: "
 					+ cipherSuite, null);
-			tfserverCertificate.executeSteps("10", "The TLS server supplies the certificate chain [CERT_DEFAULT].",
+			tfserverCertificate.executeSteps("11", "The TLS server supplies the certificate chain [CERT_DEFAULT].",
 					Arrays.asList(), testTool, tlsVersion, cipherSuite, TlsTestToolCertificateTypes.CERT_DEFAULT);
 			
-			tfServerHello.executeSteps("11", "Server started and waits for new client connection", Arrays.asList(),
+			tfServerHello.executeSteps("12", "Server started and waits for new client connection", Arrays.asList(),
 					testTool,
 					tlsVersion, cipherSuite, TlsTestToolTlsLibrary.OpenSSL);
 
-			tFDutClientNewConnection.executeSteps("12",
+			tFDutClientNewConnection.executeSteps("13",
 					"The tester causes the DUT to connect to the TLS server for the second time.", Arrays.asList(),
 					testTool,
 					dutExecutor,
 					resumptionType.get(i),
 					new IterationCounter(iterationNumber++, totalIterations));
 			
-			step(13, "Check if the TLS ClientHello initiates session resumption via correct Session ID.",
+			step(14, "Check if the TLS ClientHello initiates session resumption via correct Session ID.",
 					"TLS ClientHello initiates session resumption via correct Session ID or Session Ticket extension.");
 			if (handshakeType.equals(TlsTestToolConfigurationHandshakeType.SessionResumptionWithSessionID)) {
 				String sessionID = testTool.getValue(TestToolResource.ClientHello_session_id);
@@ -331,7 +331,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 				logger.info("The TLS ClientHello indicates support for session resumption via Session Ticket.");
 			}
 
-			step(14, "Check if the connection establishment is either aborted by the DUT, "
+			step(15, "Check if the connection establishment is either aborted by the DUT, "
 					+ "closed immediately after creation, or not used to send any further data.",
 					"The connection establishment is either aborted by the DUT, "
 							+ "closed immediately after creation, or not used to send any further data.");
@@ -345,7 +345,9 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 
 			testTool.assertMessageLogged(TestToolResource.Server_handled_all_connections);
 
-			tfLocalServerClose.executeSteps("15", "Server closed successfully", Arrays.asList(),
+			tfApplicationCheck.executeSteps("16", "", Arrays.asList(), testTool, dutExecutor);
+
+			tfLocalServerClose.executeSteps("17", "Server closed successfully", Arrays.asList(),
 					testTool);
 			dutExecutor.resetProperties();
 			testTool.resetProperties();

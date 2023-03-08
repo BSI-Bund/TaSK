@@ -36,6 +36,8 @@ const char * const HELLORETRY_TX = "HelloRetryRequest message transmitted.\n";
 const char * const CERTIFICATE_RX_VALID = "Valid Certificate message received.\n";
 const char * const CERTIFICATE_RX_BAD = "Bad Certificate message received.\n";
 const char * const CERTIFICATE_TX = "Certificate message transmitted.\n";
+const char * const CERTIFICATE_STATUS_RX = "Certificate status message received.\n";
+const char * const CERTIFICATE_STATUS_TX = "Certificate status message transmitted.\n";
 const char * const ENCRYPTEDEXTENSIONS_RX_VALID = "Valid EncryptedExtensions message received.\n";
 const char * const ENCRYPTEDEXTENSIONS_TX = "EncryptedExtensions message transmitted.\n";
 const char * const SERVERKEYEXCHANGE_RX_VALID = "Valid ServerKeyExchange message received.\n";
@@ -100,6 +102,9 @@ const char * const SERVERKEYEXCHANGE_SIGNEDPARAMS_SHAHASH = "ServerKeyExchange.s
 const char * const SERVERKEYEXCHANGE_SIGNEDPARAMS_SIGNATURE = "ServerKeyExchange.signed_params.signature";
 const char * const CLIENTKEYEXCHANGE_EXCHANGEKEYS_PREMASTERSECRET = "ClientKeyExchange.exchange_keys.pre_master_secret";
 const char * const CLIENTKEYEXCHANGE_EXCHANGEKEYS_MASTERSECRET = "ClientKeyExchange.exchange_keys.master_secret";
+
+const char * const HEARTBEATMESSAGE_RECEIVED_TLS13 = "Heartbeat message received";
+const char * const HEARTBEATMESSAGE_TRANSMITTED_TLS13 = "Heartbeat message transmitted";
 }
 }
 

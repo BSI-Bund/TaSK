@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE tr-03116-4-server [
+<!ENTITY TR-03116-4-SERVER-SPECIFICATION SYSTEM "TR-03116-4/TR-03116-4-SERVER-SPECIFICATION.xml">
 <!ENTITY APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-SERVER-ONLY SYSTEM "TR-03116-4/TR-03116-4-APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-SERVER-ONLY.xml">
 <!ENTITY TR-03116-4-COMMON-SPECIFICATION SYSTEM "TR-03116-4/TR-03116-4-COMMON-SPECIFICATION.xml">
 
@@ -14,7 +15,6 @@
 ]>
 
 <TLSSpecification id="TR-03116-4-SERVER">
-
 	<Metadata>
 		<Title>Application specific requirements for a TLS Server according to TR-03116-4</Title>
 		<Version>1.0</Version>
@@ -24,12 +24,7 @@
 	</Metadata>
 	
 	<BaseSpecification>
-		&TR-03116-4-COMMON-SPECIFICATION;
+		&TR-03116-4-SERVER-SPECIFICATION;
 	</BaseSpecification>
 
-	<FurtherSpecifications>
-		<!-- Include the SERVER application specific TLS parameters from TR-03116-4 -->
-		&APPLICATION-SPECIFIC-PARAMETERS-TLS1.2-SERVER-ONLY;
-	</FurtherSpecifications>
-	
 </TLSSpecification>

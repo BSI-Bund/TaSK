@@ -1,34 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ApplicationMapping id="TR-03130-1AM-TLS-EID-SERVER-ECARD-API-INTERFACE">
-	<Title>TLS eID-Server mapping for the eCard-API interface according to TR-03130-1</Title>
+<ApplicationMapping id="TR-03130-1-EID-SERVER-ECARD-NONPSK">
+	<Title>TLS eID-Server mapping for the eCard-API interface according to TR-03130-1, but limited to NON-PSK Versions</Title>
 	<Version>1.0</Version>
 	<Description></Description>
 	<Reference>TR-03130-1</Reference>
 	<ApplicationSpecificInspectionInstructions>
 		<Text>The eID-Server application is defined in [TR-03130-1]. For the TLS part it relies on the definitions from part 4 of [TR-03116]. However, it does not specify any deviations from those requirements for TLS.</Text>
 		<BaseSpecification></BaseSpecification>
-	
-		<!-- . -->
-		<!-- . -->
-		<!-- . -->
-		<!-- . -->
-		<!-- special cases TODO -->
 	</ApplicationSpecificInspectionInstructions>
 	<Profiles>
 		<MandatoryProfiles>
 			<Profile>CHECK_CERTS</Profile>
 			<Profile>INTERIM_SUITES_SRV</Profile>
-			<Profile>CLIENT_CERT</Profile>
-			<Profile>PFS</Profile>
+			<Profile>NO_CLIENT_CERT</Profile> <!-- Changed from CLIENT_CERT due to discussions with BSI. -->
 			<Profile>TLS_1.2</Profile>
 			<Profile>TLS_SERVER</Profile>
+			<Profile>PFS</Profile> <!-- Mandatory in Non-PSK case -->
 		</MandatoryProfiles>
 		<RecommendedProfiles>
 			<Profile>ECC</Profile>
 			<Profile>ENC_THEN_MAC</Profile>
 			<Profile>SESSION_ID</Profile>
 			<Profile>SESSION_TICKET</Profile>
-			<Profile>PSK</Profile>
+			<!--<Profile>PSK</Profile> Changed from "Recommended" to "not allowed", since this Application Type represents the NON-PSK Version  of the eCard API-->
 		</RecommendedProfiles>
 	</Profiles>
 	<ICSSections>

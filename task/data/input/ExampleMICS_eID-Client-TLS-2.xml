@@ -11,12 +11,8 @@
 			Basic information about the DUT. -->
 		<ApplicationType>TR-03124-1-EID-CLIENT-TLS-2</ApplicationType>
 		<RespectiveTechnicalGuideline>TR-03124-1</RespectiveTechnicalGuideline> <!-- Optional-->
-		<DUTExecutable>/usr/bin/AusweisApp2</DUTExecutable> <!-- Here the real executable should be added. -->
-		<DUTCallArguments>
-	<!-- Note: Double quotation marks are not allowed and the arguments should 
-		be written without them. e.g. use RSA+SHA256 instead of "RSA+SHA256" -->
-			<StartConnectionArguments></StartConnectionArguments>
-		</DUTCallArguments> <!-- Here the call arguments for the real executable should be added. -->
+		<BrowserSimulatorURL>localhost</BrowserSimulatorURL>
+		<BrowserSimulatorPort>1099</BrowserSimulatorPort> <!-- Optional -->
 	</ApplicationUnderTest>
 
 	<Profiles>
@@ -84,7 +80,6 @@
 					<Name>rsa</Name>
 					<HashName>SHA224</HashName>
 				</SignatureAlgorithm>
-
 			</SupportedSignatureAlgorithms>
 				
 			<SupportedTLSExtensions>
@@ -95,8 +90,9 @@
 				<Extension>SessionTicket TLS</Extension>
 				<Extension>extended_master_secret</Extension>
 				<Extension>signature_algorithms</Extension>
-				<Extension>server_name</Extension>
 				<Extension>status_request</Extension>
+				<Extension>server_name</Extension>
+				<Extension>application_layer_protocol_negotiation</Extension>
 			</SupportedTLSExtensions>
 
 		</SupportedTLSVersion>

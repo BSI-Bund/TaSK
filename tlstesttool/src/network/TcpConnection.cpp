@@ -106,21 +106,9 @@ bool TcpConnection::isClosed() {
 			return true;
 		}
 	}
-	// Check, if the socket is marked readable, which it is, when it is closed (similar to select).
-	bool isReadable = false;
-	bool isAborted = false;
-	bool isReset = false;
-	impl->socket.async_read_some(asio::null_buffers(), [&](const asio::error_code & error, std::size_t) {
-		if (!error) {
-			isReadable = true;
-		}
-		if (asio::error::connection_aborted == error) {
-			isAborted = true;
-		}
-		if (asio::error::connection_reset == error) {
-			isReset = true;
-		}
-	});
+        char c;
+        int r = recv(getSocketFileDesriptor(), &c, 0, MSG_DONTWAIT|MSG_PEEK); // See: https://stackoverflow.com/questions/10965633/how-to-determine-if-a-blocking-ssl-bio-connection-was-closed
+        bool isReadable = (0==r);
 
 	impl->socket.get_executor().context().restart();
 	impl->socket.get_executor().context().poll();
@@ -128,7 +116,7 @@ bool TcpConnection::isClosed() {
 	impl->socket.cancel();
 	// Check, if the number of readable bytes is zero (similar to ioctl with FIONREAD).
 	const bool nothingToRead = (0 == available());
-	return (isReadable && nothingToRead) || isAborted || isReset;
+	return (isReadable && nothingToRead);
 }
 
 std::string TcpConnection::getRemoteIpAddress() const {

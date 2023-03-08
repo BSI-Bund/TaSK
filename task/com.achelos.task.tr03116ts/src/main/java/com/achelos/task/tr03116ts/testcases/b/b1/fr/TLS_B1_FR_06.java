@@ -9,6 +9,7 @@ import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tlsextensions.TlsExtStatusRequest;
+import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
@@ -92,18 +93,18 @@ public class TLS_B1_FR_06 extends AbstractTestCase {
 		/** highest supported TLS version */
 		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
 		if (tlsVersion == null) {
-			logger.error("No supported TLS versions found.");
+			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
 			return;
 		}
-		logger.debug("TLS version: " + tlsVersion.name());
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
 		if (cipherSuite == null) {
-			logger.error("No supported cipher suite is found.");
+			logger.error(MessageConstants.NO_SUPPORTED_CIPHER_SUITE);
 			return;
 		}
-		logger.debug("Supported CipherSuite: " + cipherSuite.name());
+		logger.debug(MessageConstants.SUPPORTED_CIPHER_SUITE + cipherSuite.name());
 
 		step(1, "The ClientHello message contains the status_request (OCSP stapling) extension.", "");
 
@@ -114,7 +115,11 @@ public class TLS_B1_FR_06 extends AbstractTestCase {
 
 		step(3, "The DUT supplies a certificate accompanied by a valid  OCSPResponse message.", "");
 
-		testTool.assertServerSupportsExtension(TlsExtensionTypes.status_request);
+		testTool.assertMessageLogged(TestToolResource.OCSP_response_received);
+		testTool.assertMessageLogged(TestToolResource.OCSP_response_successful);
+
+		step(4, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
 	}

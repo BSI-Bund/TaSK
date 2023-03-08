@@ -8,19 +8,20 @@ import java.util.List;
 import com.achelos.task.abstracttestsuite.AbstractTestFragment;
 import com.achelos.task.abstracttestsuite.IStepExecution;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
+import com.achelos.task.commandlineexecution.applications.tlstesttool.configuration.TlsTestToolConfigurationHandshakeType;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsSignatureScheme;
 import com.achelos.task.commons.enums.TlsTestToolMode;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
-import com.achelos.task.commons.tlsextensions.TlsExtEncryptThenMac;
-import com.achelos.task.commons.tlsextensions.TlsExtSignatureAlgorithms;
-import com.achelos.task.commons.tlsextensions.TlsExtSupportedGroups;
-import com.achelos.task.commons.tlsextensions.TlsExtension;
-import com.achelos.task.commons.tlsextensions.TlsExtensionList;
+import com.achelos.task.commons.tlsextensions.*;
 import com.achelos.task.configuration.TestRunPlanConfiguration;
+import com.achelos.task.dutpreparation.HandshakePreparationInfo;
+import jakarta.xml.bind.DatatypeConverter;
 
 
 /**
@@ -76,7 +77,9 @@ public class TFTLSClientHello extends AbstractTestFragment {
 		List<TlsNamedCurves> tlsSupportedGroups = new ArrayList<>();
 		TlsExtension tlsExtension = null;
 		TlsExtensionList tlsExtensions = TlsExtensionList.emptyList();
-		TlsTestToolTlsLibrary tlsLibrary = TlsTestToolTlsLibrary.MBED_TLS; // default library
+		TlsTestToolTlsLibrary tlsLibrary = null; // default library
+		TlsTestToolConfigurationHandshakeType handshakeType = TlsTestToolConfigurationHandshakeType.NORMAL;
+		HandshakePreparationInfo dutPreparationInfo = null;
 
 		// Fetch the TlsTestToolExecutor
 		if ((null == params) || (0 >= params.length)) {
@@ -122,6 +125,9 @@ public class TFTLSClientHello extends AbstractTestFragment {
 			} else if (param instanceof TlsTestToolTlsLibrary) {
 				tlsLibrary = (TlsTestToolTlsLibrary) param;
 			}
+			else if (param instanceof TlsTestToolConfigurationHandshakeType) {
+				handshakeType = (TlsTestToolConfigurationHandshakeType) param;
+			}
 		}
 
 		if (null == testTool) {
@@ -132,6 +138,16 @@ public class TFTLSClientHello extends AbstractTestFragment {
 		// reset
 		testTool.defaultClientConfiguration();
 
+		// If necessary, do DUT Preparation Steps and return the Information retrieved from them.
+		if (handshakeType == TlsTestToolConfigurationHandshakeType.NORMAL) {
+			try {
+				dutPreparationInfo = configuration.getDutPreparer().prepareHandshake();
+			} catch (Exception e) {
+				logger.error("Unable to prepare Device Under Test for handshake. Aborting");
+				throw e;
+			}
+		}
+
 		// basic configuration
 		int stepCounter = 0;
 		stepCounter++;
@@ -139,14 +155,29 @@ public class TFTLSClientHello extends AbstractTestFragment {
 				configuration.getDutAddress() + ":"
 				+ configuration.getDutPort(), "");
 		testTool.setMode(TlsTestToolMode.client);
+		if (dutPreparationInfo != null) {
+			if (!dutPreparationInfo.getHostName().equalsIgnoreCase(configuration.getDutAddress())
+			|| !Integer.toString(dutPreparationInfo.getPort()).equalsIgnoreCase(configuration.getDutPort())) {
+				logger.error("DUT Address in TestRunplan  does not equal the real address of the device under test.");
+			}
+		}
 		testTool.setClientHostAndPort();
+		testTool.setSessionHandshakeType(handshakeType);
 
 		// The TLS ClientHello offers the configured TLS version.
 		stepCounter++;
 		step(prefix, stepCounter, "The TLS ClientHello offers the TLS version " + tlsVersion, "");
-		if (tlsVersion == TlsVersion.TLS_V1_2 || tlsVersion == TlsVersion.TLS_V1_3) {
-			testTool.setTlsVersion(tlsVersion);
-		} else {
+		testTool.setTlsVersion(tlsVersion);
+		if (tlsVersion == TlsVersion.TLS_V1_2 ) {
+			if(tlsLibrary==null) {
+				tlsLibrary = TlsTestToolTlsLibrary.MBED_TLS;
+			}
+
+		} else if(tlsVersion == TlsVersion.TLS_V1_3) {
+			if(tlsLibrary==null) {
+				tlsLibrary = TlsTestToolTlsLibrary.OpenSSL;
+			}
+		} else { //TLS 1.1 and lower
 			testTool.setTlsVersion(TlsVersion.TLS_V1_2);
 			testTool.manipulateHelloVersion(tlsVersion.getMajor(), tlsVersion.getMinor());
 			tlsLibrary = TlsTestToolTlsLibrary.MBED_TLS;
@@ -162,6 +193,7 @@ public class TFTLSClientHello extends AbstractTestFragment {
 		step(prefix, stepCounter, "The TLS ClientHello offers the cipher suites " + tlsCipherSuites.toString(), "");
 		testTool.setCipherSuite(tlsCipherSuites);
 
+		/*add signature algorithms to Client Hello*/
 		if (0 >= TlsVersion.TLS_V1_2.compareTo(tlsVersion)) {
 			stepCounter++;
 			step(prefix, stepCounter,
@@ -173,49 +205,79 @@ public class TFTLSClientHello extends AbstractTestFragment {
 				tlsSignatureAlgorithms = configuration.getSupportedSignatureAlgorithms(tlsVersion);
 			}
 			if (tlsSignatureAlgorithms.size() > 0) {
-				if (tlsVersion == TlsVersion.TLS_V1_2) {
-					TlsExtSignatureAlgorithms sigAlgExt = new TlsExtSignatureAlgorithms();
-					tlsSignatureAlgorithms.stream().forEach(sa -> sigAlgExt
-							.addSupportedSignatureAlgorithm(sa.getHashAlgorithm(), sa.getSignatureAlgorithm()));
-					tlsExtensions.add(sigAlgExt);
+				TlsExtSignatureAlgorithms sigAlgExt = new TlsExtSignatureAlgorithms();
+				tlsSignatureAlgorithms.forEach(sigAlgExt::addSupportedSignatureAlgorithm);
+				tlsExtensions.add(sigAlgExt);
 
-				} else if (tlsVersion == TlsVersion.TLS_V1_3) {
+				//TLS 1.3: We add the API call additonally in OpenSSL so OpenSSL does have the same internal state, as we send in the ClientHello (with overwrittenClientHelloExtensions)
+				if(tlsVersion==TlsVersion.TLS_V1_3) {
 					List<TlsSignatureScheme> signatureSchemes = new LinkedList<>();
-					tlsSignatureAlgorithms.forEach(ss -> signatureSchemes.add(ss.getSignatureScheme()));
-
+					tlsSignatureAlgorithms.forEach(ss -> signatureSchemes.add(((TlsSignatureAlgorithmWithHashTls13)(ss)).getSignatureScheme()));
 					testTool.setSignatureSchemes(signatureSchemes);
 				}
+
 			}
 		}
 
+		/*add supportedGroups to Client Hello*/
 		if (tlsCipherSuites.size() > 0) {
-			if (configuration.containsPFSCipherSuite(tlsCipherSuites)) {
+			if (configuration.containsPFSCipherSuite(tlsCipherSuites) || tlsVersion == TlsVersion.TLS_V1_3) {
 				stepCounter++;
 				step(prefix, stepCounter, "In case the cipher suite is based on ECC, the TLS ClientHello "
 						+ "offers valid elliptic curves in the appropriate extension according to the ICS.", "");
 				if (tlsSupportedGroups.size() == 0) {
 					tlsSupportedGroups
-							= configuration.getSupportedEllipticCurvesAndFFDHE(tlsVersion);
+							= configuration.getSupportedGroups(tlsVersion);
 				}
 				if (tlsSupportedGroups.size() > 0) {
-					if (tlsVersion == TlsVersion.TLS_V1_2) {
-						TlsExtSupportedGroups extGroups = new TlsExtSupportedGroups();
+					TlsExtSupportedGroups extGroups = new TlsExtSupportedGroups();
 
-						tlsSupportedGroups.stream().forEach(ng -> extGroups.addNamedGroup(ng));
-						tlsExtensions.add(extGroups);
-					} else if (tlsVersion == TlsVersion.TLS_V1_3) {
+					tlsSupportedGroups.forEach(extGroups::addNamedGroup);
+					tlsExtensions.add(extGroups);
+
+					//TLS 1.3: We add the API call additonally in OpenSSL so OpenSSL does have the same internal state, as we send in the ClientHello (with overwrittenClientHelloExtensions)
+					if(tlsVersion== TlsVersion.TLS_V1_3) {
 						testTool.setTlsSupportedGroups(tlsSupportedGroups);
 					}
 				}
 			}
 		}
 
-		if (null != tlsExtensions && !tlsExtensions.isEmpty()) {
+
+		if (!tlsExtensions.isEmpty()) {
 			// The TLS ClientHello offers one or more extensions.
+
+			//if we want to overwrite the ClientHelloExtensions in TLS 1.3, we need to add the supportedVersions extension as well
+			if(tlsVersion == TlsVersion.TLS_V1_3) {
+				tlsExtensions.add(new TlsExtSupportedVersions(TlsVersion.TLS_V1_3));
+				tlsExtensions.add(TlsExtEcPointFormats.createDefault());
+			}
+
 			stepCounter++;
 			step(prefix, stepCounter,
 					"The TLS ClientHello offers the extensions " + tlsExtensions.getExtensionNames(), "");
-			testTool.manipulateClientHelloExtensions(tlsExtensions);
+
+			/*Do not add tlsExtensions if this is a resumption test case*/
+			if(handshakeType== TlsTestToolConfigurationHandshakeType.NORMAL) {
+				testTool.manipulateClientHelloExtensions(tlsExtensions);
+			}
+		}
+
+		// This sets the server psk and pskidentity.
+		if (dutPreparationInfo != null) {
+			if (dutPreparationInfo.getPsk() != null && !dutPreparationInfo.getPsk().isBlank()) {
+				step(prefix, stepCounter++, "Set the PreSharedKey value for the TLS client", "");
+				testTool.setPSK(DatatypeConverter.parseHexBinary(dutPreparationInfo.getPsk()));
+				if (dutPreparationInfo.getPskIdentity() != null && !dutPreparationInfo.getPskIdentity().isBlank()) {
+					testTool.setPSKIdentity(dutPreparationInfo.getPskIdentity());
+				}
+			}
+		} else if (configuration.getPSKValue()!=null && configuration.getPSKValue().length>0) {
+			step(prefix, stepCounter++, "Set the PreSharedKey value for the TLS client", "");
+			testTool.setPSK(configuration.getPSKValue());
+			if(configuration.getPSKIdentityHint()!=null && !configuration.getPSKIdentityHint().isEmpty()){
+				testTool.setPSKIdentityHint(configuration.getPSKIdentityHint());
+			}
 		}
 
 		testTool.setTlsLibrary(tlsLibrary);

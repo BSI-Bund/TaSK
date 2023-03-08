@@ -17,64 +17,66 @@ public enum TlsSignatureScheme {
 	/** RSASSA-PKCS1-v1_5 algorithms. **/
 
 	/** SHA256. **/
-	RSA_PKCS1_SHA256((byte) 0x04, (byte) 0x01),
+	RSA_PKCS1_SHA256((byte) 0x04, (byte) 0x01, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha256),
 	/** SHA384. **/
-	RSA_PKCS1_SHA384((byte) 0x05, (byte) 0x01),
+	RSA_PKCS1_SHA384((byte) 0x05, (byte) 0x01, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha384),
 	/** SHA512. **/
-	RSA_PKCS1_SHA512((byte) 0x06, (byte) 0x01),
+	RSA_PKCS1_SHA512((byte) 0x06, (byte) 0x01, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha512),
 
 	/** ECDSA algorithms. **/
 
 	/** SHA256. **/
-	ECDSA_SECP256R1_SHA256((byte) 0x04, (byte) 0x03),
+	ECDSA_SECP256R1_SHA256((byte) 0x04, (byte) 0x03, TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha256),
 	/** SHA384. **/
-	ECDSA_SECP384R1_SHA384((byte) 0x05, (byte) 0x03),
+	ECDSA_SECP384R1_SHA384((byte) 0x05, (byte) 0x03, TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha384),
 	/** SHA512. **/
-	ECDSA_SECP512R1_SHA512((byte) 0x06, (byte) 0x03),
+	ECDSA_SECP512R1_SHA512((byte) 0x06, (byte) 0x03, TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha512),
 
 	/** ECDSA algorithms with brainpool curve. **/
 
 	/** SHA256. **/
-	ECDSA_BRAINPOOLP256R1TLS13_SHA256((byte) 0x08, (byte) 0x1a),
+	ECDSA_BRAINPOOLP256R1TLS13_SHA256((byte) 0x08, (byte) 0x1a, TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha256),
 	/** SHA384. **/
-	ECDSA_BRAINPOOLP384R1TLS13_SHA384((byte) 0x08, (byte) 0x1b),
+	ECDSA_BRAINPOOLP384R1TLS13_SHA384((byte) 0x08, (byte) 0x1b, TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha384),
 	/** SHA512. **/
-	ECDSA_BRAINPOOLP512R1TLS13_SHA512((byte) 0x08, (byte) 0x1c),
+	ECDSA_BRAINPOOLP512R1TLS13_SHA512((byte) 0x08, (byte) 0x1c, TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha512),
 
 	/** RSASSA-PSS algorithms with public key OID rsaEncryption. */
 
 	/** SHA256. **/
-	RSA_PSS_RSAE_SHA256((byte) 0x08, (byte) 0x04),
+	RSA_PSS_RSAE_SHA256((byte) 0x08, (byte) 0x04, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha256),
 	/** SHA384. **/
-	RSA_PSS_RSAE_SHA384((byte) 0x08, (byte) 0x05),
+	RSA_PSS_RSAE_SHA384((byte) 0x08, (byte) 0x05, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha384),
 	/** SHA512. **/
-	RSA_PSS_RSAE_SHA512((byte) 0x08, (byte) 0x06),
+	RSA_PSS_RSAE_SHA512((byte) 0x08, (byte) 0x06, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha512),
 
 	/** EdDSA algorithms. **/
 
 	/** 25519. **/
-	ED25519((byte) 0x08, (byte) 0x07),
+	ED25519((byte) 0x08, (byte) 0x07, TlsSignatureAlgorithm.ed25519, null),
 	/** 448. **/
-	ED448((byte) 0x08, (byte) 0x08),
+	ED448((byte) 0x08, (byte) 0x08, TlsSignatureAlgorithm.rsa, null),
 
 	/** RSASSA-PSS algorithms with public key OID RSASSA-PSS. **/
 
 	/** SHA256. **/
-	RSA_PSS_PSS_SHA256((byte) 0x08, (byte) 0x09),
+	RSA_PSS_PSS_SHA256((byte) 0x08, (byte) 0x09, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha256),
 	/** SHA384. **/
-	RSA_PSS_PSS_SHA384((byte) 0x08, (byte) 0x0a),
+	RSA_PSS_PSS_SHA384((byte) 0x08, (byte) 0x0a, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha384),
 	/** SHA512. **/
-	RSA_PSS_PSS_SHA512((byte) 0x08, (byte) 0x0b),
+	RSA_PSS_PSS_SHA512((byte) 0x08, (byte) 0x0b, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha512),
 
 	/** Legacy algorithms. **/
 
 	/** RSASSA-PKCS1-v1_5 with SHA1. **/
-	RSA_PKCS1_SHA1((byte) 0x02, (byte) 0x01),
+	RSA_PKCS1_SHA1((byte) 0x02, (byte) 0x01, TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha256),
 	/** ECDSA with SHA1. **/
-	ECDSA_SHA1((byte) 0x02, (byte) 0x03);
+	ECDSA_SHA1((byte) 0x02, (byte) 0x03, TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha1);
 
-	private byte upper;
-	private byte lower;
+	private final byte upper;
+	private final byte lower;
+	private final TlsSignatureAlgorithm signatureAlgorithm;
+	private final TlsHashAlgorithm hashAlgorithm;
 
 	/**
 	 * Signature scheme constructor.
@@ -82,9 +84,11 @@ public enum TlsSignatureScheme {
 	 * @param upper Upper byte.
 	 * @param lower Lower byte.
 	 */
-	TlsSignatureScheme(final byte upper, final byte lower) {
+	TlsSignatureScheme(final byte upper, final byte lower, TlsSignatureAlgorithm signatureAlgorithm, TlsHashAlgorithm hashAlgorithm) {
 		this.upper = upper;
 		this.lower = lower;
+		this.signatureAlgorithm = signatureAlgorithm;
+		this.hashAlgorithm = hashAlgorithm;
 	}
 
 
@@ -98,6 +102,13 @@ public enum TlsSignatureScheme {
 		return String.format("(0x%02x,0x%02x)", upper, lower);
 	}
 
+	public byte getUpper() {
+		return upper;
+	}
+
+	public byte getLower() {
+		return lower;
+	}
 
 	/**
 	 * Return the cipher suite's value as hexadecimal string.
@@ -114,6 +125,14 @@ public enum TlsSignatureScheme {
 		return name() + ' ' + getValuePair();
 	}
 
+
+	public TlsSignatureAlgorithm getSignatureAlgorithm() {
+		return signatureAlgorithm;
+	}
+
+	public TlsHashAlgorithm getHashAlgorithm() {
+		return hashAlgorithm;
+	}
 
 	/**
 	 * Get the value of Tls signature scheme by upper and lower byte.

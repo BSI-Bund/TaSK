@@ -1,6 +1,7 @@
 package com.achelos.task.dutcommandgenerators;
 
 import com.achelos.task.configuration.TestRunPlanConfiguration;
+import com.achelos.task.utilities.logging.LogBean;
 import jakarta.xml.bind.DatatypeConverter;
 
 import java.io.*;
@@ -10,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class EIDClientTls2DUTCommandGenerator implements DUTCommandGenerator {
 
@@ -18,10 +20,14 @@ public class EIDClientTls2DUTCommandGenerator implements DUTCommandGenerator {
     private static final String CERT_GEN_CONFIG_RESOURCE_PATH = "eid_client_eservice_certificate.cnf";
     private static final String SERVICE_CERT_REL_PATH = "certificateRsa/root-ca/certs/root-ca.pem";
     private static final String SERVICE_KEY_REL_PATH = "certificateRsa/root-ca/private/root-ca.pem";
+    private static final String BROWSERSIMULATOR_CLIENT_PATH = "browsersimulatorclient.jar";
+    private static final String APP_SPEC_CHECK_REGEX = "^HTTP message from eID-Client: statusCode:\\s*?(\\d+)\\s*?$";
     private final Path script;
+    private final Path browsersimClientJar;
+    private final String browsersimHostname;
+    private final String browsersimPort;
     private File serverKeyPath;
     private File serverCertPath;
-    private final String eIDClientExecutable;
     private final Integer eIDClientPort;
     private final int tlsTestToolPort;
     private final String tlsTestToolHostName;
@@ -54,12 +60,19 @@ public class EIDClientTls2DUTCommandGenerator implements DUTCommandGenerator {
             Files.copy(embeddedGenConfig, genConfig, StandardCopyOption.REPLACE_EXISTING);
         }
 
+        browsersimHostname = configuration.getBrowserSimulatorURL();
+        browsersimPort = configuration.getBrowserSimulatorPort();
+        browsersimClientJar = Files.createTempFile("browsersimulator", ".jar");
+        try (InputStream browsersimExecutable
+	                = this.getClass().getClassLoader().getResourceAsStream(BROWSERSIMULATOR_CLIENT_PATH)) {
+	        Files.copy(browsersimExecutable, browsersimClientJar, StandardCopyOption.REPLACE_EXISTING);
+	    }
+
         executeCertGeneration(genScript, genConfig, configuration);
 
-        this.eIDClientExecutable = configuration.getDUTExecutable();
         this.eIDClientPort = configuration.getDutEIDClientPort();
 
-        this.tlsTestToolHostName = "localhost";
+        tlsTestToolHostName = configuration.getTaSKServerAddress();
         this.tlsTestToolPort = configuration.getTlsTestToolPort();
         this.psk = configuration.getPSKValue();
 
@@ -109,9 +122,6 @@ public class EIDClientTls2DUTCommandGenerator implements DUTCommandGenerator {
         // eService Mock Key
         command.add("-server_key");
         command.add(serverKeyPath.getAbsolutePath());
-        // eID-Client Executable
-        command.add("-eid_client");
-        command.add(eIDClientExecutable);
         // eID-Client Port
         command.add("-eid_client_port");
         command.add(Integer.toString(eIDClientPort));
@@ -124,6 +134,15 @@ public class EIDClientTls2DUTCommandGenerator implements DUTCommandGenerator {
         // PSK
         command.add("-psk");
         command.add(DatatypeConverter.printHexBinary(psk));
+        // browsersimulator client executable
+        command.add("-browsersimclient");
+        command.add(browsersimClientJar.toAbsolutePath().toString());
+        // browsersimulator hostname
+        command.add("-browsersim_hostname");
+        command.add(browsersimHostname);
+        // browsersimulator port
+        command.add("-browsersim_port");
+        command.add(browsersimPort);
 
         return command;
     }
@@ -133,5 +152,31 @@ public class EIDClientTls2DUTCommandGenerator implements DUTCommandGenerator {
     public List<String> connectToServer(final boolean isSessionResumption){
         // Ignore isSessionResumption.
         return this.callExecutionScript();
+    }
+
+    @Override
+    public String applicationSpecificInspectionSearchString(boolean handshakeSuccessful) {
+        if (!handshakeSuccessful) {
+            return APP_SPEC_CHECK_REGEX;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean applicationSpecificInspection(boolean handshakeSuccessful, LogBean logBean) {
+        if (handshakeSuccessful) {
+            return true;
+        }
+        if (logBean == null) {
+            return false;
+        }
+        var pattern = Pattern.compile(APP_SPEC_CHECK_REGEX);
+        var matcher = pattern.matcher(logBean.getMessage());
+        if (matcher.find()) {
+            // Check that the status is a redirect
+            return ((Integer.parseInt(matcher.group(1)) % 100) == 3);
+        } else {
+            return false;
+        }
     }
 }
