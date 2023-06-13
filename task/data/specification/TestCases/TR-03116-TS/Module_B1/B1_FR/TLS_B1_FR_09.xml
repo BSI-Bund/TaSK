@@ -2,11 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_FR_09" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_FR_09</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test verifies the correct behaviour of the DUT in case the client tries to renegotiate the parameters.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>NO_RENEGOTIATION</Profile>
 	<Profile>NO_CLIENT_CERT</Profile>
+	<Profile>TLS_1.2</Profile>
 	<Reference>RFC 5246</Reference>
 	<Reference>RFC 4492</Reference>
 	<Reference>RFC 6520</Reference>
@@ -17,7 +18,7 @@
 		<Command>
 			<Text>The tester connects to the DUT.</Text>
 		</Command>
-		<Description>The TLS ClientHello offers the highest TLS version supported according to the ICS.</Description>
+		<Description>The TLS ClientHello offers the TLS version [TLS_VERSION].</Description>
 		<Description>The TLS ClientHello offers a cipher suite that is supported according to the ICS.</Description>
 		<Description>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate extension according to the ICS.</Description>
 		<Description>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all algorithms that are supported according to the ICS are listed.</Description>
@@ -31,7 +32,7 @@
 	</TestStep>
 	<TestStep>
 		<Command>
-			<Text>The TLS client sends a HelloRequest message to initiate a renegotiation process.</Text>	
+			<Text>The TLS client sends a ClientHello message to initiate a renegotiation process.</Text>
 		</Command>
 		<ExpectedResult>
 			<Text>The DUT either ignores the request or answers with a "no_renegotiation" alert or another suitable alert description.</Text>

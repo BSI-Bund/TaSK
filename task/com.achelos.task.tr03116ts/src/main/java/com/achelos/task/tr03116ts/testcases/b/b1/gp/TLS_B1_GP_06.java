@@ -1,9 +1,9 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.gp;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
@@ -11,16 +11,16 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetex
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsDHGroup;
+import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.logging.MessageConstants;
+import com.achelos.task.tr03116ts.testfragments.SuppressSupportedGroups;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
-import javax.swing.text.html.Option;
-
 
 /**
- * Testcase TLS_B1_GP_06 - Prime of sufficient length.
+ * Test case TLS_B1_GP_06 - Prime of sufficient length.
  * <p>
  * This positive test verifies that the DUT offers a FFDHE group with a prime of a sufficient length.
  */
@@ -75,7 +75,6 @@ public class TLS_B1_GP_06 extends AbstractTestCase {
 	 * <ol>
 	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
 	 * <li>The TLS ClientHello offers a cipher suite that uses FFDHE and is supported according to the ICS.
-	 * <li>The TLS ClientHello does not offer the named groups extensions.
 	 * <li>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all
 	 * algorithms that are supported according to the ICS are listed.
 	 * <li>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.
@@ -104,7 +103,7 @@ public class TLS_B1_GP_06 extends AbstractTestCase {
 		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		//TOOD Simon: makes this testcases sense in TLS 1.3 since the supported groups extension in TLS 1.3 normally has to be set, otherwise the server cannot pick a FFDHE group
-		// TC description: 	 The TLS ClientHello does not offer the named groups extensions.
+		// TC description: The TLS ClientHello does not offer the named groups extensions.
 
 		List<TlsCipherSuite> ffdheCipherSuites = null;
 		if(tlsVersion == TlsVersion.TLS_V1_3){
@@ -112,6 +111,27 @@ public class TLS_B1_GP_06 extends AbstractTestCase {
 		}else{
 			ffdheCipherSuites = configuration.getSupportedFFDHECipherSuites(tlsVersion);
 		}
+
+		//Find out what minimal key length for DHE is necessary
+		var dheKeyLengths = configuration.getSufficientDHEKeyLengths(tlsVersion);
+		OptionalInt minKeyLengthDhe = dheKeyLengths.stream().mapToInt(TlsDHGroup::getKeyLength).min();
+		if (minKeyLengthDhe.isEmpty()) {
+			logger.error("No sufficient key length found");
+		}
+		//in TLS 1.3 we only want to test an FFDHE group, where the FFDHE group which complies with the sufficient prime length from the MICS
+		List<TlsNamedCurves> ffdheGroups = null;
+		if(tlsVersion == TlsVersion.TLS_V1_3){
+			ffdheGroups = configuration.getSupportedGroups(TlsVersion.TLS_V1_3)
+					.stream()
+					.filter(TlsNamedCurves::isFFDHEGroup)
+					.filter(ffdheGroup -> ffdheGroup.getFFDHEKeyLength() >= minKeyLengthDhe.getAsInt())
+					.collect(Collectors.toList());
+			if(ffdheGroups.isEmpty()){
+				logger.error("No supported FFDHE Groups found");
+				return;
+			}
+		}
+
 		if (null == ffdheCipherSuites || ffdheCipherSuites.isEmpty()) {
 			logger.error("No supported DHE cipher suites found.");
 			return;
@@ -125,11 +145,17 @@ public class TLS_B1_GP_06 extends AbstractTestCase {
 		//Does a loop here make really sense?
 		for (TlsCipherSuite cipherSuite : ffdheCipherSuites) {
 
-			tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
-					+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion, cipherSuite);
+			if(tlsVersion == TlsVersion.TLS_V1_2) {
+				tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
+						+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion, cipherSuite,
+						new SuppressSupportedGroups());
+			} else {
+				tfClientHello.executeSteps("1", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
+						+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion, cipherSuite,
+						ffdheGroups.get(0));
+			}
 
 			testTool.start(iterationCount++,  ffdheCipherSuites.size());
-
 			/* open connection */
 			tFTCPIPNewConnection.executeSteps("2",
 					"The TLS ClientHello offers the TLS version " + tlsVersion.getName()
@@ -144,16 +170,12 @@ public class TLS_B1_GP_06 extends AbstractTestCase {
 					+ "sufficient length.",
 					null);
 
+			//in TLS 1.3 handshake successful is sufficient, in TLS 1.2 we additionally need to test if DHP has sufficient length
 			if(tlsVersion == TlsVersion.TLS_V1_2) {
 				final String dhPHexString = testTool.getValue(TestToolResource.ServerKeyExchange_params_dh_p);
 				if (null != dhPHexString) {
 					String dhP = dhPHexString.replaceAll(" ", "");
-					var dheKeyLengths = configuration.getSufficientDHEKeyLengths(tlsVersion);
-					OptionalInt min = dheKeyLengths.stream().mapToInt(TlsDHGroup::getKeyLength).min();
-					if (min.isEmpty()) {
-						logger.error("No sufficient key length found");
-					}
-					if (dhP.length() / 2 < min.getAsInt() / 8) {
+					if (dhP.length() / 2 < minKeyLengthDhe.getAsInt() / 8) {
 						logger.error("dhP does not have sufficient length");
 					}
 				}

@@ -17,6 +17,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_11 - Extended-Master-Secret extension.
  * <p>
  * This test verifies that the Extended-Master-Secret extension is selected and can be used in a connection when it is
  * offered by the client.
@@ -24,7 +25,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 public class TLS_B1_FR_11 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B1_FR_11";
-	private static final String TEST_CASE_DESCRIPTION = "Extended-Master-Secret Extension";
+	private static final String TEST_CASE_DESCRIPTION = "Extended-Master-Secret extension";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies that the Extended-Master-Secret extension is selected and "
 					+ "can be used in a connection when it is offered by the client.";
@@ -68,7 +69,7 @@ public class TLS_B1_FR_11 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION]
 	 * <li>The TLS ClientHello offers a cipher suite that is supported according to the ICS.
 	 * <li>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate
 	 * extension according to the ICS.

@@ -20,6 +20,7 @@
 			An applicant SHALL provide a declaration containing information on the supported profiles. -->
 			<!-- mandatory profiles from TR-03116-TS_Annex, Table 8 -->
 		<Profile>CHECK_CERTS</Profile>
+		<Profile>DURATION</Profile>
 		<Profile>INTERIM_SUITES_SRV</Profile>
 		<Profile>NO_CLIENT_CERT</Profile>
 		<Profile>PFS</Profile>
@@ -31,6 +32,7 @@
 		<Profile>ENC_THEN_MAC</Profile>
 		<Profile>SESSION_ID</Profile>
 		<Profile>SESSION_TICKET</Profile>
+		<Profile>TLS_1.3</Profile>
 
 	</Profiles>
 		
@@ -53,12 +55,6 @@
 				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_GCM_SHA256</CipherSuite>
 				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA256</CipherSuite>
 				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_CBC_SHA256</CipherSuite>
-				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</CipherSuite>
 
 			</SupportedCipherSuites>
 			

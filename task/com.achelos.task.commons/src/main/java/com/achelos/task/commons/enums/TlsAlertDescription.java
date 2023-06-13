@@ -59,7 +59,11 @@ public enum TlsAlertDescription {
 	/** (byte) 100. */
 	no_renegotiation((byte) 100),
 	/** (byte) 110. */
-	unsupported_extension((byte) 110);
+	unsupported_extension((byte) 110),
+	/**  (byte 113) */
+	bad_certificate_status_response((byte) 113),
+	/**  (byte 116) */
+	certificate_required((byte) 116);
 
 	private byte description;
 

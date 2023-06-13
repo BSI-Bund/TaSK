@@ -11,22 +11,22 @@
 	<!-- Tabel 13 -->
 	<MinimumKeyLengths>
 		<Algorithm type="ECDSA">
-			<MinimumKeyLength UseUntil="2027+">250</MinimumKeyLength>
+			<MinimumKeyLength UseUntil="2029+">250</MinimumKeyLength>
 		</Algorithm>
 		<Algorithm type="DSA">
 			<MinimumKeyLength UseUntil="2022">2000</MinimumKeyLength>
-			<MinimumKeyLength UseUntil="2027+">3000</MinimumKeyLength>
+			<MinimumKeyLength UseUntil="2029+">3000</MinimumKeyLength>
 		</Algorithm>
 		<Algorithm type="RSA">
 			<MinimumKeyLength UseUntil="2023">2000</MinimumKeyLength>
-			<MinimumKeyLength UseUntil="2027+">3000</MinimumKeyLength>
+			<MinimumKeyLength UseUntil="2029+">3000</MinimumKeyLength>
 		</Algorithm>		
 		<Algorithm type="ECDH">
-			<MinimumKeyLength UseUntil="2027+">250</MinimumKeyLength>
+			<MinimumKeyLength UseUntil="2029+">250</MinimumKeyLength>
 		</Algorithm>
 		<Algorithm type="DH">
 			<MinimumKeyLength UseUntil="2022">2000</MinimumKeyLength>
-			<MinimumKeyLength UseUntil="2027+">3000</MinimumKeyLength>
+			<MinimumKeyLength UseUntil="2029+">3000</MinimumKeyLength>
 		</Algorithm>
 	</MinimumKeyLengths>
 </TLSMinimumKeyLength>

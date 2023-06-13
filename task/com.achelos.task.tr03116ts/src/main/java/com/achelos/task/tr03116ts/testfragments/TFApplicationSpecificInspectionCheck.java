@@ -2,9 +2,9 @@ package com.achelos.task.tr03116ts.testfragments;
 
 import com.achelos.task.abstracttestsuite.AbstractTestFragment;
 import com.achelos.task.abstracttestsuite.IStepExecution;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.logging.LoggingConnector;
 
 import java.util.List;

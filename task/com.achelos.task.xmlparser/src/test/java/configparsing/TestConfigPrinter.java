@@ -15,7 +15,7 @@ public class TestConfigPrinter {
 
 	@BeforeAll
 	static void initLogging() {
-		LoggingConnector.getInstance("DEBUG");
+		LoggingConnector.getInstance("INFO");
 	}
 	@Test
 	void testPrintTlsServerSpecification() {

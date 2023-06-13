@@ -59,9 +59,6 @@ public class OCSPServerExecutor extends RunLogger {
 		command.add("-text");
 
 		start(command, null, null);
-		// We add a small delay for the process to finish
-		final int finishProcessDelay = 3000;
-		startSleepTimer(finishProcessDelay);
 	}
 
 	/**
@@ -77,9 +74,6 @@ public class OCSPServerExecutor extends RunLogger {
 
 
 		start(command, null, null);
-		// We add a small delay for the process to finish
-		final int finishProcessDelay = 3000;
-		startSleepTimer(finishProcessDelay);
 	}
 
 	/**

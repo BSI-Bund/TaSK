@@ -24,36 +24,38 @@
 #include <memory>
 
 namespace Tooling {
-class Logger;
+    class Logger;
 }
 namespace TlsTestTool {
-class TcpClient;
+    class TcpClient;
+
 /**
  * Socket observer that prints timestamps for blocks that are received or sent.
  */
-class TimestampObserver : public AbstractSocketObserver {
-public:
-	/**
-	 * Create an observer.
-	 * @param socket Socket that will be configured to produce timestamps, if supported.
-	 * @param logger Logger used for printing the timestamps.
-	 */
-	TimestampObserver(std::shared_ptr<TcpConnection> connection, Tooling::Logger & logger);
+    class TimestampObserver : public AbstractSocketObserver {
+    public:
+        /**
+         * Create an observer.
+         * @param socket Socket that will be configured to produce timestamps, if supported.
+         * @param logger Logger used for printing the timestamps.
+         */
+        TimestampObserver(std::shared_ptr<TcpConnection> connection, Tooling::Logger &logger);
 
-	/**
-	 * Virtual destructor.
-	 */
-	virtual ~TimestampObserver();
+        /**
+         * Virtual destructor.
+         */
+        virtual ~TimestampObserver();
 
-	virtual void onBlockWritten(std::size_t length) noexcept override;
+        virtual void onBlockWritten(std::size_t length) noexcept override;
 
-	virtual void onBlockRead(std::size_t length) noexcept override;
+        virtual void onBlockRead(std::size_t length) noexcept override;
 
-private:
-	class Data;
-	//! Use pimpl idiom.
-	std::unique_ptr<Data> impl;
-};
+    private:
+        class Data;
+
+        //! Use pimpl idiom.
+        std::unique_ptr<Data> impl;
+    };
 }
 
 #endif /* NETWORK_TIMESTAMPOBSERVER_H_ */

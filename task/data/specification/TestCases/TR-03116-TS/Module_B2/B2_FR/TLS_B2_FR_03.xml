@@ -2,8 +2,8 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_FR_03" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_FR_03</Title>
-	<Version>1.0</Version>
-	<Purpose>This test case checks the server certificate used by the DUT. In particular, the  domain name and the signature is verified.</Purpose>
+	<Version>1.1</Version>
+	<Purpose>This test case checks the server certificate used by the DUT. In particular, the domain name and the signature is verified.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>SERVER_CERT</Profile>
 	<Profile>CLIENT_CERT</Profile>
@@ -34,7 +34,7 @@
 	<TestStep>
 		<Command>
 			<Text>The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].</Text>
-		</Command>		
+		</Command>	
 		<ExpectedResult>
 			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
 		</ExpectedResult>

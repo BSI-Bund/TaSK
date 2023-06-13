@@ -140,6 +140,28 @@ public enum TlsNamedCurves {
 		return false;
 	}
 
+	public boolean isECCGroup() {
+		return !isFFDHEGroup();
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public int getFFDHEKeyLength() {
+		if (!isFFDHEGroup()) {
+			return -1;
+		}
+		switch (this) {
+			case ffdhe2048: return 2048;
+			case ffdhe3072: return 3072;
+			case ffdhe4096: return 4096;
+			case ffdhe6144: return 6144;
+			case ffdhe8192: return 8192;
+			default: return -1;
+		}
+	}
+
 
 	/**
 	 * Gets the named curved matching upper and lower bounds.

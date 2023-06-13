@@ -25,25 +25,28 @@ namespace TlsTestTool {
 /**
 * Deactivate ServerHello Compression.
 */
-class ManipulateServerHelloCompressionMethods : public Manipulation {
-public:
-	/**
-	 * Create a manipulation.
-	 *
-	 * @param newCompressionMethods Value to set the compression_methods field to.
-	 */
-	ManipulateServerHelloCompressionMethods(const std::vector<uint8_t> & newCompressionMethods)
-			: Manipulation(), compressionMethods(newCompressionMethods) {
-	}
+    class ManipulateServerHelloCompressionMethods : public Manipulation {
+    public:
+        /**
+         * Create a manipulation.
+         *
+         * @param newCompressionMethods Value to set the compression_methods field to.
+         */
+        ManipulateServerHelloCompressionMethods(const std::vector<uint8_t> &newCompressionMethods)
+                : Manipulation(), compressionMethods(newCompressionMethods) {
+        }
 
-   virtual void executePreHandshake(TlsSession & session) override;
-   virtual void executePreStep(TlsSession & session) override;
-   virtual void executePostStep(TlsSession & session) override;
-   virtual void executePostHandshake(TlsSession & session) override;
+        virtual void executePreHandshake(TlsSession &session) override;
 
-   private:
-	   const std::vector<uint8_t> compressionMethods;
-};
+        virtual void executePreStep(TlsSession &session) override;
+
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+
+    private:
+        const std::vector<uint8_t> compressionMethods;
+    };
 }
 
 #endif /* MANIPULATION_MANIPULATESERVEHELLOCOMPRESSIONMETHODS_H_ */

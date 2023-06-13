@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_FR_08" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_FR_08</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test verifies the correct behaviour of the DUT if the client sends heartbeat messages.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>NO_HEARTBEAT</Profile>
@@ -35,7 +35,7 @@
 	<TestStep>
 		<Command>
 			<Text>The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].</Text>
-		</Command>		
+		</Command>	
 		<ExpectedResult>
 			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
 		</ExpectedResult>
@@ -43,7 +43,7 @@
 	</TestStep>
 	<TestStep>
 		<Command>
-			<Text>The TLS client sends a "heartbeat_request".</Text>	
+			<Text>The TLS client sends a "heartbeat_request".</Text>
 		</Command>
 		<ExpectedResult>
 			<Text>The DUT ignores the request.</Text>

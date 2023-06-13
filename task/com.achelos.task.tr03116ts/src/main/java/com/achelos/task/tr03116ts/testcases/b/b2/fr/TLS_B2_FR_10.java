@@ -75,7 +75,7 @@ public class TLS_B2_FR_10 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers a cipher suite that is supported according to the ICS.
 	 * <li>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate
 	 * extension according to the ICS.
@@ -130,7 +130,7 @@ public class TLS_B2_FR_10 extends AbstractTestCase {
 		
 		tfClientCertificate.executeSteps("2",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		tfClientHello.executeSteps("3", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion,

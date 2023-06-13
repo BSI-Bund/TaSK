@@ -1,12 +1,18 @@
 package com.achelos.task.restimpl.api;
 
+import com.achelos.task.reporting.pdfreport.PdfReport;
+import com.achelos.task.reporting.xmlreport.XmlReport;
 import com.achelos.task.restimpl.models.ErrorResponse;
 import com.achelos.task.restimpl.server.TesttoolRequestResource;
 import com.achelos.task.utilities.DateTimeUtils;
 import com.achelos.task.utilities.FileUtils;
+
+import generated.jaxb.testrunplan.TestRunPlan;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -34,12 +40,28 @@ public class ResultApi {
     @Produces({ "application/pdf", MediaType.APPLICATION_JSON})
     @Operation(summary = "Retrieve the PDF report of a test suite execution.", description = "Retrieve PDF report of the test suite execution specified by the run identifier.", tags={ "Get Results" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation=Object.class))),
-            @ApiResponse(responseCode = "400", description = "RunId invalid.", content = @Content(schema = @Schema(implementation= ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "TestrunId not known.", content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
-            @ApiResponse(responseCode = "424", description = "Test execution not finished.", content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation=ErrorResponse.class))) })
-    public Response getReportPdf(@PathParam("runId") @Parameter(description = "Identifier of a Testrun/Test Suite Execution.") String runId) {
+            @ApiResponse(responseCode = "200", description = "OK", 
+            		headers = @Header(
+            				name = "Content-Disposition", description = "string", 
+            				schema = @Schema(example = "attachment; filename=\"TestReport_62b35581-d9d8-479d-9eb2-7f9995b495ad.pdf\"")
+            				),
+            		content = @Content(
+            		mediaType = "application/pdf",
+    				examples = @ExampleObject(value = "string"),
+            		schema = @Schema(implementation=PdfReport.class))),
+            @ApiResponse(responseCode = "400", description = "RunId invalid.", content = @Content(
+            		mediaType = MediaType.APPLICATION_JSON,
+            		schema = @Schema(implementation= ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "TestrunId not known.", content = @Content(
+            		mediaType = MediaType.APPLICATION_JSON,
+            		schema = @Schema(implementation=ErrorResponse.class))),
+            @ApiResponse(responseCode = "424", description = "Test execution not finished.", content = @Content(
+            		mediaType = MediaType.APPLICATION_JSON,
+            		schema = @Schema(implementation=ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(
+            		mediaType = MediaType.APPLICATION_JSON,
+            		schema = @Schema(implementation=ErrorResponse.class))) })
+    public Response getReportPdf(@PathParam("runId") @Parameter(description = "Identifier of a Testrun/Test Suite Execution.", example = "a4c6ffd34448adef23") String runId) {
         try {
             Response.ResponseBuilder response;
             // Parse runID into UUID.
@@ -105,15 +127,32 @@ public class ResultApi {
 
     @GET
     @Path("/xml")
-    @Produces({ "application/xml", MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Operation(summary = "Retrieve the XML report of a test suite execution.", description = "Retrieve XML report of the test suite execution specified by the run identifier.", tags={ "Get Results" })
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation=Object.class))),
-        @ApiResponse(responseCode = "400", description = "RunId invalid.", content = @Content(schema = @Schema(implementation= ErrorResponse.class))),
-        @ApiResponse(responseCode = "404", description = "TestrunId not known.", content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
-        @ApiResponse(responseCode = "424", description = "Test execution not finished.", content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation=ErrorResponse.class))) })
-    public Response getReportXml(@PathParam("runId") @Parameter(description = "Identifier of a Testrun/Test Suite Execution.") String runId) {
+        @ApiResponse(responseCode = "200", description = "OK", 
+        		headers = @Header(
+        				name = "Content-Disposition", description = "string", 
+        				schema = @Schema(example = "attachment; filename=\"TestReport_62b35581-d9d8-479d-9eb2-7f9995b495ad.xml\"")
+        				),
+        		content = @Content(
+        		examples = @ExampleObject(value = "See schema file TaSKReport.xsd."),
+        		schema = @Schema(
+        				implementation=XmlReport.class 
+        				))),
+        @ApiResponse(responseCode = "400", description = "RunId invalid.", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation= ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "TestrunId not known.", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation=ErrorResponse.class))),
+        @ApiResponse(responseCode = "424", description = "Test execution not finished.", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation=ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation=ErrorResponse.class))) })
+    public Response getReportXml(@PathParam("runId") @Parameter(description = "Identifier of a Testrun/Test Suite Execution.", example = "a4c6ffd34448adef23") String runId) {
         try {
             Response.ResponseBuilder response;
             // Parse runID into UUID.
@@ -142,7 +181,7 @@ public class ResultApi {
                     } else {
                         response = Response.serverError();
                         response.type(MediaType.APPLICATION_JSON_TYPE);
-                        var errorResponse = generateErrorResponse("500", "PDF Report unavailable. " + runId, runId + "/xml");
+                        var errorResponse = generateErrorResponse("500", "XML Report unavailable. " + runId, runId + "/xml");
                         response.entity(errorResponse);
                     }
                 } else {
@@ -177,15 +216,30 @@ public class ResultApi {
     }
 
     @GET
-    @Produces({ "application/octet-string", MediaType.APPLICATION_JSON })
-    @Operation(summary = "Retrieve the results of a test run.", description = "Retrieve the results of the test suite execution specified by the provided run identifier.", tags={ "Get Results" })
+    @Path("/trp")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Operation(summary = "Retrieve the generated test run plan.", description = "Retrieve the test run plan generated from an MCIS file specified by the run identifier.", tags={ "Get Results" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation=Object.class))),
-            @ApiResponse(responseCode = "400", description = "RunId invalid.", content = @Content(schema = @Schema(implementation= ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "TestrunId not known.", content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
-            @ApiResponse(responseCode = "424", description = "Test execution not finished.", content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation= ErrorResponse.class))) })
-    public Response getResult(@PathParam("runId") @Parameter(description =  "Identifier of a Testrun/Test Suite Execution.") String runId) {
+        @ApiResponse(responseCode = "200", description = "OK", 
+        		headers = @Header(
+        				name = "Content-Disposition", description = "string", 
+        				schema = @Schema(example = "attachment; filename=\"TestRunPlan_62b35581-d9d8-479d-9eb2-7f9995b495ad.xml\"")
+        				),
+        		content = @Content(
+        		schema = @Schema(implementation=TestRunPlan.class))),
+        @ApiResponse(responseCode = "400", description = "RunId invalid.", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation= ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "TestrunId not known.", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation=ErrorResponse.class))),
+        @ApiResponse(responseCode = "424", description = "Execution not finished.", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation=ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation=ErrorResponse.class))) })
+    public Response getTestRunPlan(@PathParam("runId") @Parameter(description = "Identifier of a Testrun/Test Suite Execution.", example = "a4c6ffd34448adef23") String runId) {
         try {
             Response.ResponseBuilder response;
             // Parse runID into UUID.
@@ -195,6 +249,98 @@ public class ResultApi {
             } catch (Exception e) {
                 response = Response.serverError();
                 response.status(Response.Status.BAD_REQUEST);
+                response.type(MediaType.APPLICATION_JSON_TYPE);
+                var errorResponse = generateErrorResponse("400", "Bad Request: Illegal RunId: " + runId, runId);
+                response.entity(errorResponse);
+                return response.build();
+            }
+            // Retrieve status for the UUID.
+            var status = TesttoolRequestResource.getStatus(runUuid);
+
+
+            if (status == TesttoolRequestResource.ExecutionStatus.FINISHED) {
+                var resultPath = TesttoolRequestResource.getResultPathString(runUuid);
+                if (!resultPath.isBlank()) {
+                    var report_xml_file = Paths.get(resultPath, "/TestRunPlan.xml").toFile();
+                    if (report_xml_file.exists() && !report_xml_file.isDirectory()) {
+                        var report_xml = Files.readString(Paths.get(resultPath, "TestRunPlan.xml"), StandardCharsets.UTF_8);
+                        response = Response.ok(report_xml);
+                        response.type(MediaType.APPLICATION_XML_TYPE);
+                        response.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "TestRunPlan_" + runId + ".xml");
+                    } else {
+                        response = Response.serverError();
+                        response.type(MediaType.APPLICATION_JSON_TYPE);
+                        var errorResponse = generateErrorResponse("500", "Test Run Plan unavailable. " + runId, runId + "/xml");
+                        response.entity(errorResponse);
+                    }
+                } else {
+                    response = Response.serverError();
+                    response.status(Response.Status.NOT_FOUND);
+                    response.type(MediaType.APPLICATION_JSON_TYPE);
+                    var errorResponse = generateErrorResponse("404", "Unknown RunId: " + runId, runId + "/xml");
+                    response.entity(errorResponse);
+                }
+            } else {
+                if (status == TesttoolRequestResource.ExecutionStatus.SCHEDULED) {
+                    response = Response.serverError();
+                    response.status(Response.Status.fromStatusCode(424));
+                    response.type(MediaType.APPLICATION_JSON_TYPE);
+                    var errorResponse = generateErrorResponse("424", "Test execution not finished for RunID: " + runId, runId + "/xml");
+                    response.entity(errorResponse);
+                } else {
+                    response = Response.serverError();
+                    response.status(Response.Status.NOT_FOUND);
+                    response.type(MediaType.APPLICATION_JSON_TYPE);
+                    var errorResponse = generateErrorResponse("404", "Unknown RunId: " + runId, runId + "/xml");
+                    response.entity(errorResponse);
+                }
+            }
+            return response.build();
+        } catch (Exception e) {
+            var errorResponse = generateErrorResponse("500", "Internal Server Error: " + e.getMessage(), runId + "/xml");
+            var response = Response.serverError().entity(errorResponse);
+            response.type(MediaType.APPLICATION_JSON_TYPE);
+            return response.build();
+        }
+    }
+
+    @GET
+    @Produces({ MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON })
+    @Operation(summary = "Retrieve the results of a test run.", description = "Retrieve the results of the test suite execution specified by the provided run identifier.", tags={ "Get Results" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", 
+            		headers = @Header(
+            				name = "Content-Disposition", description = "string", 
+            				schema = @Schema(example = "attachment; filename=\"TestReport_62b35581-d9d8-479d-9eb2-7f9995b495ad.zip\"")
+            				),
+            		content = @Content(
+            				mediaType = MediaType.APPLICATION_OCTET_STREAM,
+            				examples = @ExampleObject(value = "string"),
+            				schema = @Schema(implementation=Object.class)
+            				)
+            		
+            ),
+            @ApiResponse(responseCode = "400", description = "RunId invalid.", 
+            		content = @Content(
+            				mediaType = MediaType.APPLICATION_JSON,
+            				schema = @Schema(implementation= ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "TestrunId not known.", 
+            	content = @Content(
+            			mediaType = MediaType.APPLICATION_JSON,
+        				schema = @Schema(implementation=ErrorResponse.class))),
+            @ApiResponse(responseCode = "424", description = "Test execution not finished.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation=ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation= ErrorResponse.class))) })
+    public Response getResult(@PathParam("runId") @Parameter(description =  "Identifier of a Testrun/Test Suite Execution.", example = "a4c6ffd34448adef23") String runId) {
+        try {
+            Response.ResponseBuilder response;
+            // Parse runID into UUID.
+            UUID runUuid;
+            try {
+                runUuid = UUID.fromString(runId);
+            } catch (Exception e) {
+                response = Response.serverError();
+                response.status(Response.Status.BAD_REQUEST);
+                response.type(MediaType.APPLICATION_JSON_TYPE);
                 var errorResponse = generateErrorResponse("400", "Bad Request: Illegal RunId: " + runId, runId);
                 response.entity(errorResponse);
                 return response.build();
@@ -209,6 +355,7 @@ public class ResultApi {
                     if (!zipFile.isBlank()) {
                         var report_folder_zip = Files.readAllBytes(Paths.get(zipFile));
                         response = Response.ok(report_folder_zip);
+                        response.type(MediaType.APPLICATION_OCTET_STREAM_TYPE);
                         response.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "TestReport_" + runId + ".zip");
                     } else {
                         response = Response.serverError();

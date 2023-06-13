@@ -26,44 +26,47 @@ namespace TlsTestTool {
  * Send a HeartbeatRequest message before or after performing a TLS handshake.
  * @see http://tools.ietf.org/html/rfc6520#section-4
  */
-class SendHeartbeatRequest : public Manipulation {
-public:
-    /**
-     * Create a manipulation.
-     *
-     * @param procedureWhen Either "beforeHandshake" or "afterHandshake"
-     * @param newPayloadLength	 Integer specifying the payload_length of Heartbeat Request.
-     * @param newPayload Payload that will be sent.
-     */
-    SendHeartbeatRequest(const std::string & newWhen, const uint16_t newPayloadLength,
-                         const std::vector<uint8_t> newPayload)
-            : Manipulation(), when(newWhen), payloadLength(newPayloadLength), payload(newPayload) {
-    }
+    class SendHeartbeatRequest : public Manipulation {
+    public:
+        /**
+         * Create a manipulation.
+         *
+         * @param procedureWhen Either "beforeHandshake" or "afterHandshake"
+         * @param newPayloadLength	 Integer specifying the payload_length of Heartbeat Request.
+         * @param newPayload Payload that will be sent.
+         */
+        SendHeartbeatRequest(const std::string &newWhen, const uint16_t newPayloadLength,
+                             const std::vector<uint8_t> newPayload)
+                : Manipulation(), when(newWhen), payloadLength(newPayloadLength), payload(newPayload) {
+        }
 
-    const std::string & getWhen() const {
-        return when;
-    }
+        const std::string &getWhen() const {
+            return when;
+        }
 
-    const std::vector<uint8_t> & getPayload() const {
-        return payload;
-    }
+        const std::vector<uint8_t> &getPayload() const {
+            return payload;
+        }
 
-    uint16_t getPayloadLength() const {
-        return payloadLength;
-    }
+        uint16_t getPayloadLength() const {
+            return payloadLength;
+        }
 
-    virtual void executePreHandshake(TlsSession & session) override;
-    virtual void executePreStep(TlsSession & session) override;
-    virtual void executePostStep(TlsSession & session) override;
-    virtual void executePostHandshake(TlsSession & session) override;
+        virtual void executePreHandshake(TlsSession &session) override;
 
-private:
-    const std::string when;
-    const uint16_t payloadLength;
-    const std::vector<uint8_t> payload;
+        virtual void executePreStep(TlsSession &session) override;
 
-    void send(TlsSession & session);
-};
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+
+    private:
+        const std::string when;
+        const uint16_t payloadLength;
+        const std::vector<uint8_t> payload;
+
+        void send(TlsSession &session);
+    };
 } // namespace TlsTestTool
 
 #endif /* MANIPULATION_SENDHEARTBEATREQUEST_H_ */

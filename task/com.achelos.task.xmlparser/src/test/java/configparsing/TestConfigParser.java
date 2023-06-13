@@ -192,6 +192,246 @@ class TestConfigParser {
 		assertTrue(spec.getTlsVersionSupport()
 				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
 	}
+	@Test
+	void testParseEMSPServerBrowserSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03108-1-EMSP-SERVER-Specification-BROWSER.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03108-1-EMSP-SERVER-BROWSER", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+	@Test
+	void testParseEMSPServerCetiSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03108-1-EMSP-SERVER-Specification-CETI.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03108-1-EMSP-SERVER-CETI", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+	@Test
+	void testParseEMSPServerMuaIMAPSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03108-1-EMSP-SERVER-Specification-MUA-IMAP.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03108-1-EMSP-SERVER-MUA-IMAP", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+	@Test
+	void testParseEMSPServerMUAIPOP3Specification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03108-1-EMSP-SERVER-Specification-MUA-POP3.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03108-1-EMSP-SERVER-MUA-POP3", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+	@Test
+	void testParseEMSPServerMuaSMTPSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03108-1-EMSP-SERVER-Specification-MUA-SMTP.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03108-1-EMSP-SERVER-MUA-SMTP", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+	@Test
+	void testParseEMSPClientNoDaneSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03108-1-EMSP-Specification-CLIENT-NO-DANE.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03108-1-EMSP-CLIENT-CETI-NO-DANE", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+	@Test
+	void testParseEMSPClientDaneSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03108-1-EMSP-Specification-CLIENT-DANE.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03108-1-EMSP-CLIENT-CETI-DANE", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseSMGWWanClientSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03116-3-SMGW-WAN-CLIENT-Specification.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03116-3-SMGW-WAN-CLIENT", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseSMGWWanServerSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03116-3-SMGW-WAN-SERVER-Specification.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03116-3-SMGW-WAN-SERVER", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseSMGWHanServerSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03116-3-SMGW-HAN-SERVER-Specification.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03116-3-SMGW-HAN-SERVER", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseSMGWHanClientSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03116-3-SMGW-HAN-CLIENT-Specification.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03116-3-SMGW-HAN-CLIENT", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseSMGWLMNServerSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03116-3-SMGW-LMN-SERVER-Specification.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03116-3-SMGW-LMN-SERVER", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
+
+	@Test
+	void testParseSMGWLMNClientSpecification() {
+		var xmlSpecFile
+				= new File("../data/specification/ApplicationSpecifications/TR-03116-3-SMGW-LMN-CLIENT-Specification.xml");
+		assertTrue(xmlSpecFile.exists(), "XML Test file does not exist.");
+
+		var spec = ConfigParser.parseSpecification(xmlSpecFile);
+		assertEquals(spec.getId(), "TR-03116-3-SMGW-LMN-CLIENT", "Id of parsed specification is wrong.");
+		assertEquals(spec.getVersion(), "1.0", "Version of parsed specification is wrong.");
+
+		// Check TLS versions in Spec.
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.2"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.2").getRestriction() == RestrictionLevel.REQUIRED);
+		assertTrue(spec.getTlsVersionSupport().containsKey("TLSv1.3"));
+		assertTrue(spec.getTlsVersionSupport()
+				.get("TLSv1.3").getRestriction() == RestrictionLevel.OPTIONAL);
+	}
 
 	@Test
 	void testParseTestProfiles() {
@@ -212,10 +452,10 @@ class TestConfigParser {
 		var appMappingFile = new File("../data/specification/ApplicationSpecificProfiles/TR-03116-4-AM-TLS-SERVER.xml");
 		assertTrue(appMappingFile.exists(), "XML Test file does not exist.");
 
-		var numberOfMandatoryProfiles = 9;
+		var numberOfMandatoryProfiles = 10;
 		var numberOfRecommendedProfiles = 11;
-		var numberOfMandatoryIcsSections = 7;
-		var numberOfOptionalIcsSections = 0;
+		var numberOfMandatoryIcsSections = 5;
+		var numberOfOptionalIcsSections = 2;
 
 		var appMapping = ConfigParser.parseApplicationMapping(appMappingFile);
 

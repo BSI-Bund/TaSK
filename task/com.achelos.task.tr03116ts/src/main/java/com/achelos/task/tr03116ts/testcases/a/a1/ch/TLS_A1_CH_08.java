@@ -2,9 +2,10 @@ package com.achelos.task.tr03116ts.testcases.a.a1.ch;
 
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.certificatehelper.ManipulateForceCertificateUsage;
@@ -17,7 +18,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_CH_08 - Server certificate uses unsupported signature algorithm
+ * Test case TLS_A1_CH_08 - Server certificate uses unsupported signature algorithm.
  * 
  * <p>
  * This test verifies the behaviour of the DUT in case the server presents a certificate that uses an unsupported
@@ -141,11 +142,11 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 
 		tfserverCertificate.executeSteps("2", "The server supplies a certificate chain [CERT_DEFAULT] with certificates"
 				+ " that are signed using an algorithm that is not supported according to the ICS.",
-				Arrays.asList(), testTool, tlsVersion, Arrays.asList(unsupportedSignatureAlgorithmWithHash),
+				Arrays.asList(), testTool, tlsVersion, unsupportedSignatureAlgorithmWithHash,
 				TlsTestToolCertificateTypes.CERT_DEFAULT, new ManipulateForceCertificateUsage());
 		
 		tfServerHello.executeSteps("3", "Server started and waits for new client connection", Arrays.asList(), testTool,
-				tlsVersion, cipherSuite);
+				tlsVersion, cipherSuite, unsupportedSignatureAlgorithmWithHash);
 
 		tFDutClientNewConnection.executeSteps("4",
 				"The TLS server receives a ClientHello handshake message from the DUT.", Arrays.asList(), testTool,
@@ -157,7 +158,7 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 		
 		tfAlertMessageCheck.executeSteps("6", "The DUT rejects the connection with a \"bad_certificate\" alert or "
 				+ "another suitable error description.",
-				Arrays.asList("level=warning/fatal"), testTool);
+				Arrays.asList("level=warning/fatal", "description=bad_certificate"), testTool, TlsAlertDescription.bad_certificate);
 
 		tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
 
@@ -171,10 +172,18 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 	private TlsSignatureAlgorithmWithHash findUnsupportedSignatureAlgorithmWithHash(final TlsVersion tlsVersion) {
 		var clientSupportedSigAlg = configuration.getSupportedSignatureAlgorithms(tlsVersion);
 
-		for (TlsSignatureAlgorithmWithHash supportedCertificateType : TlsSignatureAlgorithmWithHashTls12
-				.getSupportedCertificateTypesTls12()) {
-			if (!clientSupportedSigAlg.contains(supportedCertificateType)) {
-				return supportedCertificateType;
+		if(tlsVersion == TlsVersion.TLS_V1_2) {
+			for (TlsSignatureAlgorithmWithHash supportedCertificateType : TlsSignatureAlgorithmWithHashTls12
+					.getSupportedCertificateTypesTls12()) {
+				if (!containsSignatureAlgorthm(clientSupportedSigAlg, supportedCertificateType)) {
+					return supportedCertificateType;
+				}
+			}
+		} else {
+			for (TlsSignatureAlgorithmWithHash supportedCertificateType : TlsSignatureScheme.getTls13SignatureSchemes()) {
+				if (!containsSignatureAlgorthm(clientSupportedSigAlg, supportedCertificateType)) {
+					return supportedCertificateType;
+				}
 			}
 		}
 		// If we are here, then the Client supports all common signature algorithms.
@@ -184,6 +193,14 @@ public class TLS_A1_CH_08 extends AbstractTestCase {
 		return new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.rsa, TlsHashAlgorithm.sha1);
 	}
 
+	public boolean containsSignatureAlgorthm(List<TlsSignatureAlgorithmWithHash> list, TlsSignatureAlgorithmWithHash value){
+		for(TlsSignatureAlgorithmWithHash element: list){
+			if(element.equals(value)){
+				return true;
+			}
+		}
+		return false;
+	}
 	@Override
 	protected void postProcessing() throws Exception {
 		

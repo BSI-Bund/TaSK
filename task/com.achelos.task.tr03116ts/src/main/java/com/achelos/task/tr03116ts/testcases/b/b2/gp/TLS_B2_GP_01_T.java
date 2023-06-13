@@ -7,7 +7,6 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
-import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
 import com.achelos.task.logging.MessageConstants;
@@ -145,7 +144,7 @@ public class TLS_B2_GP_01_T extends AbstractTestCase {
 
 				tfClientCertificate.executeSteps("1",
 						"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(),
-						testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+						testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 				tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 						+ ", cipher suite " + cipherSuite.name() + " .", null, testTool,

@@ -19,17 +19,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 @Path("")
-@Tag(name= "Base Path", description = "Return the API definition of the REST Server.")
+@Tag(name= "Base Path", description = "Get basic information on this endpoint.")
 public class DefaultApi {
 
     private final static String OPENAPI_YAML_RESOURCE_PATH = "openapi.yaml";
 
     @GET
-    @Produces({ "text/yaml" })
+    @Produces({ "text/yaml" , MediaType.APPLICATION_JSON})
     @Operation(summary = "Return the API definition of the REST Server.", description = "Return the API definition of the REST Server.", tags={ "Base Path" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation= String.class))),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation= ErrorResponse.class))) })
+        @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(
+        		mediaType = MediaType.APPLICATION_JSON,
+        		schema = @Schema(implementation= ErrorResponse.class))) })
     public Response getAPIDefinition() {
         try (var inputStream = getClass().getClassLoader().getResourceAsStream(OPENAPI_YAML_RESOURCE_PATH)) {
             var openApiDefinition = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);

@@ -1,7 +1,6 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.fr;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
@@ -17,7 +16,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * TLS_B1_FR_02_T - No Truncated HMAC extension.
+ * Test case TLS_B1_FR_02_T - No Truncated HMAC extension.
  * <p>
  * This test case checks that the Truncated HMAC extension is not selected by the DUT.
  * <p>

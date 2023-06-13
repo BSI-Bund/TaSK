@@ -22,64 +22,66 @@
 #include <string>
 
 namespace Tooling {
-class Logger;
+    class Logger;
 }
 namespace TlsTestTool {
-class TlsSession;
+    class TlsSession;
+
 /**
  * Abstract base class of all manipulations.
  */
-class Manipulation {
-public:
-	virtual ~Manipulation();
+    class Manipulation {
+    public:
+        virtual ~Manipulation();
 
-	/**
-	 * Perform a manipulation on the given TLS session before starting the TLS handshake.
-	 * @param session TLS session that probably will be manipulated.
-	 */
-	virtual void executePreHandshake(TlsSession & session) = 0;
+        /**
+         * Perform a manipulation on the given TLS session before starting the TLS handshake.
+         * @param session TLS session that probably will be manipulated.
+         */
+        virtual void executePreHandshake(TlsSession &session) = 0;
 
-	/**
-	 * Perform a manipulation on the given TLS session before the execution of a TLS handshake step.
-	 * @param session TLS session that probably will be manipulated.
-	 */
-	virtual void executePreStep(TlsSession & session) = 0;
+        /**
+         * Perform a manipulation on the given TLS session before the execution of a TLS handshake step.
+         * @param session TLS session that probably will be manipulated.
+         */
+        virtual void executePreStep(TlsSession &session) = 0;
 
-	/**
-	 * Perform a manipulation on the given TLS session after the execution of a TLS handshake step.
-	 * @param session TLS session that probably will be manipulated.
-	 */
-	virtual void executePostStep(TlsSession & session) = 0;
+        /**
+         * Perform a manipulation on the given TLS session after the execution of a TLS handshake step.
+         * @param session TLS session that probably will be manipulated.
+         */
+        virtual void executePostStep(TlsSession &session) = 0;
 
-	/**
-	 * Perform a manipulation on the given TLS session after finishing the TLS handshake.
-	 * @param session TLS session that probably will be manipulated.
-	 */
-	virtual void executePostHandshake(TlsSession & session) = 0;
+        /**
+         * Perform a manipulation on the given TLS session after finishing the TLS handshake.
+         * @param session TLS session that probably will be manipulated.
+         */
+        virtual void executePostHandshake(TlsSession &session) = 0;
 
-	/**
-	 * Attach a logger that will be used for log output.
-	 * @param logger Log that will receive log entries.
-	 */
-	void setLogger(Tooling::Logger & logger);
+        /**
+         * Attach a logger that will be used for log output.
+         * @param logger Log that will receive log entries.
+         */
+        void setLogger(Tooling::Logger &logger);
 
-protected:
-	Manipulation();
+    protected:
+        Manipulation();
 
-	/**
-	 * If a logger is available, write a message to the log.
-	 * @param file File that creates the log entry.
-	 * @param line Line in @p file that creates the log entry.
-	 * @param message Log message that will be written.
-	 * @see setLogger()
-	 */
-	void log(const std::string & file, const int line, const std::string & message);
+        /**
+         * If a logger is available, write a message to the log.
+         * @param file File that creates the log entry.
+         * @param line Line in @p file that creates the log entry.
+         * @param message Log message that will be written.
+         * @see setLogger()
+         */
+        void log(const std::string &file, const int line, const std::string &message);
 
-private:
-	class Data;
-	//! Use pimpl idiom.
-	std::unique_ptr<Data> impl;
-};
+    private:
+        class Data;
+
+        //! Use pimpl idiom.
+        std::unique_ptr<Data> impl;
+    };
 }
 
 #endif /* MANIPULATION_MANIPULATION_H_ */

@@ -22,101 +22,103 @@
 #include <asio/ip/tcp.hpp>
 
 namespace TlsTestTool {
-class TcpClient;
+    class TcpClient;
+
 /**
  * TcpConnection represents a Tcp connection for either client/server
  * It mainly consists of a socket.
  */
-class TcpConnection {
-public:
-	class Data;
-	/**
-	 * Creates a new TcpConnection by opening a new socket
-	 */
-	TcpConnection(asio::io_context* io_context);
+    class TcpConnection {
+    public:
+        class Data;
 
-	/**
-	 * Free the TCP/IP server socket.
-	 */
-	~TcpConnection();
+        /**
+         * Creates a new TcpConnection by opening a new socket
+         */
+        TcpConnection(asio::io_context *io_context);
 
-	/**
-	 * Close an open connection.
-	 *
-	 * @throw std::exception Thrown on failure, e.g., no open connection.
-	 */
-	void close();
+        /**
+         * Free the TCP/IP server socket.
+         */
+        ~TcpConnection();
 
-	/**
-	 * Write a block of characters to the TCP/IP client socket.
-	 *
-	 * @param data Data block to write.
-	 * @return Number of bytes written, if successful. Zero, otherwise.
-	 * @throw std::exception Thrown on failure.
-	 */
-	std::size_t write(const std::vector<char> & data);
+        /**
+         * Close an open connection.
+         *
+         * @throw std::exception Thrown on failure, e.g., no open connection.
+         */
+        void close();
 
-	/**
-	 * Read a block of characters from the TCP/IP client socket.
-	 *
-	 * @param length Number of bytes to read. The call will return only successfully, if this number of bytes have been
-	 * read.
-	 * @return Data block that has been read.
-	 * @throw std::exception Thrown on failure.
-	 */
-	std::vector<char> read(std::size_t length);
+        /**
+         * Write a block of characters to the TCP/IP client socket.
+         *
+         * @param data Data block to write.
+         * @return Number of bytes written, if successful. Zero, otherwise.
+         * @throw std::exception Thrown on failure.
+         */
+        std::size_t write(const std::vector<char> &data);
 
-	/**
-	 * Get the number of bytes that are available for reading.
-	 *
-	 * @return Number of bytes that can be read.
-	 * @throw std::exception Thrown on failure.
-	 */
-	std::size_t available() const;
+        /**
+         * Read a block of characters from the TCP/IP client socket.
+         *
+         * @param length Number of bytes to read. The call will return only successfully, if this number of bytes have been
+         * read.
+         * @return Data block that has been read.
+         * @throw std::exception Thrown on failure.
+         */
+        std::vector<char> read(std::size_t length);
 
-	/**
-	 * Check, if the connection is closed.
-	 *
-	 * @return @code true, if the socket is not connected. @code false, if a connection exists.
-	 * @throw std::exception Thrown on failure.
-	 */
-	bool isClosed();
+        /**
+         * Get the number of bytes that are available for reading.
+         *
+         * @return Number of bytes that can be read.
+         * @throw std::exception Thrown on failure.
+         */
+        std::size_t available() const;
 
-	/**
-	 * Get the IP address of a connected peer.
-	 *
-	 * @return IP address in dotted decimal format.
-	 * @throw std::exception Thrown on failure, e.g., no open connection.
-	 */
-	std::string getRemoteIpAddress() const;
+        /**
+         * Check, if the connection is closed.
+         *
+         * @return @code true, if the socket is not connected. @code false, if a connection exists.
+         * @throw std::exception Thrown on failure.
+         */
+        bool isClosed();
 
-	/**
-	 * Get the TCP port of a connected peer.
-	 *
-	 * @return TCP port number
-	 * @throw std::exception Thrown on failure, e.g., no open connection.
-	 */
-	uint16_t getRemoteTcpPort() const;
+        /**
+         * Get the IP address of a connected peer.
+         *
+         * @return IP address in dotted decimal format.
+         * @throw std::exception Thrown on failure, e.g., no open connection.
+         */
+        std::string getRemoteIpAddress() const;
 
-	/**
-	 * Returns the socket file descriptor from currently used socket
-	 * @return file descriptor of socket
-	 */
+        /**
+         * Get the TCP port of a connected peer.
+         *
+         * @return TCP port number
+         * @throw std::exception Thrown on failure, e.g., no open connection.
+         */
+        uint16_t getRemoteTcpPort() const;
 
-	int getSocketFileDesriptor();
+        /**
+         * Returns the socket file descriptor from currently used socket
+         * @return file descriptor of socket
+         */
 
-	/**
+        int getSocketFileDesriptor();
+
+        /**
      * Register an observer that will be notified on blocks that are written or read.
      * @param observer Observer to register
-	 */
-	void registerObserver(AbstractSocketObserver & observer);
+         */
+        void registerObserver(AbstractSocketObserver &observer);
 
-	asio::ip::tcp::socket & getSocket();
+        asio::ip::tcp::socket &getSocket();
 
-private:
-	//! Use pimpl idiom.
-	std::unique_ptr<Data> impl;
+    private:
+        //! Use pimpl idiom.
+        std::unique_ptr<Data> impl;
 
-};
+    };
 }
 #endif /* NETWORK_TCPCONNECTION_H*/

@@ -19,6 +19,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_17 - No 0-RTT connection.
  * <p>
  * This test case checks that the early data is not used by the DUT.
  */
@@ -67,7 +68,7 @@ public class TLS_B1_FR_17 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers a cipher suite that is supported according to the ICS.
 	 * <li>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate
 	 * extension according to the ICS.

@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.achelos.task.configuration.TestRunPlanConfiguration;
 import com.achelos.task.logging.BasicLogger;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.utilities.logging.LogBean;
 
 
@@ -119,14 +120,28 @@ public class GenericCommandLineExecution extends Logging {
 			logQueueProducer.start();
 		}
 
+		// All executors should use startSleepTimer method because some times process takes a little bit time to start.
+		// Add a small delay for the process to start
+		final int processDelay = configuration.getProcessStartWaitingTime() * 1000;
+		logDebug(getExecutor().getName() + " process start delay: " + processDelay);
+		startSleepTimer(processDelay);
+		
 		if (!process.isAlive()) {
-			logError("Unable to start " + getExecutor().getName() + " for " + getTestCaseName() + ". Got exit value: "
-					+ process.exitValue());
-			throw new IOException("Unable to start " + getExecutor().getName() + " for " + getTestCaseName()
-					+ ". Got exit value: " + process.exitValue());
+			long exitValue = process.exitValue();
+			if (!isExitValueOk(exitValue)) {
+				logError("Unable to start " + getExecutor().getName() + " for " + getTestCaseName()
+						+ ". Got exit value: "
+						+ process.exitValue());
+				throw new IOException("Unable to start " + getExecutor().getName() + " for " + getTestCaseName()
+						+ ". Got exit value: " + process.exitValue());
+			}
 		}
 	}
 
+
+	private boolean isExitValueOk(long exitValue) {
+		return PROCESS_EXIT_VALUE_OK == exitValue || exitValue == 143 || exitValue == 1 || exitValue == 127;
+	}
 
 	/**
 	 * @return {@link List} containing log messages parsed so far. Must not be modified.
@@ -219,7 +234,7 @@ public class GenericCommandLineExecution extends Logging {
 
 		// Second step check the process exit value
 		logInfo(getExecutor().getName() + " exit value = " + exitValue);
-		if (PROCESS_EXIT_VALUE_OK == exitValue || exitValue == 143 || exitValue == 1 || exitValue == 127) { // 143 SIGTERM signal for CRL Server
+		if (isExitValueOk(exitValue)) { 
 			if (!tlsLogListComplete) {
 				setLogBeanList(LogBean.convertToLogBeanList(getLogList()));
 			}

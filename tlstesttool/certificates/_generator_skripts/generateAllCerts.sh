@@ -1,0 +1,9 @@
+#!/bin/bash
+
+bash generate_CERT_DEFAULT.sh
+bash generate_CERT_EXPIRED.sh
+bash generate_CERT_INVALID_DOMAIN_NAME_CN.sh
+bash generate_CERT_INVALID_DOMAIN_NAME_SAN.sh
+bash generate_CERT_INVALID_SIG.sh
+bash generate_CERT_INVALID_STRUCTURE.sh
+bash generate_CERT_SHORT_KEY.sh

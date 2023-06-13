@@ -26,7 +26,7 @@ namespace Tooling {
 /**
  * Definition of a key-value pair.
  */
-using KeyValuePair = std::pair<std::string, std::string>;
+    using KeyValuePair = std::pair<std::string, std::string>;
 }
 
 #endif /* CONFIGURATION_KEYVALUEPAIR_H_ */

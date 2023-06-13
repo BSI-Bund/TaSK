@@ -1,6 +1,3 @@
-/**
- * Copyright (C) 2009-2018 achelos GmbH All rights reserved.
- */
 package com.achelos.task.abstracttestsuite;
 
 import com.achelos.task.configuration.TestRunPlanConfiguration;

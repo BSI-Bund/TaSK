@@ -25,13 +25,16 @@ namespace TlsTestTool {
  * Perform a renegotiation after finishing a TLS Handshake.
  * @see https://tools.ietf.org/html/rfc5246#section-7.4.1.1
  */
-class Renegotiate : public Manipulation {
-public:
-	virtual void executePreHandshake(TlsSession & session) override;
-	virtual void executePreStep(TlsSession & session) override;
-	virtual void executePostStep(TlsSession & session) override;
-	virtual void executePostHandshake(TlsSession & session) override;
-};
+    class Renegotiate : public Manipulation {
+    public:
+        virtual void executePreHandshake(TlsSession &session) override;
+
+        virtual void executePreStep(TlsSession &session) override;
+
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+    };
 }
 
 #endif /* MANIPULATION_RENEGOTIATE_H_ */

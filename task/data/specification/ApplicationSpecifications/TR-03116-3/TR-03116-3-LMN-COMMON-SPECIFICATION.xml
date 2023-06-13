@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TLSSpecification id="TR-03116-3-LMN-COMMON">
+	<Metadata>
+		<Title>Common requirements for Smart-Meter-Gateway LMN TLS Server and Client according to TR-03116-3</Title>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-03116-3</Reference>
+		</References>
+	</Metadata>
+	
+	<FurtherSpecifications>
+		<TLSVersions>
+			<TLSVersion use="required">TLSv1.2</TLSVersion>
+			<TLSVersion use="optional">TLSv1.3</TLSVersion>
+		</TLSVersions>
+		<TlsSessionLifetime>744h</TlsSessionLifetime>
+
+		<TLS1.2_Parameter id="TR-03116-3-LMN-COMMON-TLS1.2-PARAMETERS">
+		<Metadata>
+			<Version>1.0</Version>
+			<References>
+				<Reference>TR-03116-3</Reference>
+			</References>
+		</Metadata>
+			<!-- Chapter6.2-->
+			<CipherSuites use="required" reference="6.2">
+				<CipherSuite>
+					<Description>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</Description>
+					<Value>0xC0,0x23</Value>
+					<Reference>RFC5289</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+				<!-- Required after 2024. Optional in 2023.
+				<CipherSuite>
+					<Description>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</Description>
+					<Value>0xC0,0x2B</Value>
+					<Reference>RFC5289</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+				-->
+			</CipherSuites>
+			<CipherSuites use="optional" reference="6.2">
+				<CipherSuite>
+					<Description>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</Description>
+					<Value>0xC0,0x23</Value>
+					<Reference>RFC5289</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+				<!-- Required after 2024. Optional in 2023. -->
+				<CipherSuite>
+					<Description>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</Description>
+					<Value>0xC0,0x2B</Value>
+					<Reference>RFC5289</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+				<CipherSuite>
+					<Description>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</Description>
+					<Value>0xC0,0x2C</Value>
+					<Reference>RFC5289</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+			</CipherSuites>
+			<!-- Chapter6.2-->
+			<Supported_Groups reference="6.2">
+				<DHGroup use="required">
+					<Description>secp256r1</Description>
+					<Value>23</Value>
+					<Reference>RFC8422</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="required">
+					<Description>brainpoolP256r1</Description>
+					<Value>26</Value>
+					<Reference>RFC7027</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="required">
+					<Description>brainpoolP384r1</Description>
+					<Value>27</Value>
+					<Reference>RFC7027</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="optional">
+					<Description>secp384r1</Description>
+					<Value>24</Value>
+					<Reference>RFC8422</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="optional">
+					<Description>brainpoolP512r1</Description>
+					<Value>28</Value>
+					<Reference>RFC7027</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+			</Supported_Groups>
+
+			<!-- Chapter 6.4-->
+			<SignatureAlgorithms use="required" reference="6.4">
+				<SignatureAlgorithm>
+					<SignatureAlgorithmName>ecdsa</SignatureAlgorithmName>
+					<SignatureAlgorithmValue>3</SignatureAlgorithmValue>
+					<DigestAlgorithmName>sha256</DigestAlgorithmName>
+					<DigestAlgorithmValue>4</DigestAlgorithmValue>
+					<Reference>RFC5246</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<SignatureAlgorithmName>ecdsa</SignatureAlgorithmName>
+					<SignatureAlgorithmValue>3</SignatureAlgorithmValue>
+					<DigestAlgorithmName>sha384</DigestAlgorithmName>
+					<DigestAlgorithmValue>4</DigestAlgorithmValue>
+					<Reference>RFC5246</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<SignatureAlgorithmName>ecdsa</SignatureAlgorithmName>
+					<SignatureAlgorithmValue>3</SignatureAlgorithmValue>
+					<DigestAlgorithmName>sha512</DigestAlgorithmName>
+					<DigestAlgorithmValue>4</DigestAlgorithmValue>
+					<Reference>RFC5246</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureAlgorithm>
+			</SignatureAlgorithms>
+			<!-- Chapter 6.4-->
+			<MiscellaneousTLSFeatures>
+				<!-- Chapter 6.4.2-->
+				<TLSFeature use="optional" reference="6.4.2">encrypt_then_mac</TLSFeature>
+				<TLSFeature use="optional" reference="6.4.2">extended_master_secret</TLSFeature>
+			</MiscellaneousTLSFeatures>
+		</TLS1.2_Parameter>
+
+		<TLS1.3_Parameter id="TR-03116-3-WAN-COMMON-TLS1.3-PARAMETERS">
+			<Metadata>
+				<Version>1.0</Version>
+				<References>
+					<Reference>TR-03116-3</Reference>
+				</References>
+			</Metadata>
+
+			<!-- Chapter 4.3 Handshake Modes -->
+			<HandshakeModes reference="4.3">
+				<HandshakeMode use="required">ECDHE</HandshakeMode>
+				<HandshakeMode use="optional">PSK-ECDHE</HandshakeMode>
+			</HandshakeModes>
+
+			<!-- Tabel 8 -->
+			<PSK-Modes use="optional" reference="3.4.1">
+				<PSK-Mode>
+					<Description>psk_dhe_ke</Description>
+					<Value>1</Value>
+					<Reference>RFC8446</Reference>
+					<UseUntil>2029+</UseUntil>
+				</PSK-Mode>
+			</PSK-Modes>
+
+			<!-- Chapter 4.3.1 -->
+			<!-- Tabel 11 and Table 12-->
+			<CipherSuites reference="4.3.1">
+				<CipherSuite use="required">
+					<Description>TLS_AES_128_GCM_SHA256</Description>
+					<Value>0x13,0x01</Value>
+					<Reference>RFC8446</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+				<CipherSuite use="optional">
+					<Description>TLS_AES_256_GCM_SHA384</Description>
+					<Value>0x13,0x02</Value>
+					<Reference>RFC8446</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+				<CipherSuite use="optional">
+					<Description>TLS_AES_128_CCM_SHA256</Description>
+					<Value>0x13,0x04</Value>
+					<Reference>RFC8446</Reference>
+					<UseUntil>2029+</UseUntil>
+				</CipherSuite>
+			</CipherSuites>
+
+			<!-- Chapter 4.3.1 -->
+			<!-- Tabel 13 -->
+			<Supported_Groups use="required" reference="4.3.1">
+				<DHGroup use="required">
+					<Description>secp256r1</Description>
+					<Value>23</Value>
+					<Reference>RFC8422</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="required">
+					<Description>brainpoolP256r1tls13</Description>
+					<Value>31</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="required">
+					<Description>brainpoolP384r1tls13</Description>
+					<Value>32</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="optional">
+					<Description>secp384r1</Description>
+					<Value>24</Value>
+					<Reference>RFC8422</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+				<DHGroup use="optional">
+					<Description>brainpoolP512r1tls13</Description>
+					<Value>33</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</DHGroup>
+			</Supported_Groups>
+
+			<!-- Chapter 4.3.2 -->
+			<!-- Tabel 15 -->
+			<SignatureAlgorithmsHandshake use="required" reference="4.3.2.1">
+				<SignatureScheme>
+					<Description>ecdsa_secp256r1_sha256</Description>
+					<Value>0x0403</Value>
+					<Reference>RFC8446</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+				<SignatureScheme>
+					<Description>ecdsa_secp384r1_sha384</Description>
+					<Value>0x0503</Value>
+					<Reference>RFC8446</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+				<SignatureScheme>
+					<Description>ecdsa_brainpoolP256r1tls13_sha256</Description>
+					<Value>0x081A</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+				<SignatureScheme>
+					<Description>ecdsa_brainpoolP384r1tls13_sha384</Description>
+					<Value>0x081B</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+				<SignatureScheme>
+					<Description>ecdsa_brainpoolP512r1tls13_sha512</Description>
+					<Value>0x081C</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+			</SignatureAlgorithmsHandshake>
+
+			<!-- Chapter 4.3.2.1 -->
+			<!-- Tabel 16 -->
+			<SignatureAlgorithmsCertificate use="required" reference="4.3.2.1">
+				<SignatureScheme>
+					<Description>ecdsa_brainpoolP256r1tls13_sha256</Description>
+					<Value>0x081A</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+				<SignatureScheme>
+					<Description>ecdsa_brainpoolP384r1tls13_sha384</Description>
+					<Value>0x081B</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+				<SignatureScheme>
+					<Description>ecdsa_brainpoolP512r1tls13_sha512</Description>
+					<Value>0x081C</Value>
+					<Reference>RFC8734</Reference>
+					<UseUntil>2029+</UseUntil>
+				</SignatureScheme>
+			</SignatureAlgorithmsCertificate>
+		</TLS1.3_Parameter>
+		<TLSMinimumKeyLength id="TR-02102-2-TLS-MINIMUM-KEY-LENGTH">
+			<Metadata>
+				<Version>1.0</Version>
+				<References>
+					<Reference>TR-02102-2</Reference>
+				</References>
+			</Metadata>
+
+			<!-- Chapter 3.6.1 -->
+			<!-- Tabel 13 -->
+			<MinimumKeyLengths>
+				<Algorithm type="ECDSA">
+					<MinimumKeyLength UseUntil="2029+">250</MinimumKeyLength>
+				</Algorithm>
+				<Algorithm type="DSA">
+					<MinimumKeyLength UseUntil="2022">2000</MinimumKeyLength>
+					<MinimumKeyLength UseUntil="2029+">3000</MinimumKeyLength>
+				</Algorithm>
+				<Algorithm type="RSA">
+					<MinimumKeyLength UseUntil="2023">2000</MinimumKeyLength>
+					<MinimumKeyLength UseUntil="2029+">3000</MinimumKeyLength>
+				</Algorithm>
+				<Algorithm type="ECDH">
+					<MinimumKeyLength UseUntil="2029+">250</MinimumKeyLength>
+				</Algorithm>
+				<Algorithm type="DH">
+					<MinimumKeyLength UseUntil="2022">2000</MinimumKeyLength>
+					<MinimumKeyLength UseUntil="2029+">3000</MinimumKeyLength>
+				</Algorithm>
+			</MinimumKeyLengths>
+		</TLSMinimumKeyLength>
+		<TLSEllipticCurves id="TR-02102-2-TLS-ELLIPTIC-CURVES">
+			<Metadata>
+				<Version>1.0</Version>
+				<References>
+					<Reference>TR-02102-2</Reference>
+				</References>
+			</Metadata>
+
+			<!-- Chapter 3.6.2 -->
+			<ECC priority="1">
+				<Description>secp256r1</Description>
+				<Value>23</Value>
+				<Reference>RFC8422</Reference>
+				<UseUntil>2029+</UseUntil>
+			</ECC>
+			<ECC priority="1">
+				<Description>secp384r1</Description>
+				<Value>24</Value>
+				<Reference>RFC8422</Reference>
+				<UseUntil>2029+</UseUntil>
+			</ECC>
+			<ECC priority="1">
+				<Description>secp521r1</Description>
+				<Value>25</Value>
+				<Reference>RFC8422</Reference>
+				<UseUntil>2029+</UseUntil>
+			</ECC>
+			<ECC priority="0">
+				<Description>brainpoolP256r1</Description>
+				<Value>26</Value>
+				<Reference>RFC7027</Reference>
+				<UseUntil>2029+</UseUntil>
+			</ECC>
+			<ECC priority="0">
+				<Description>brainpoolP384r1</Description>
+				<Value>27</Value>
+				<Reference>RFC7027</Reference>
+				<UseUntil>2029+</UseUntil>
+			</ECC>
+			<ECC priority="0">
+				<Description>brainpoolP512r1</Description>
+				<Value>28</Value>
+				<Reference>RFC7027</Reference>
+				<UseUntil>2029+</UseUntil>
+			</ECC>
+		</TLSEllipticCurves>
+	</FurtherSpecifications>
+</TLSSpecification>

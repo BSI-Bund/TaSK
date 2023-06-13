@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EXPERIMENTAL: This application type is not fully supported.
+	Example ICS according to BSI-TR-03116-TS Chapter 3
+	This example uses the requirements from BSI-TR-03116-TS_Annex Chapter 2.6 E-Mail Trsp. -->
+<ICS>	
+	<Title>EXPERIMENTAL: Test Application - E-Mail Trsp. Client to CETI - with DANE</Title> <!-- Optional-->
+	<Version>1.0.0</Version>
+	<Description>This is an example ICS that will be used as the input to the TaSK test framework.</Description> <!-- Optional-->
+		
+	<ApplicationUnderTest>
+		<!-- Chapter 3.1 
+			Basic information about the DUT. -->
+		<ApplicationType>TR-03108-1-EMSP-CLIENT-CETI-DANE</ApplicationType>
+		<RespectiveTechnicalGuideline>TR-03108-1</RespectiveTechnicalGuideline> <!-- Optional-->
+		<RMIURL>localhost</RMIURL>
+		<RMIPort>1099</RMIPort> <!-- Optional -->
+		<StartTLS>true</StartTLS> <!-- Optional, false if not present -->
+	</ApplicationUnderTest>		
+
+	<Profiles>
+		<!-- Chapter 3.2 Table 3
+			An applicant SHALL provide a declaration containing information on the supported profiles. -->
+		<!-- mandatory profiles from TR-03116-TS_Annex, Table 19 -->
+		<Profile>DURATION</Profile>
+		<Profile>NO_CLIENT_CERT</Profile>
+		<Profile>NO_TRUNC_HMAC</Profile>
+		<Profile>TLS_1.2</Profile>
+		<Profile>TLS_CLIENT</Profile>
+		
+		<!-- recommended profiles from TR-03116-TS_Annex, Table 19 -->
+		<Profile>ENC_THEN_MAC</Profile>
+		<Profile>EXT_MASTER_SECRET</Profile>
+		<Profile>SUPP_GROUPS</Profile>
+		<Profile>TLS_1.3</Profile>
+		
+	</Profiles>
+		
+	<SupportedCryptography>
+		<!-- Chapter 3.3 
+			one element 'SupportedTLSVersion' for each line in Table 4 -->
+		<SupportedTLSVersion version="TLSv1.2">
+			<SupportedCipherSuites>
+				<!-- Table 5 
+					The order of the cipher suites MUST reflect the preference of the DUT-->
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_GCM_SHA384</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256</CipherSuite>
+				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_CBC_SHA256</CipherSuite>
+			</SupportedCipherSuites>
+			
+			<SupportedKeyLengths>
+				<!-- Table 6 
+					mandates the minimal supported key lengths to be provided for each TLS version and algorithm separately -->
+				<MinimalKeyLength>
+					<Algorithm>ECDSA</Algorithm>
+					<MinimalSupportedKeyLength>256</MinimalSupportedKeyLength>
+				</MinimalKeyLength>
+				<MinimalKeyLength>
+					<Algorithm>ECDH</Algorithm>
+					<MinimalSupportedKeyLength>256</MinimalSupportedKeyLength>
+				</MinimalKeyLength>
+			</SupportedKeyLengths>
+			
+			<SupportedEllipticCurves-DHGroups>
+				<!-- Table 7 
+					In case the SUPP_GROUPS profile was selected, the named groups MUST be given in Table 7 in the order of preference.
+					This is mandatory if the SUPP_GROUPS profile was selected -->
+				<Group>brainpoolP256r1</Group>
+				<Group>brainpoolP384r1</Group>
+				<Group>brainpoolP512r1</Group>
+				<Group>secp256r1</Group>
+				<Group>secp384r1</Group>
+			</SupportedEllipticCurves-DHGroups>
+						
+			<SupportedSignatureAlgorithms>
+				<!-- Table 8 
+					The vendor SHALL list the signature algorithms supported by the DUT -->
+				<SignatureAlgorithm>
+					<Name>ecdsa</Name>
+					<HashName>SHA256</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>ecdsa</Name>
+					<HashName>SHA384</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>ecdsa</Name>
+					<HashName>SHA512</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>ecdsa</Name>
+					<HashName>SHA224</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA256</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA384</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA512</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa</Name>
+					<HashName>SHA224</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>dsa</Name>
+					<HashName>SHA256</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>dsa</Name>
+					<HashName>SHA384</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>dsa</Name>
+					<HashName>SHA512</HashName>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>dsa</Name>
+					<HashName>SHA224</HashName>
+				</SignatureAlgorithm>
+			</SupportedSignatureAlgorithms>
+				
+			<SupportedTLSExtensions>
+				<!-- Table 10 
+					The supported extensions SHALL be provided.
+					The names shall match https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml-->
+				<Extension>encrypt_then_mac</Extension>
+				<Extension>supported_groups</Extension>
+				<Extension>ec_point_formats</Extension>
+				<Extension>SessionTicket TLS</Extension>
+				<Extension>extended_master_secret</Extension>
+				<Extension>signature_algorithms</Extension>
+				<Extension>server_name</Extension>
+				<Extension>status_request</Extension>
+				<Extension>application_layer_protocol_negotiation</Extension>
+			</SupportedTLSExtensions>
+			
+		</SupportedTLSVersion>
+
+		<SupportedTLSVersion version="TLSv1.3">
+			<SupportedCipherSuites>
+				<!-- Table 5
+					The order of the cipher suites MUST reflect the preference of the DUT-->
+				<CipherSuite>TLS_AES_128_GCM_SHA256</CipherSuite>
+				<CipherSuite>TLS_AES_256_GCM_SHA384</CipherSuite>
+			</SupportedCipherSuites>
+
+			<SupportedKeyLengths>
+				<!-- Table 6
+					mandates the minimal supported key lengths to be provided for each TLS version and algorithm separately -->
+				<MinimalKeyLength>
+					<Algorithm>ECDSA</Algorithm>
+					<MinimalSupportedKeyLength>256</MinimalSupportedKeyLength>
+				</MinimalKeyLength>
+				<MinimalKeyLength>
+					<Algorithm>ECDH</Algorithm>
+					<MinimalSupportedKeyLength>256</MinimalSupportedKeyLength>
+				</MinimalKeyLength>
+			</SupportedKeyLengths>
+
+			<SupportedEllipticCurves-DHGroups>
+				<!-- Table 7
+					In case the SUPP_GROUPS profile was selected, the named groups MUST be given in Table 7 in the order of preference.
+					This is mandatory if the SUPP_GROUPS profile was selected -->
+				<Group>brainpoolP256r1tls13</Group>
+				<Group>brainpoolP384r1tls13</Group>
+				<Group>brainpoolP512r1tls13</Group>
+				<Group>secp256r1</Group>
+				<Group>secp384r1</Group>
+			</SupportedEllipticCurves-DHGroups>
+
+			<SupportedSignatureAlgorithms>
+				<!-- Table 8
+					The vendor SHALL list the signature algorithms supported by the DUT -->
+				<SignatureAlgorithm>
+					<Name>ecdsa_brainpoolP256r1tls13_sha256</Name>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa_pss_pss_sha256</Name>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa_pss_rsae_sha256</Name>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa_pss_rsae_sha384</Name>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>rsa_pss_rsae_sha512</Name>
+				</SignatureAlgorithm>
+				<SignatureAlgorithm>
+					<Name>ecdsa_secp256r1_sha256</Name>
+				</SignatureAlgorithm>
+			</SupportedSignatureAlgorithms>
+			
+			<SupportedSignatureAlgorithmsForCertificates>
+				<!-- Table 9
+					for TLS 1.3 the extension signature_algorithms_cert must be supported.
+					the vender SHALL list the signature algorithms in certificates supported by the DUT. -->
+				<SignatureScheme>rsa_pss_pss_sha256</SignatureScheme>
+				<SignatureScheme>ecdsa_secp256r1_sha256</SignatureScheme>
+				<SignatureScheme>ecdsa_brainpoolP384r1tls13_sha384</SignatureScheme>
+				<SignatureScheme>rsa_pss_rsae_sha256</SignatureScheme>
+				<SignatureScheme>rsa_pkcs1_sha256</SignatureScheme>
+				<SignatureScheme>rsa_pss_rsae_sha384</SignatureScheme>
+				<SignatureScheme>ecdsa_brainpoolP256r1tls13_sha256</SignatureScheme>
+				<SignatureScheme>rsa_pkcs1_sha384</SignatureScheme>
+				<SignatureScheme>ecdsa_secp384r1_sha384</SignatureScheme>
+			</SupportedSignatureAlgorithmsForCertificates>
+			
+			<SupportedTLSExtensions>
+				<!-- Table 10
+					The supported extensions SHALL be provided -->
+				<Extension>encrypt_then_mac</Extension>
+				<Extension>status_request_v2</Extension>
+				<Extension>supported_groups</Extension>
+				<Extension>server_name</Extension>
+				<Extension>status_request</Extension>
+			</SupportedTLSExtensions>
+
+		</SupportedTLSVersion>
+		
+	</SupportedCryptography>
+	
+	<!--  <TLSWithSKCipherSuites> -->
+		<!-- Chapter 3.5 Table 13
+			This is only mandatory if the profile 'PSK' was selected. -->
+	<!-- </TLSWithSKCipherSuites> -->	
+		
+	<!-- Chapter 3.6 Table 14  -->
+	<ConnectionTimeout>5m</ConnectionTimeout>
+		
+	<!-- <Zero-RTTData> -->
+		<!-- Chapter 3.7 Table 15
+			This is only mandatory if TLS Version TLSv1.3 is supported -->
+	<!-- </Zero-RTTData> -->
+		
+<!-- 	<TLSCertificates> -->
+	<!-- Chapter 3.8
+		This is only mandatory, if the CHECK_CERTS profile was selected -->
+<!-- 		<CertificateChain> -->
+	<!-- Table 16	
+		The vendor must provide the chain of X.509 certificates used by the test object in hierarchical order. -->
+<!-- 		</CertificateChain> -->
+<!-- 	</TLSCertificates> -->
+
+</ICS>

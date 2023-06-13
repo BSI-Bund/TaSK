@@ -5,11 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
@@ -19,7 +19,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_GP_01_T - Check values from ICS
+ * Test case TLS_A1_GP_01_T - Check values from ICS.
  * <p>
  * This positive test verifies that the offered TLS version, cipher suites, the order of the suites and extensions match
  * the ICS. Furthermore, a TLS connection is possible. The test is carried out for the TLS version [TLS_VERSION] and the
@@ -127,6 +127,7 @@ public class TLS_A1_GP_01_T extends AbstractTestCase {
 		}
 
 		int iterationCount = 1;
+		int maxIterationCount = calculateMaxIterationCount(tlsVersions);
 		for (TlsVersion tlsVersion : tlsVersions) {
 
 			var cipherSuites = configuration.getSupportedCipherSuites(tlsVersion);
@@ -150,13 +151,12 @@ public class TLS_A1_GP_01_T extends AbstractTestCase {
 						Arrays.asList(), testTool, tlsVersion, cipherSuite, TlsTestToolCertificateTypes.CERT_DEFAULT);
 
 				tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-						Arrays.asList(), testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, cipherSuite);
+						Arrays.asList(), testTool, tlsVersion, cipherSuite);
 
 				tFDutClientNewConnection.executeSteps("4",
 						"The TLS server receives a ClientHello handshake message from the DUT.",
 						Arrays.asList(), testTool,
-						new IterationCounter(iterationCount, tlsVersions.size() * cipherSuites.size()), dutExecutor);
-				iterationCount++;
+						new IterationCounter(iterationCount++, maxIterationCount), dutExecutor);
 
 
 				fFTLSHighestVersionSupportCheck.executeSteps("5",
@@ -169,7 +169,7 @@ public class TLS_A1_GP_01_T extends AbstractTestCase {
 						"The TLS ClientHello offers all cipher suites stated in the ICS for this TLS version in"
 								+ " specified order.");
 				List<TlsCipherSuite> clientHelloCipherSuites = TlsCipherSuite
-						.parseCipherSuiteStringList(testTool.getValue(TestToolResource.ClientHello_cipher_suites));
+						.parseCipherSuiteStringList(testTool.getValue(TestToolResource.ClientHello_cipher_suites), true, tlsVersion);
 
 				/* edge case: TLS_EMPTY_RENEGOTIATION_INFO_SCSV should not be checked */
 				clientHelloCipherSuites.remove(TlsCipherSuite.TLS_EMPTY_RENEGOTIATION_INFO_SCSV);
@@ -196,7 +196,8 @@ public class TLS_A1_GP_01_T extends AbstractTestCase {
 						+ "the TLS version.",
 						"TLS ClientHello offers only the extensions stated in the ICS that match "
 								+ "the TLS version.");
-				testTool.checkSupportedExtensions(tlsVersion);
+
+				testTool.checkSupportedExtensionsForAGP01(tlsVersion);
 
 				step(8, "Check if the TLS protocol is executed without errors and the channel is established.",
 						"The TLS protocol is executed without errors and the channel is established.");
@@ -211,6 +212,14 @@ public class TLS_A1_GP_01_T extends AbstractTestCase {
 				testTool.resetProperties();
 			}
 		}
+	}
+
+	public int calculateMaxIterationCount(List<TlsVersion> tlsVersionList){
+		int maxIterationCount=0;
+		for(var tlsVersion: tlsVersionList){
+			maxIterationCount += configuration.getSupportedCipherSuites(tlsVersion).size();
+		}
+		return maxIterationCount;
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import generated.jaxb.configuration.CipherSuites;
+import generated.jaxb.configuration.MiscellaneousTLSFeatures;
 import generated.jaxb.configuration.TLS13Parameter;
 import generated.jaxb.configuration.TLS13Parameter.HandshakeModes;
 import generated.jaxb.configuration.TLS13Parameter.PSKModes;
@@ -27,6 +28,7 @@ public class TLSv1_3Spec {
 	private final HashMap<String, DiffHellGroup> dHGroupSupport;
 	private final HashMap<String, SignatureAlgorithm> handshakeSignAlgorithmSupport;
 	private final HashMap<String, SignatureAlgorithm> certificateSignAlgorithmSupport;
+	private final HashMap<String, TlsFeature> tlsFeatureSupport;
 
 	/**
 	 * Default Constructor creating an empty TLSv1.3 Specification.
@@ -43,6 +45,7 @@ public class TLSv1_3Spec {
 		dHGroupSupport = new HashMap<>();
 		handshakeSignAlgorithmSupport = new HashMap<>();
 		certificateSignAlgorithmSupport = new HashMap<>();
+		tlsFeatureSupport = new HashMap<>();
 	}
 
 	/**
@@ -71,6 +74,7 @@ public class TLSv1_3Spec {
 
 		mergeSignatureAlgorithmsHandshake(tls13Param.getSignatureAlgorithmsHandshake());
 		mergeSignatureAlgorithmsCertificate(tls13Param.getSignatureAlgorithmsCertificate());
+		mergeMiscellaneousTLSFeatures(tls13Param.getMiscellaneousTLSFeatures());
 	}
 
 	/**
@@ -153,6 +157,14 @@ public class TLSv1_3Spec {
 		return new HashMap<>(certificateSignAlgorithmSupport);
 	}
 
+	/**
+	 * Returns information about other TLS feature support.
+	 * @return information about other TLS feature support.
+	 */
+	public HashMap<String, TlsFeature> getTlsFeatureSupport() {
+		return new HashMap<>(tlsFeatureSupport);
+	}
+
 	private void mergeHandshakeModes(final HandshakeModes handshakeModes) {
 		if (handshakeModes == null) {
 			return;
@@ -171,6 +183,23 @@ public class TLSv1_3Spec {
 
 			var handshakeMode = new HandshakeMode(handshakeIdentifier, restriction, support, baseReference);
 			handshakeModeSupport.put(handshakeMode.handshakeIdentifier, handshakeMode);
+		}
+	}
+
+	private void mergeMiscellaneousTLSFeatures(final MiscellaneousTLSFeatures tlsFeatures) {
+		if (tlsFeatures == null) {
+			return;
+		}
+		var baseReference = getBaseReference();
+		for (var tlsFeatureItem : tlsFeatures.getTLSFeature()) {
+			var reference = tlsFeatureItem.getReference() != null ? baseReference + tlsFeatureItem.getReference()
+					: baseReference;
+			var restriction = RestrictionLevel.fromUseType(tlsFeatureItem.getUse());
+			var featureId = tlsFeatureItem.getValue() != null ? tlsFeatureItem.getValue() : "";
+
+			var tlsFeature = new TlsFeature(reference, featureId, restriction);
+
+			tlsFeatureSupport.put(tlsFeature.identifier, tlsFeature);
 		}
 	}
 

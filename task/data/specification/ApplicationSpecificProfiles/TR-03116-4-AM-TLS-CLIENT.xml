@@ -10,13 +10,16 @@
 	</ApplicationSpecificInspectionInstructions>
 	<Profiles>
 		<MandatoryProfiles>
+			<Profile>DURATION</Profile>
 			<Profile>TLS_1.2</Profile>
 			<Profile>TLS_CLIENT</Profile>
 		</MandatoryProfiles>
 		<RecommendedProfiles>
 			<Profile>CERTIFIED_CA</Profile>
-			<Profile>DURATION</Profile>
+			<Profile>CHECK_CERTS</Profile>
+			<Profile>CLIENT_CERT</Profile>
 			<Profile>ENC_THEN_MAC</Profile>
+			<Profile>NO_CLIENT_CERT</Profile>
 			<Profile>NO_COMPRESSION</Profile>
 			<Profile>NO_HEARTBEAT</Profile>
 			<Profile>NO_TRUNC_HMAC</Profile>
@@ -26,7 +29,6 @@
 			<Profile>SESSION_TICKET</Profile>
 			<Profile>SUPP_GROUPS</Profile>
 			<Profile>TLS_1.3</Profile>
-			<Profile>NO_CLIENT_CERT</Profile> <!-- This is not the in the current (11.03.22) version of the TR, but is required to actually get some testcases. -->
 		</RecommendedProfiles>
 	</Profiles>
 	<ICSSections>
@@ -34,10 +36,12 @@
 			<Section>3.1</Section>
 			<Section>3.2</Section>
 			<Section>3.3</Section>
-			<Section>3.4</Section>
 			<Section>3.6</Section>
+		</MandatoryICSSections>
+		<OptionalICSSections>
+			<Section>3.4</Section>
 			<Section>3.7</Section>
 			<Section>3.8</Section>
-		</MandatoryICSSections>
+		</OptionalICSSections>
 	</ICSSections>
 </ApplicationMapping>

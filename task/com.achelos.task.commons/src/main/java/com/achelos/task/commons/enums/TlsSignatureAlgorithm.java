@@ -82,6 +82,10 @@ public enum TlsSignatureAlgorithm {
 		return String.format("%s(%d)", signatureAlgorithmValueDescription, value);
 	}
 
+	public final boolean isReservedSignatureAlgorithm(){
+		return value == reserved_4.value || value == reserved_5.value || value == reserved_6.value || value == reserved_9.value || value == reserved_a.value || value == reserved_b.value || value == reserved_c.value ;
+	}
+
 
 	/**
 	 * Method searches a given element representation and returns the corresponding
@@ -91,13 +95,13 @@ public enum TlsSignatureAlgorithm {
 	 * @return signature algorithm that matches the given value.
 	 * @throws InvalidAttributeValueException if the given value is not found.
 	 */
-	public static TlsSignatureAlgorithm getElement(final byte value) throws InvalidAttributeValueException {
+	public static TlsSignatureAlgorithm getElement(final byte value)  {
 		for (TlsSignatureAlgorithm signature : TlsSignatureAlgorithm.values()) {
 			if (signature.value == value) {
 				return signature;
 			}
 		}
-		throw new InvalidAttributeValueException("The given value " + value + " is not a valid signature algorithm");
+		return null;
 	}
 
 

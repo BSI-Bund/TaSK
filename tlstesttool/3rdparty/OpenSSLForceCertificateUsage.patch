@@ -1,0 +1,310 @@
+--- a/include/openssl/ssl.h.in	2023-03-28 19:00:56.272544340 +0200
++++ b/include/openssl/ssl.h.in	2023-03-27 16:09:20.540824000 +0200
+@@ -1520,6 +1520,7 @@
+ int SSL_CTX_set_overwrite_client_hello_ext(SSL_CTX * ctx, const char *ext, size_t ext_len, unsigned int message_ext);
+ int SSL_CTX_set_handshake_type(SSL_CTX * ctx, int overwriteHandshakeType, int handshakeType);
+ int SSL_CTX_set_overwrite_hello_version(SSL_CTX * ctx, int overwriteHelloVersion, int version);
++int SSL_CTX_set_manipulateForceCertificateUsage(SSL_CTX * ctx, int manipulateForceCertificateUsage);
+ 
+ __owur int SSL_CTX_set_cipher_list(SSL_CTX *, const char *str);
+ __owur SSL_CTX *SSL_CTX_new(const SSL_METHOD *meth);
+--- a/ssl/ssl_lib.c	2023-03-28 19:00:56.276542339 +0200
++++ b/ssl/ssl_lib.c	2023-03-27 16:26:12.338632000 +0200
+@@ -2728,8 +2728,9 @@
+     ctx->hello_version = version;
+ }
+ 
+-
+-
++int SSL_CTX_set_manipulateForceCertificateUsage(SSL_CTX * ctx, int manipulateForceCertificateUsage){
++    ctx->manipulateForceCertificateUsage = manipulateForceCertificateUsage;
++}
+ 
+ /** specify the ciphers to be used by default by the SSL_CTX */
+ int SSL_CTX_set_cipher_list(SSL_CTX *ctx, const char *str)
+--- a/ssl/ssl_local.h	2023-03-28 19:00:56.276542339 +0200
++++ b/ssl/ssl_local.h	2023-03-27 16:08:02.871682000 +0200
+@@ -888,6 +888,8 @@
+     int overwrite_hello_version;
+     int hello_version;
+ 
++    int manipulateForceCertificateUsage;
++
+ 
+     const SSL_METHOD *method;
+     STACK_OF(SSL_CIPHER) *cipher_list;
+--- a/ssl/statem/statem_srvr.c	2023-03-28 19:00:56.280540339 +0200
++++ b/ssl/statem/statem_srvr.c	2023-03-28 17:33:05.185613000 +0200
+@@ -2031,7 +2031,7 @@
+ #else
+         s->session->compress_meth = (comp == NULL) ? 0 : comp->id;
+ #endif
+-        if (!tls1_set_server_sigalgs(s)) {
++        if (!SSL_get_SSL_CTX(s)->manipulateForceCertificateUsage && !tls1_set_server_sigalgs(s)) {
+             /* SSLfatal() already called */
+             goto err;
+         }
+@@ -2216,6 +2216,11 @@
+                 cipher =
+                     ssl3_choose_cipher(s, s->peer_ciphers, SSL_get_ciphers(s));
+ 
++                if(SSL_get_SSL_CTX(s)->manipulateForceCertificateUsage) {
++                    
++                    cipher = sk_SSL_CIPHER_value(SSL_get_ciphers(s), 0);
++                }
++
+                 if (cipher == NULL) {
+                     SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
+                              SSL_R_NO_SHARED_CIPHER);
+--- a/ssl/t1_lib.c	2023-03-28 19:00:56.268546340 +0200
++++ b/ssl/t1_lib.c	2023-03-28 17:32:35.084673000 +0200
+@@ -3226,134 +3226,140 @@
+ 
+     s->s3.tmp.cert = NULL;
+     s->s3.tmp.sigalg = NULL;
+-
+-    if (SSL_IS_TLS13(s)) {
+-        lu = find_sig_alg(s, NULL, NULL);
+-        if (lu == NULL) {
+-            if (!fatalerrs)
++    if(!SSL_get_SSL_CTX(s)->manipulateForceCertificateUsage) {
++        if (SSL_IS_TLS13(s)) {
++            lu = find_sig_alg(s, NULL, NULL);
++            if (lu == NULL) {
++                if (!fatalerrs)
++                    return 1;
++                SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
++                         SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
++                return 0;
++            }
++        } else {
++            /* If ciphersuite doesn't require a cert nothing to do */
++            if (!(s->s3.tmp.new_cipher->algorithm_auth & SSL_aCERT))
+                 return 1;
+-            SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
+-                     SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
+-            return 0;
+-        }
+-    } else {
+-        /* If ciphersuite doesn't require a cert nothing to do */
+-        if (!(s->s3.tmp.new_cipher->algorithm_auth & SSL_aCERT))
+-            return 1;
+-        if (!s->server && !ssl_has_cert(s, s->cert->key - s->cert->pkeys))
++            if (!s->server && !ssl_has_cert(s, s->cert->key - s->cert->pkeys))
+                 return 1;
+ 
+-        if (SSL_USE_SIGALGS(s)) {
+-            size_t i;
+-            if (s->s3.tmp.peer_sigalgs != NULL) {
+-                int curve = -1;
+-
+-                /* For Suite B need to match signature algorithm to curve */
+-                if (tls1_suiteb(s))
+-                    curve = ssl_get_EC_curve_nid(s->cert->pkeys[SSL_PKEY_ECC]
+-                                                 .privatekey);
+-
+-                /*
+-                 * Find highest preference signature algorithm matching
+-                 * cert type
+-                 */
+-                for (i = 0; i < s->shared_sigalgslen; i++) {
+-                    lu = s->shared_sigalgs[i];
+-
+-                    if (s->server) {
+-                        if ((sig_idx = tls12_get_cert_sigalg_idx(s, lu)) == -1)
+-                            continue;
+-                    } else {
+-                        int cc_idx = s->cert->key - s->cert->pkeys;
+-
+-                        sig_idx = lu->sig_idx;
+-                        if (cc_idx != sig_idx)
++            if (SSL_USE_SIGALGS(s)) {
++                size_t i;
++                if (s->s3.tmp.peer_sigalgs != NULL) {
++                    int curve = -1;
++
++                    /* For Suite B need to match signature algorithm to curve */
++                    if (tls1_suiteb(s))
++                        curve = ssl_get_EC_curve_nid(s->cert->pkeys[SSL_PKEY_ECC]
++                                                             .privatekey);
++
++                    /*
++                     * Find highest preference signature algorithm matching
++                     * cert type
++                     */
++                    for (i = 0; i < s->shared_sigalgslen; i++) {
++                        lu = s->shared_sigalgs[i];
++
++                        if (s->server) {
++                            if ((sig_idx = tls12_get_cert_sigalg_idx(s, lu)) == -1)
++                                continue;
++                        } else {
++                            int cc_idx = s->cert->key - s->cert->pkeys;
++
++                            sig_idx = lu->sig_idx;
++                            if (cc_idx != sig_idx)
++                                continue;
++                        }
++                        /* Check that we have a cert, and sig_algs_cert */
++                        if (!has_usable_cert(s, lu, sig_idx))
+                             continue;
++                        if (lu->sig == EVP_PKEY_RSA_PSS) {
++                            /* validate that key is large enough for the signature algorithm */
++                            EVP_PKEY * pkey = s->cert->pkeys[sig_idx].privatekey;
++
++                            if (!rsa_pss_check_min_key_size(s->ctx, pkey, lu))
++                                continue;
++                        }
++                        if (curve == -1 || lu->curve == curve)
++                            break;
++                    }
++    #ifndef OPENSSL_NO_GOST
++                    /*
++                     * Some Windows-based implementations do not send GOST algorithms indication
++                     * in supported_algorithms extension, so when we have GOST-based ciphersuite,
++                     * we have to assume GOST support.
++                     */
++                    if (i == s->shared_sigalgslen && s->s3.tmp.new_cipher->algorithm_auth & (SSL_aGOST01 | SSL_aGOST12)) {
++                        if ((lu = tls1_get_legacy_sigalg(s, -1)) == NULL) {
++                            if (!fatalerrs)
++                                return 1;
++                            SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
++                                     SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
++                            return 0;
++                        } else {
++                            i = 0;
++                            sig_idx = lu->sig_idx;
++                        }
++                    }
++    #endif
++                    if (i == s->shared_sigalgslen) {
++                        if (!fatalerrs)
++                            return 1;
++                        SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
++                                 SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
++                        return 0;
++                    }
++                } else {
++                    /*
++                     * If we have no sigalg use defaults
++                     */
++                    const uint16_t *sent_sigs;
++                    size_t sent_sigslen;
++
++                    if ((lu = tls1_get_legacy_sigalg(s, -1)) == NULL) {
++                        if (!fatalerrs)
++                            return 1;
++                        SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
++                                 SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
++                        return 0;
+                     }
+-                    /* Check that we have a cert, and sig_algs_cert */
+-                    if (!has_usable_cert(s, lu, sig_idx))
+-                        continue;
+-                    if (lu->sig == EVP_PKEY_RSA_PSS) {
+-                        /* validate that key is large enough for the signature algorithm */
+-                        EVP_PKEY *pkey = s->cert->pkeys[sig_idx].privatekey;
+ 
+-                        if (!rsa_pss_check_min_key_size(s->ctx, pkey, lu))
+-                            continue;
++                    /* Check signature matches a type we sent */
++                    sent_sigslen = tls12_get_psigalgs(s, 1, &sent_sigs);
++                    for (i = 0; i < sent_sigslen; i++, sent_sigs++) {
++                        if (lu->sigalg == *sent_sigs
++                            && has_usable_cert(s, lu, lu->sig_idx))
++                            break;
++                    }
++                    if (i == sent_sigslen) {
++                        if (!fatalerrs)
++                            return 1;
++                        SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
++                                 SSL_R_WRONG_SIGNATURE_TYPE);
++                        return 0;
+                     }
+-                    if (curve == -1 || lu->curve == curve)
+-                        break;
+-                }
+-#ifndef OPENSSL_NO_GOST
+-                /*
+-                 * Some Windows-based implementations do not send GOST algorithms indication
+-                 * in supported_algorithms extension, so when we have GOST-based ciphersuite,
+-                 * we have to assume GOST support.
+-                 */
+-                if (i == s->shared_sigalgslen && s->s3.tmp.new_cipher->algorithm_auth & (SSL_aGOST01 | SSL_aGOST12)) {
+-                  if ((lu = tls1_get_legacy_sigalg(s, -1)) == NULL) {
+-                    if (!fatalerrs)
+-                      return 1;
+-                    SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
+-                             SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
+-                    return 0;
+-                  } else {
+-                    i = 0;
+-                    sig_idx = lu->sig_idx;
+-                  }
+-                }
+-#endif
+-                if (i == s->shared_sigalgslen) {
+-                    if (!fatalerrs)
+-                        return 1;
+-                    SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
+-                             SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
+-                    return 0;
+                 }
+             } else {
+-                /*
+-                 * If we have no sigalg use defaults
+-                 */
+-                const uint16_t *sent_sigs;
+-                size_t sent_sigslen;
+-
+                 if ((lu = tls1_get_legacy_sigalg(s, -1)) == NULL) {
+                     if (!fatalerrs)
+                         return 1;
+-                    SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
++                    SSLfatal(s, SSL_AD_INTERNAL_ERROR,
+                              SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
+                     return 0;
+                 }
+-
+-                /* Check signature matches a type we sent */
+-                sent_sigslen = tls12_get_psigalgs(s, 1, &sent_sigs);
+-                for (i = 0; i < sent_sigslen; i++, sent_sigs++) {
+-                    if (lu->sigalg == *sent_sigs
+-                            && has_usable_cert(s, lu, lu->sig_idx))
+-                        break;
+-                }
+-                if (i == sent_sigslen) {
+-                    if (!fatalerrs)
+-                        return 1;
+-                    SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
+-                             SSL_R_WRONG_SIGNATURE_TYPE);
+-                    return 0;
+-                }
+-            }
+-        } else {
+-            if ((lu = tls1_get_legacy_sigalg(s, -1)) == NULL) {
+-                if (!fatalerrs)
+-                    return 1;
+-                SSLfatal(s, SSL_AD_INTERNAL_ERROR,
+-                         SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
+-                return 0;
+             }
+         }
++        if (sig_idx == -1)
++            sig_idx = lu->sig_idx;
++        s->s3.tmp.cert = &s->cert->pkeys[sig_idx];
++        s->cert->key = s->s3.tmp.cert;
++        s->s3.tmp.sigalg = lu;
++    } else{
++        lu = tls1_lookup_sigalg(s, s->cert->conf_sigalgs[0]);
++        s->s3.tmp.cert = s->cert->key;
++        s->cert->key = s->s3.tmp.cert;
++        s->s3.tmp.sigalg = lu;
+     }
+-    if (sig_idx == -1)
+-        sig_idx = lu->sig_idx;
+-    s->s3.tmp.cert = &s->cert->pkeys[sig_idx];
+-    s->cert->key = s->s3.tmp.cert;
+-    s->s3.tmp.sigalg = lu;
+     return 1;
+ }

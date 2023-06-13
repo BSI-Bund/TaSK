@@ -3,12 +3,12 @@
 	<parent>
 		<groupId>com.achelos.task</groupId>
 		<artifactId>com.achelos.task</artifactId>
-		<version>0.5.2</version>
+		<version>1.0.1</version>
 	</parent>
 	<artifactId>com.achelos.task.rest-impl</artifactId>
 
 	<properties>
-		<jersey.version>3.0.8</jersey.version>
+		<jersey.version>3.1.1</jersey.version>
 	</properties>
 
 	<dependencies>
@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.abstractinterface</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 
 		<!-- Other Modules -->
@@ -53,17 +53,17 @@
 		<dependency>
 			<groupId>io.swagger.core.v3</groupId>
 			<artifactId>swagger-annotations</artifactId>
-			<version>2.2.7</version>
+			<version>2.2.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>2.14.1</version>
+			<version>2.15.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.14.1</version>
+			<version>2.15.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
@@ -99,14 +99,79 @@
 			<artifactId>jersey-client</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>com.achelos.task</groupId>
-            <artifactId>com.achelos.task.reporting</artifactId>
-            <version>0.5.2</version>
-            <scope>compile</scope>
+		<dependency>
+			<groupId>com.achelos.task</groupId>
+			<artifactId>com.achelos.task.reporting</artifactId>
+			<version>1.0.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2-jakarta</artifactId>
+            <version>2.2.9</version>
+        </dependency>
+		<dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
         </dependency>
 
-
-    </dependencies>
+	</dependencies>
+	<build>
+		<plugins>
+		
+			<plugin>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-maven-plugin-jakarta</artifactId>
+				<version>2.2.9</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>resolve</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<outputFileName>openapi</outputFileName>
+					<outputFormat>JSONANDYAML</outputFormat>
+					<outputPath>${project.basedir}/target/generated-resources</outputPath>
+					<configurationFilePath>${project.basedir}/src/main/resources/configurationFile.yaml</configurationFilePath>
+					<prettyPrint>TRUE</prettyPrint>
+					<resourcePackages>
+						<package>com.achelos.task.restimpl.api</package>
+						<package>com.achelos.task.restimpl.models</package>
+					</resourcePackages>
+				</configuration>
+			</plugin>
+			
+			
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<!-- here the phase you need -->
+						<phase>process-classes</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/target/generated-resources</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+		</plugins>
+		
+	</build>
+	
 
 </project>

@@ -14,6 +14,7 @@ import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TestRunPlanConfiguration;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
+import com.achelos.task.dutmotivator.email.EMailTrspClientDANEMotivator;
 
 
 /**
@@ -57,7 +58,9 @@ public class TFServerCertificate extends AbstractTestFragment {
 				certificateType = (TlsTestToolCertificateTypes) param;
 			} else if (param instanceof TlsCipherSuite) {
 				tlsCipherSuites.add((TlsCipherSuite) param);
-			} else if (param instanceof CrlOcspCertificate) {
+			} else if (param instanceof TlsSignatureAlgorithmWithHash) {
+				tlsSignatureAlgorithms.add((TlsSignatureAlgorithmWithHash) param);
+			}  else if (param instanceof CrlOcspCertificate) {
 				 crlOcspCertificate = (CrlOcspCertificate) param;
 			} else if (param instanceof ManipulateForceCertificateUsage){
 				manipulateForceCertificateUsage = true;
@@ -80,7 +83,6 @@ public class TFServerCertificate extends AbstractTestFragment {
 			logger.error("The test fragment" + testFragmentName + " called without TlsTestToolExecutor parameter");
 			return null;
 		}
-
 		// it is also possible to put several certificates in one file !!
 		String serverCertFileName = "";
 		// set Server Certificate+
@@ -91,8 +93,17 @@ public class TFServerCertificate extends AbstractTestFragment {
 					= testTool.getConfiguration().getCrlOcspCertificate(cipherSuite, certificateType);
 			serverCertFileName = testTool.setCertificateAndPrivateKey(certAndKeyPath[0], certAndKeyPath[1]);
 		} else {
-			if (0 >= TlsVersion.TLS_V1_2.compareTo(tlsVersion)) {
-				if (tlsCipherSuites.isEmpty() && tlsSignatureAlgorithms.isEmpty()) {
+				if (!tlsCipherSuites.isEmpty() && tlsVersion == TlsVersion.TLS_V1_2) {
+					serverCertFileName
+							= testTool.setCertificateAndPrivateKey(tlsVersion, tlsCipherSuites.get(0), certificateType);
+				} else if (!tlsSignatureAlgorithms.isEmpty()){
+					step(prefix, stepCounter++,
+							"The TLS server supports the following Signature algorithm: "
+									+ tlsSignatureAlgorithms.get(0),
+							"");
+					serverCertFileName = testTool.setCertificateAndPrivateKey(tlsVersion, tlsSignatureAlgorithms.get(0),
+							certificateType);
+				} else { /*default values from MICS*/
 					var sigAlgList = configuration.getSupportedSignatureAlgorithms(tlsVersion);
 					if (sigAlgList.isEmpty()) {
 						logger.error("No signature algorithms specified in the MICS file.");
@@ -104,22 +115,14 @@ public class TFServerCertificate extends AbstractTestFragment {
 						serverCertFileName
 								= testTool.setCertificateAndPrivateKey(tlsVersion, sigAlgList.get(0), certificateType);
 					}
-				} else if (!tlsCipherSuites.isEmpty()) {
-					serverCertFileName
-							= testTool.setCertificateAndPrivateKey(tlsVersion, tlsCipherSuites.get(0), certificateType);
-				} else {
-					step(prefix, stepCounter++,
-							"The TLS server supports the following Signature algorithm: "
-									+ tlsSignatureAlgorithms.get(0),
-							"");
-					serverCertFileName = testTool.setCertificateAndPrivateKey(tlsVersion, tlsSignatureAlgorithms.get(0),
-							certificateType);
 				}
-			} else {
-				/* TLS 1.3 implementation */
-			}
 		}
 		step(prefix, stepCounter++, "The TLS server selects the following certificate: " + serverCertFileName, "");
+
+		var dutMotivator = configuration.getDutCallCommandGenerator();
+		if (dutMotivator instanceof EMailTrspClientDANEMotivator) {
+			((EMailTrspClientDANEMotivator) dutMotivator).updateCertificate(serverCertFileName);
+		}
 
 		if(manipulateForceCertificateUsage){
 			step(prefix, stepCounter++, "The TLS server is forced to use an unsupported/invalid certificate: ", "");

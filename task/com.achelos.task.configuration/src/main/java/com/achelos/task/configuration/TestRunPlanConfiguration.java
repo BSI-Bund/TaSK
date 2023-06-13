@@ -12,11 +12,16 @@ import java.util.List;
 import javax.management.InvalidAttributeValueException;
 
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
+import com.achelos.task.commons.constants.Constants;
 import com.achelos.task.commons.enums.*;
-import com.achelos.task.dutcommandgenerators.DUTCommandGenerator;
-import com.achelos.task.dutcommandgenerators.EIDClientTls12DUTCommandGenerator;
-import com.achelos.task.dutcommandgenerators.EIDClientTls2DUTCommandGenerator;
-import com.achelos.task.dutcommandgenerators.GenericClientExecutableDUTCommandGenerator;
+import com.achelos.task.dutmotivator.DUTMotivator;
+import com.achelos.task.dutmotivator.eidclient.EIDClientTls12DUTMotivator;
+import com.achelos.task.dutmotivator.eidclient.EIDClientTls2DUTMotivator;
+import com.achelos.task.dutmotivator.GenericClientExecutableDUTMotivator;
+import com.achelos.task.dutmotivator.email.EMailTrspClientDANEMotivator;
+import com.achelos.task.dutmotivator.email.EMailTrspClientNoDANEMotivator;
+import com.achelos.task.dutmotivator.ManualDUTMotivator;
 import com.achelos.task.dutpreparation.DUTPreparer;
 import com.achelos.task.dutpreparation.EIdECardAPIDUTPreparer;
 import com.achelos.task.dutpreparation.GenericServerDUTPreparer;
@@ -42,11 +47,12 @@ public class TestRunPlanConfiguration {
 	private static final String LOGGING_COMPONENT = "TaSK: ";
 	private HashMap<String, GlobalConfigParameter> globalConfiguration;
 	private TestRunPlanData testRunPlanData;
-	private DUTCommandGenerator dutCallCommandGenerator;
+	private DUTMotivator dutCallCommandGenerator;
 	private DUTPreparer dutPreparer;
 	private String reportDirectory;
 	private String clientAuthCertChainFile;
 	private String clientAuthKeyFile;
+	private String certificateValidationRootCA;
 
 	private static TestRunPlanConfiguration singleton;
 
@@ -60,7 +66,11 @@ public class TestRunPlanConfiguration {
 	 * @return TestRunPlanConfiguration instance used for the execution of the TaSK Test Tool.
 	 */
 	public static TestRunPlanConfiguration parseRunPlanConfiguration(final File runPlanFile,
-			final HashMap<String, GlobalConfigParameter> globalConfiguration, final String reportDirectory, final String clientAuthCertChainFile, final String clientAuthKeyFile) {
+																	 final HashMap<String, GlobalConfigParameter> globalConfiguration,
+																	 final String reportDirectory,
+																	 final String clientAuthCertChainFile,
+																	 final String clientAuthKeyFile,
+																	 final String certificateValidationRootCA) {
 		singleton = new TestRunPlanConfiguration();
 		singleton.setTestRunPlanData(RunPlanParser.parseRunPlan(runPlanFile));
 		singleton.setGlobalConfiguration(globalConfiguration);
@@ -70,22 +80,12 @@ public class TestRunPlanConfiguration {
 		singleton.setDUTPreparator(singleton.getTestRunPlanData().getDUTApplicationType());
 		singleton.clientAuthCertChainFile = clientAuthCertChainFile;
 		singleton.clientAuthKeyFile = clientAuthKeyFile;
+		singleton.certificateValidationRootCA = certificateValidationRootCA;
+		singleton.verifySettings();
 
 		return singleton;
 	}
 
-	/*
-	 * Parse the Test Run Plan file, and combine it with the other provided information. Store as singleton instance.
-	 * @param runPlanFile Test Run Plan file to parse
-	 * @param globalConfiguration Global Configuration to use.
-	 * @param reportDirectory The report directory to store the output in.
-	 * @return TestRunPlanConfiguration instance used for the execution of the TaSK Test Tool.
-
-	public static TestRunPlanConfiguration parseRunPlanConfiguration(final File runPlanFile,
-																	 final HashMap<String, GlobalConfigParameter> globalConfiguration, final String reportDirectory) {
-		return parseRunPlanConfiguration(runPlanFile, globalConfiguration, reportDirectory, null, null);
-	}
-	 */
 
 	/**
 	 * If a TestRunPlanConfiguration has been parsed and stored as singleton instance, get the instance.
@@ -116,35 +116,57 @@ public class TestRunPlanConfiguration {
 	}
 
 	private void setDUTCommandGenerator(final String applicationType) {
-		if (applicationType.equalsIgnoreCase("TR-03116-4-CLIENT")) {
-			this.dutCallCommandGenerator = new GenericClientExecutableDUTCommandGenerator(this);
+		if (applicationType.equalsIgnoreCase("TR-03116-4-CLIENT")
+			|| applicationType.equalsIgnoreCase("TR-03116-3-SMGW-WAN-CLIENT")
+			|| applicationType.equalsIgnoreCase("TR-03116-3-SMGW-HAN-CLIENT")) {
+			this.dutCallCommandGenerator = getDutRMIURL().isEmpty() ?
+					new ManualDUTMotivator() : new GenericClientExecutableDUTMotivator(this);
 		} else if (applicationType.equalsIgnoreCase("TR-03124-1-EID-CLIENT-TLS-1-2")) {
 			try {
-				this.dutCallCommandGenerator = new EIDClientTls12DUTCommandGenerator(this);
+				// motivate the DUT manually, if RMI URL is not set in TRP
+				this.dutCallCommandGenerator = getDutRMIURL().isEmpty() ?
+						new ManualDUTMotivator() : new EIDClientTls12DUTMotivator(this);
 			} catch (Exception e) {
 				throw new RuntimeException("Unable to instantiate DUT Command Generator", e);
 			}
 		} else if (applicationType.equalsIgnoreCase("TR-03124-1-EID-CLIENT-TLS-2")) {
 			try {
-				this.dutCallCommandGenerator = new EIDClientTls2DUTCommandGenerator(this);
+				// motivate the DUT manually, if RMI URL is not set in TRP
+				this.dutCallCommandGenerator = getDutRMIURL().isEmpty() ?
+						new ManualDUTMotivator() : new EIDClientTls2DUTMotivator(this);
+			} catch (Exception e) {
+				throw new RuntimeException("Unable to instantiate DUT Command Generator", e);
+			}
+		} else if (applicationType.equalsIgnoreCase("TR-03108-1-EMSP-CLIENT-CETI-NO-DANE")) {
+			try {
+				// motivate the DUT manually, if RMI URL is not set in TRP
+				this.dutCallCommandGenerator = getDutRMIURL().isEmpty() ?
+						new ManualDUTMotivator() : new EMailTrspClientNoDANEMotivator(this);
+			} catch (Exception e) {
+				throw new RuntimeException("Unable to instantiate DUT Command Generator", e);
+			}
+		} else if (applicationType.equalsIgnoreCase("TR-03108-1-EMSP-CLIENT-CETI-DANE")) {
+			try {
+				this.dutCallCommandGenerator = new EMailTrspClientDANEMotivator(this);
 			} catch (Exception e) {
 				throw new RuntimeException("Unable to instantiate DUT Command Generator", e);
 			}
 		} else if (applicationType.toLowerCase().contains("server")) {
 			this.dutCallCommandGenerator = null;
+
 		} else {
-			throw new RuntimeException("Unknown ApplicationType in TestRunplan");
+			throw new RuntimeException("Unknown or not supported ApplicationType in TestRunplan: " + applicationType);
 		}
 	}
 
 	private void setDUTPreparator(final String applicationType) {
 		if (applicationType.equalsIgnoreCase("TR-03130-1-EID-SERVER-ECARD-PSK")) {
 			if (getDUTCapabilities().contains(DUTCapabilities.PSK)) {
-				if (getDutRMIURL().isBlank()) {
+				if (getServerDutRMIURL().isBlank()) {
 					throw new RuntimeException("RMI for DUT is required, but no address is provided in TRP file.");
 				}
-				var rmiUrl = getDutRMIURL();
-				var rmiPort = !getDutRMIPort().isBlank() ? getDutRMIPort() : "1099";
+				var rmiUrl = getServerDutRMIURL();
+				var rmiPort = !getServerDutRMIPort().isBlank() ? getServerDutRMIPort() : "1099";
 				this.dutPreparer = new EIdECardAPIDUTPreparer(rmiUrl, Integer.parseInt(rmiPort));
 			} else {
 				this.dutPreparer = new GenericServerDUTPreparer();
@@ -158,7 +180,7 @@ public class TestRunPlanConfiguration {
 	 * Returns the contained DUT Call Command Generator instance.
 	 * @return the contained DUT Call Command Generator instance.
 	 */
-	public DUTCommandGenerator getDutCallCommandGenerator() {
+	public DUTMotivator getDutCallCommandGenerator() {
 		return this.dutCallCommandGenerator;
 	}
 
@@ -346,6 +368,46 @@ public class TestRunPlanConfiguration {
 		return parentPath.toAbsolutePath().toString() + "/certificates/";
 	}
 
+	private void verifySettings() {
+		// Check if a RootCA is provided, if A2 testcases are selected.
+		boolean rootCARequired = false;
+		var testCases = getTestCases();
+		for (var tc : testCases) {
+			if (tc.startsWith("TLS_A2")) {
+				rootCARequired = true;
+				break;
+			}
+		}
+		if (rootCARequired) {
+			if (getCertificateValidationRootCA() == null || getCertificateValidationRootCA().isBlank()) {
+				var errorMsg = "TLS_A2 test cases are planned, but no Root CA has been provided in MICS or TRP.";
+				throw new RuntimeException(errorMsg);
+			}
+		}
+
+
+		// Check if port is okay for DUT Application Type. Log a warning otherwise.
+		// In case of TR-03108-1-EMSP-CLIENT-CETI-** the port should be 25.
+		if (getDUTApplicationType().startsWith("TR-03108-1-EMSP-CLIENT-CETI")) {
+			var tlsTesttoolPort = getTlsTestToolPort();
+			if (tlsTesttoolPort != Constants.getEmailToEmailSmtpPort()) {
+				var logger = LoggingConnector.getInstance();
+				var logMessage = "The TLS Testtool is configured to listen to port: " + tlsTesttoolPort +
+						", but E-Mail Servers try to deliver to port 25.";
+				logger.warning(logMessage);
+			}
+		}
+
+		// Check: If StartTLS is enabled as a protocol, the DUT should be of Type E-Mail Trsp.
+		if (useStartTLS()) {
+			if (!getDUTApplicationType().startsWith("TR-03108-1-EMSP")) {
+				var logger = LoggingConnector.getInstance();
+				var logMessage = "The StartTLS Protocol is enabled, but the DUT is not of an E-Mail type. This configuration is probably wrong.";
+				logger.warning(logMessage);
+			}
+		}
+	}
+
 	/**
 	 * Returns the port of the Tls Test Tool as specified in the global configuration file.
 	 *
@@ -380,6 +442,21 @@ public class TestRunPlanConfiguration {
 					.getValueAsInteger();
 		}
 		return 0;
+	}
+
+	/**
+	 * Returns the TlsTesttool Listen Timeout configuration as specified in the global configuration XML file. It specifies the
+	 * Waiting time in seconds for which the TlsTesttool waits for an incoming TCP/IP connection.
+	 * If not specified, default value of 60 seconds will be used.
+	 *
+	 * @return waiting time in seconds
+	 */
+	public int getTlsTesttoolListenTimeout() {
+		if (globalConfiguration.containsKey(GlobalConfigParameterNames.TlsTestToolListenTimeout.getParameterName())) {
+			return globalConfiguration.get(GlobalConfigParameterNames.TlsTestToolListenTimeout.getParameterName())
+					.getValueAsInteger();
+		}
+		return 60;
 	}
 
 	/**
@@ -753,7 +830,7 @@ public class TestRunPlanConfiguration {
 	 * @return A list of all Signature Algorithms in certificates which are supported by the DUT, if the DUT supports
 	 * TLSv1.3.
 	 */
-	public List<TlsSignatureScheme> getSupportedSignatureAlgorithmsForCertificates() {
+	public List<TlsSignatureAlgorithmWithHashTls13> getSupportedSignatureAlgorithmsForCertificates() {
 		return testRunPlanData.getSupportedSignatureAlgorithmsForCertificates();
 	}
 
@@ -1000,6 +1077,15 @@ public class TestRunPlanConfiguration {
 	}
 
 	/**
+	 * Returns the information, what value the PSK Identity must contain, if it is applicable.
+	 *
+	 * @return Information, what value the PSK Identity must contain, if it is applicable.
+	 */
+	public String getPSKIdentity() {
+		return testRunPlanData.getPSKIdentity();
+	}
+
+	/**
 	 * The PSK Value to use when establishing a connection to the DUT. According to Table 12 of the TR-03116-TS ICS
 	 * document.
 	 *
@@ -1091,8 +1177,8 @@ public class TestRunPlanConfiguration {
 	 *
 	 * @return the address under which the RMI of the DUT can be found.
 	 */
-	public String getDutRMIURL() {
-		return testRunPlanData.getDutRMIURL();
+	public String getServerDutRMIURL() {
+		return testRunPlanData.getDutServerRMIURL();
 	}
 
 	/**
@@ -1100,37 +1186,8 @@ public class TestRunPlanConfiguration {
 	 *
 	 * @return the port under which the RMI of the DUT can be found.
 	 */
-	public String getDutRMIPort() {
-		return testRunPlanData.getDutRMIPort();
-	}
-
-	/**
-	 * In case of a TLS client returns the executable by which the DUT can be executed.
-	 *
-	 * @return the executable by which the DUT can be executed.
-	 */
-	public String getDUTExecutable() {
-		return testRunPlanData.getDUTExecutable();
-	}
-
-	/**
-	 * In case of a TLS client returns the call arguments which shall be used to execute the DUT for a simple
-	 * connection.
-	 *
-	 * @return the call arguments which shall be used to execute the DUT.
-	 */
-	public String getDUTCallArgumentsConnect() {
-		return testRunPlanData.getDUTCallArgumentsConnect();
-	}
-
-	/**
-	 * In case of a TLS client returns the call arguments which shall be used to execute the DUT for a session
-	 * resumption.
-	 *
-	 * @return the call arguments which shall be used to execute the DUT.
-	 */
-	public String getDUTCallArgumentsResume() {
-		return testRunPlanData.getDUTCallArgumentsResume();
+	public String getServerDutRMIPort() {
+		return testRunPlanData.getDutServerRMIPort();
 	}
 
 	/**
@@ -1139,6 +1196,14 @@ public class TestRunPlanConfiguration {
 	 */
 	public Integer getDutEIDClientPort() {
 		return testRunPlanData.getDutEIDClientPort();
+	}
+
+	/**
+	 * Returns the use Start TLS flag which is stored in this TestConfiguration.
+	 * @return the use Start TLS flag which is stored in this TestConfiguration.
+	 */
+	public boolean useStartTLS() {
+		return  testRunPlanData.useStartTLS();
 	}
 
 	/**
@@ -1170,26 +1235,6 @@ public class TestRunPlanConfiguration {
 	}
 
 	/**
-	 * In case if the DUT is a TLS Server, returns the test client certificate file, used to test the mutual
-	 * authentication to the server.
-	 *
-	 * @return the Client Certificate file, used to test the mutual authentication to the server.
-	 */
-	public File getClientCertificate() {
-		return testRunPlanData.getClientCertificate();
-	}
-
-	/**
-	 * In case if the DUT is a TLS Server, returns the private key of the test client certificate, used to test the
-	 * mutual authentication to the server.
-	 *
-	 * @return the private key of the client, used to test the mutual authentication to the server.
-	 */
-	public File getClientPrivateKey() {
-		return testRunPlanData.getClientPrivateKey();
-	}
-
-	/**
 	 * Returns a Data Structure containing general information about the MICS file which was used to generate the
 	 * TestRunPlan.
 	 *
@@ -1216,19 +1261,19 @@ public class TestRunPlanConfiguration {
 	}
 
 	/**
-	 * Return the DUT BrowserSimulator URL of the Test Run Configuration.
-	 * @return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 * Return the DUT RMI URL of the Test Run Configuration.
+	 * @return the DUT RMI URL of the Test Run Configuration.
 	 */
-	public String getBrowserSimulatorURL() {
-		return testRunPlanData.getBrowserSimulatorURL();
+	public String getDutRMIURL() {
+		return testRunPlanData.getDutRMIURL();
 	}
 
 	/**
-	 * Return the DUT BrowserSimulator Port of the Test Run Configuration.
-	 * @return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 * Return the DUT RMI Port of the Test Run Configuration.
+	 * @return the DUT RMI Port of the Test Run Configuration.
 	 */
-	public String getBrowserSimulatorPort() {
-		return testRunPlanData.getBrowserSimulatorPort();
+	public String getDutRMIPort() {
+		return testRunPlanData.getDutRMIPort();
 	}
 
 	public boolean isClientAuthCertAvailable() {
@@ -1257,7 +1302,31 @@ public class TestRunPlanConfiguration {
 		return this.clientAuthKeyFile;
 	}
 
+	/**
+	 * Return the Path to the Certificate Validation Root CA.
+	 * @return the Path to the Certificate Validation Root CA.
+	 */
+	public String getCertificateValidationRootCA() {
+		return this.certificateValidationRootCA;
+	}
+
 	public String getTaSKServerAddress() {
-		return getGlobalConfigParameter(GlobalConfigParameterNames.RestApiHost).getValueAsString();
+		return Constants.getTaskHostname();
+	}
+
+	/**
+	 * Add a small delay to let the process to start.
+	 * @return
+	 */
+	public int getProcessStartWaitingTime() {
+		return getGlobalConfigParameter(GlobalConfigParameterNames.ProcessStartWaitingTime).getValueAsInteger();
+	}
+
+	public String getExperimentalDNSContainerIP() {
+		return getGlobalConfigParameter(GlobalConfigParameterNames.EXPERIMENTAL_DNSServerIP).getValueAsString();
+	}
+
+	public String getExperimentalTaSKHostIP() {
+		return getGlobalConfigParameter(GlobalConfigParameterNames.EXPERIMENTAL_DANETaSKHostIP).getValueAsString();
 	}
 }

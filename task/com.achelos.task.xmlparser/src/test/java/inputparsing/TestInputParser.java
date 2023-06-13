@@ -16,7 +16,7 @@ class TestInputParser {
 	
 	@BeforeAll
 	static void initLogging() {
-		LoggingConnector.getInstance("DEBUG");
+		LoggingConnector.getInstance("INFO");
 	}
 
 	@Test

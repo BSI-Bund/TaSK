@@ -8,6 +8,7 @@ import java.util.List;
 import com.achelos.task.commons.enums.TlsHashAlgorithm;
 import com.achelos.task.commons.enums.TlsSignatureAlgorithm;
 import com.achelos.task.commons.enums.TlsSignatureScheme;
+import com.achelos.task.commons.enums.TlsVersion;
 
 
 /**
@@ -61,7 +62,7 @@ public abstract class TlsSignatureAlgorithmWithHash {
 	 * @return a String representation of this object.
 	 */
 	@Override
-	public final String toString() {
+	public String toString() {
 		return "[" + signatureAlgorithm.toString() + " " + hashAlgorithm.toString() + "]";
 	}
 
@@ -70,7 +71,7 @@ public abstract class TlsSignatureAlgorithmWithHash {
 	 * @return the hashCode of this object.
 	 */
 	@Override
-	public final int hashCode() {
+	public int hashCode() {
 		return super.hashCode();
 	}
 
@@ -80,7 +81,7 @@ public abstract class TlsSignatureAlgorithmWithHash {
 	 * @return true, if the obj is an instance of TlsSignatureAlgorithmWithHash and the stored values are the same.
 	 */
 	@Override
-	public final boolean equals(final Object obj) {
+	public boolean equals(final Object obj) {
 		if (!(obj instanceof TlsSignatureAlgorithmWithHash)) {
 			return false;
 		}
@@ -90,5 +91,39 @@ public abstract class TlsSignatureAlgorithmWithHash {
 	}
 
 	public abstract byte[] convertToBytes();
+
+	public static List<TlsSignatureAlgorithmWithHash> parseSignatureAlgorithmWithHashByteList(final byte[] data, TlsVersion tlsVersion) {
+
+		List<TlsSignatureAlgorithmWithHash> foundSignatureAlgorithmWithHash
+				= new ArrayList<>();
+		if (data != null) {
+			// First 2 bytes is the length of the buffer
+			for (int i = 2; i < data.length; i += 2) {
+				if(tlsVersion == TlsVersion.TLS_V1_2) {
+					var sigAlgo = TlsSignatureAlgorithm.getElement(data[i + 1]);
+					var hashAlgo = TlsHashAlgorithm.getElement(data[i]);
+					if (sigAlgo == null || hashAlgo == null) {
+						if (!TlsSignatureScheme.isSignatureScheme(data[i], data[i + 1])) {
+							throw new IllegalArgumentException("Illegal SignatureWithHashAlgorithm");
+						} else {
+							continue;
+						}
+					} else if (sigAlgo.isReservedSignatureAlgorithm() || hashAlgo.isReservedHashAlgorithm()){
+						continue;
+					}
+					foundSignatureAlgorithmWithHash.add(new TlsSignatureAlgorithmWithHashTls12(sigAlgo, hashAlgo));
+				} else {
+					TlsSignatureScheme sigAlgo;
+					sigAlgo = TlsSignatureScheme.valueOf(data[i], data[i + 1]);
+					if(sigAlgo != null) {
+						foundSignatureAlgorithmWithHash.add(new TlsSignatureAlgorithmWithHashTls13(sigAlgo));
+					}
+				}
+			}
+		}
+		return foundSignatureAlgorithmWithHash;
+
+	}
+
 
 }

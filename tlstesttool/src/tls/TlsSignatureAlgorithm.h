@@ -26,7 +26,9 @@ namespace TlsTestTool {
  *
  * @see RFC 5246, Section 7.4.1.4.1
  */
-enum class TlsSignatureAlgorithm : TlsUint8 { ANONYMOUS = 0, RSA = 1, DSA = 2, ECDSA = 3 };
+    enum class TlsSignatureAlgorithm : TlsUint8 {
+        ANONYMOUS = 0, RSA = 1, DSA = 2, ECDSA = 3
+    };
 }
 
 #endif /* TLS_TLSSIGNATUREALGORITHM_H_ */

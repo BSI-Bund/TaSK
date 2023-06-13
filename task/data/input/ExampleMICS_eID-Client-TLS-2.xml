@@ -11,26 +11,25 @@
 			Basic information about the DUT. -->
 		<ApplicationType>TR-03124-1-EID-CLIENT-TLS-2</ApplicationType>
 		<RespectiveTechnicalGuideline>TR-03124-1</RespectiveTechnicalGuideline> <!-- Optional-->
-		<BrowserSimulatorURL>localhost</BrowserSimulatorURL>
-		<BrowserSimulatorPort>1099</BrowserSimulatorPort> <!-- Optional -->
+		<RMIURL>localhost</RMIURL>
+		<RMIPort>1099</RMIPort> <!-- Optional -->
 	</ApplicationUnderTest>
 
 	<Profiles>
 		<!-- Chapter 3.2 Table 3
 			An applicant SHALL provide a declaration containing information on the supported profiles. -->
 		<!-- mandatory profiles from TR-03116-TS_Annex, Table 4 -->
+		<Profile>DURATION</Profile>
 		<Profile>NO_CLIENT_CERT</Profile>
 		<Profile>NO_SAN</Profile>
-		<!-- <Profile>PFS</Profile> Defined as Mandatory, but currently does not make sense.-->
 		<Profile>PSK</Profile>
 		<Profile>SERVER_CERT</Profile>
+		<Profile>SKIP_CHAIN_VALIDN</Profile>
 		<Profile>STOP_RESUMPTION</Profile>
 		<Profile>TLS_1.2</Profile>
 		<Profile>TLS_CLIENT</Profile>
-		<Profile>SKIP_CHAIN_VALIDN</Profile>
 
 		<!-- recommended profiles from TR-03116-TS_Annex, Table 3 -->
-		<!-- <Profile>TLS_1.3</Profile> Recommended, but is not really well defined.-->
 		<Profile>SESSION_ID</Profile>
 		<Profile>SESSION_TICKET</Profile>
 	</Profiles>
@@ -99,17 +98,13 @@
 
 	</SupportedCryptography>
 	
-	<!--  <TLSWithSKCipherSuites> -->
-
-	<!-- </TLSWithSKCipherSuites> -->
+	<!-- Chapter 3.5 Table 13
+		This is only mandatory if the profile 'PSK' was selected. -->
 	<TLSWithPSKCipherSuites>
-		<!-- Chapter 3.5 Table 13
-			This is only mandatory if the profile 'PSK' was selected. -->
 		<PSKValue>b2a1b2d4c3</PSKValue>
 	</TLSWithPSKCipherSuites>
 
-	<!-- Chapter 3.6 Table 14 
-		Added, even though it is not allowed here. -->
+	<!-- Chapter 3.6 Table 14  -->
 	<ConnectionTimeout>5m</ConnectionTimeout>
 		
 	<!-- <Zero-RTTData> -->

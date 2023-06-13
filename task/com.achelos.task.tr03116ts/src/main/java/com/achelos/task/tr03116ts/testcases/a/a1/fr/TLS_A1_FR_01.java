@@ -6,7 +6,7 @@ import java.util.Arrays;
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.crl.CRLExecutor;
 import com.achelos.task.commandlineexecution.applications.crl.messagetextresources.CRLResource;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.ocsp.OCSPServerExecutor;
 import com.achelos.task.commandlineexecution.applications.ocsp.messagetextresources.OCSPResource;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
@@ -25,14 +25,14 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_01 - No OCSP Response
+ * Test case TLS_A1_FR_01 - No OCSPResponse.
  * <p>
  * This test verifies the behaviour of the DUT when receiving no OCSPResponse.
  */
 public class TLS_A1_FR_01 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_FR_01";
-	private static final String TEST_CASE_DESCRIPTION = "No OCSP Response";
+	private static final String TEST_CASE_DESCRIPTION = "No OCSPResponse";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies the behaviour of the DUT when receiving no OCSPResponse.";
 

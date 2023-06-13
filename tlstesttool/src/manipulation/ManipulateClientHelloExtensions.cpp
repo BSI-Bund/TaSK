@@ -21,20 +21,21 @@
 #include <string>
 
 namespace TlsTestTool {
-void ManipulateClientHelloExtensions::executePreHandshake(TlsSession & session) {
-	if (session.isClient()) {
-		log(__FILE__, __LINE__,
-			"Setting ClientHello.extensions to " + Tooling::HexStringHelper::byteArrayToHexString(extensions) + ".");
-		session.setClientHelloExtensions(extensions);
-	}
-}
+    void ManipulateClientHelloExtensions::executePreHandshake(TlsSession &session) {
+        if (session.isClient()) {
+            log(__FILE__, __LINE__,
+                "Setting ClientHello.extensions to " + Tooling::HexStringHelper::byteArrayToHexString(extensions) +
+                ".");
+            session.setClientHelloExtensions(extensions);
+        }
+    }
 
-void ManipulateClientHelloExtensions::executePreStep(TlsSession & /*session*/) {
-}
+    void ManipulateClientHelloExtensions::executePreStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateClientHelloExtensions::executePostStep(TlsSession & /*session*/) {
-}
+    void ManipulateClientHelloExtensions::executePostStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateClientHelloExtensions::executePostHandshake(TlsSession & /*session*/) {
-}
+    void ManipulateClientHelloExtensions::executePostHandshake(TlsSession & /*session*/) {
+    }
 }

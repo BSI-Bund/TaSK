@@ -5,7 +5,6 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
-import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tlsextensions.TlsExtStatusRequest;
@@ -14,13 +13,14 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_06 - Support for OCSP stapling.
  * <p>
  * This test case verifies that the DUT supports OCSP stapling.
  */
 public class TLS_B1_FR_06 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B1_FR_06";
-	private static final String TEST_CASE_DESCRIPTION = "Support for OCSP Stapling";
+	private static final String TEST_CASE_DESCRIPTION = "Support for OCSP stapling";
 	private static final String TEST_CASE_PURPOSE = "This test case verifies that the DUT supports OCSP stapling.";
 
 

@@ -18,6 +18,8 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSVersionCheck;
 
 
 /**
+ * 
+ * Test case TLS_B1_FR_04 - Certificate chain signatures.
  * <p>
  * This test case checks the server certificate used by the DUT. The server certificate must be signed by a CA certified
  * according to [TR-03145].

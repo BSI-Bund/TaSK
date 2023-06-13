@@ -12,15 +12,18 @@ import java.util.List;
 public class TlsExtSupportedVersions extends TlsExtension{
 
     private final List<TlsVersion> supportedVersions;
+    private boolean isClientExtension;
 
-    public TlsExtSupportedVersions(TlsVersion tlsVersion) {
+    public TlsExtSupportedVersions(TlsVersion tlsVersion, boolean isClientExtension) {
         super(TlsExtensionTypes.supported_versions);
         supportedVersions = List.of(tlsVersion);
+        this.isClientExtension = isClientExtension;
     }
 
     public TlsExtSupportedVersions() {
         super(TlsExtensionTypes.supported_versions);
         supportedVersions = new ArrayList<>();
+        isClientExtension = true;
     }
 
     public void addSupportedVersion(TlsVersion tlsVersion){
@@ -30,8 +33,14 @@ public class TlsExtSupportedVersions extends TlsExtension{
     @Override
     protected byte[] getData() {
         final int length = supportedVersions.size()*2;
-        final ByteBuffer buffer = ByteBuffer.allocate(1 + length);
-        buffer.put((byte) length);
+        int lengthDisplayInExtension= length;
+        if(isClientExtension){
+            lengthDisplayInExtension++;
+        }
+        final ByteBuffer buffer = ByteBuffer.allocate(lengthDisplayInExtension);
+        if(isClientExtension) {
+            buffer.put((byte) length);
+        }
         for (TlsVersion supportedVersion : supportedVersions) {
             buffer.put(supportedVersion.getMajor());
             buffer.put(supportedVersion.getMinor());

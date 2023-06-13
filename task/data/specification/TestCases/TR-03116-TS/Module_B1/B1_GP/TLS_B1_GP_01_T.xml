@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_GP_01_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_GP_01_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This positive test evaluates the ability of the DUT to establish a TLS connection with valid parameters. The test is carried out for the TLS version [TLS_VERSION] and the cipher suite [CIPHERSUITE].</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>NO_CLIENT_CERT</Profile>
@@ -17,7 +17,7 @@
 		<Description>The TLS ClientHello offers the TLS version [TLS_VERSION].</Description>
 		<Description>The TLS ClientHello offers only the cipher suite [CIPHERSUITE].</Description>
 		<Description>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all algorithms that are supported according to the ICS are listed.</Description>
-		<Description>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.</Description>	
+		<Description>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.</Description>
 		<ExpectedResult>
 			<Text>The DUT accepts the TLS connection.</Text>
 		</ExpectedResult>

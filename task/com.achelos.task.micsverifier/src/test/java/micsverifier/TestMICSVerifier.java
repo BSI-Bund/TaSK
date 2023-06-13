@@ -62,7 +62,7 @@ class TestMICSVerifier {
 	}
 
 	private MICSVerifier prepareMICSVerifier() throws IOException {
-		LoggingConnector.getInstance("DEBUG");
+		LoggingConnector.getInstance("INFO");
 		// Config Files
 		var serverSpec = new File(
 				"../data/specification/ApplicationSpecifications/TR-03116-4-SERVER-Specification.xml");

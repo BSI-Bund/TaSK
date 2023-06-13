@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.achelos.task.xmlparser.configparsing.StringHelper;
-import com.achelos.task.xmlparser.datastructures.common.ApplicationSpecificData;
 import com.achelos.task.xmlparser.datastructures.common.CertificateIdentifier;
 import com.achelos.task.xmlparser.datastructures.common.TR03145CertificationInfo;
 
@@ -25,11 +24,7 @@ public class MICS {
 	private String serverPort;
 	private String dutRMIURL;
 	private String dutRMIPort;
-	private String dutExecutable;
-	private String dutCallArgumentsConnect;
-	private String dutCallArgumentsReconnect;
-	private String browserSimulatorURL;
-	private String browserSimulatorPort;
+	private boolean useStartTLS;
 	private Integer dutEIDClientPort;
 	private String respectiveGuideline;
 	private List<String> profiles;
@@ -40,8 +35,8 @@ public class MICS {
 	private List<CertificateIdentifier> certificateChain;
 	private List<String> domainNameList;
 	private String pskIdentityHint;
+	private String pskIdentity;
 	private byte[] pskValue;
-	private ApplicationSpecificData appSpecificData;
 
 	private MICS() {
 
@@ -77,19 +72,9 @@ public class MICS {
 		mics.serverPort = aut.getPort() != null ? aut.getPort() : "";
 		mics.serverURL = aut.getURL() != null ? aut.getURL() : "";
 		mics.dutRMIURL = aut.getRMIURL() != null ? aut.getRMIURL() : "";
-		mics.dutRMIPort = aut.getRMIPort() != null ? aut.getRMIPort() : "";
-		mics.dutExecutable = aut.getDUTExecutable() != null ? aut.getDUTExecutable() : "";
-		mics.browserSimulatorURL = aut.getBrowserSimulatorURL() != null ? aut.getBrowserSimulatorURL() : "";
-		mics.browserSimulatorPort = aut.getBrowserSimulatorPort() != null ? aut.getBrowserSimulatorPort() : "1099";
+		mics.dutRMIPort = aut.getRMIPort() != null ? aut.getRMIPort() : "1099";
 		mics.dutEIDClientPort = aut.getEIDClientPort() != null ? aut.getEIDClientPort() : 24727;
-		if (aut.getDUTCallArguments() != null) {
-			mics.dutCallArgumentsConnect = aut.getDUTCallArguments().getStartConnectionArguments();
-			mics.dutCallArgumentsReconnect = aut.getDUTCallArguments().getResumeConnectionArguments() != null
-					? aut.getDUTCallArguments().getResumeConnectionArguments() : "";
-		} else {
-			mics.dutCallArgumentsConnect = "";
-			mics.dutCallArgumentsReconnect = "";
-		}
+		mics.useStartTLS = aut.isStartTLS() != null ? aut.isStartTLS() : false;
 
 		// Profiles
 		mics.profiles = new ArrayList<>();
@@ -110,7 +95,11 @@ public class MICS {
 
 		// Connection Timeout
 		try {
-			mics.sessionLifetime = StringHelper.getDurationFromString(rawMics.getConnectionTimeout());
+			if (rawMics.getConnectionTimeout() != null) {
+				mics.sessionLifetime = StringHelper.getDurationFromString(rawMics.getConnectionTimeout());
+			} else {
+				mics.sessionLifetime = null;
+			}
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException("Illegal ConnectionTimeout: " + rawMics.getConnectionTimeout(), e);
 		}
@@ -136,11 +125,15 @@ public class MICS {
 
 		// TLS with PSK Cipher Suites
 		if (rawMics.getTLSWithPSKCipherSuites() != null) {
-			mics.pskIdentityHint = rawMics.getTLSWithPSKCipherSuites().getPSKIdentityHintValue();
+			mics.pskIdentityHint = rawMics.getTLSWithPSKCipherSuites().getPSKIdentityHintValue() != null ?
+					rawMics.getTLSWithPSKCipherSuites().getPSKIdentityHintValue() : "";
 			mics.pskValue = rawMics.getTLSWithPSKCipherSuites().getPSKValue();
+			mics.pskIdentity = rawMics.getTLSWithPSKCipherSuites().getPSKIdentity() != null ?
+					rawMics.getTLSWithPSKCipherSuites().getPSKIdentity() : "";
 		} else {
 			mics.pskIdentityHint = "";
 			mics.pskValue = new byte[] { };
+			mics.pskIdentity = "";
 		}
 
 		// Supported Cryptography
@@ -150,11 +143,6 @@ public class MICS {
 				mics.supportedTlsVersions.add(TlsVersionSupport.parseFromJaxb(tlsVersionSupport));
 			}
 		}
-
-		// ApplicationSpecificData
-		// If rawMics.getApplicationSpecificData() is null, the resulting structure is
-		// empty but usable.
-		mics.appSpecificData = ApplicationSpecificData.parseFromMICSJaxb(rawMics.getApplicationSpecificData());
 
 		return mics;
 	}
@@ -247,10 +235,16 @@ public class MICS {
 				StringHelper.appendAttrToStringBuilder(micsAsString, "PSK Identity Hint",
 						pskIdentityHint, 2);
 			}
+			if (pskIdentity != null && !pskIdentity.isBlank()) {
+				StringHelper.appendAttrToStringBuilder(micsAsString, "PSK Identity",
+						pskIdentity, 2);
+			}
 		}
 
 		// ConnectionTimeout
-		StringHelper.appendAttrToStringBuilder(micsAsString, "Connection Timeout", sessionLifetime.toString());
+		if (sessionLifetime != null) {
+			StringHelper.appendAttrToStringBuilder(micsAsString, "Connection Timeout", sessionLifetime.toString());
+		}
 
 		// Zero RTT Data
 		StringHelper.appendAttrToStringBuilder(micsAsString, "Zero RTT Data", zeroRttData.toString());
@@ -320,60 +314,21 @@ public class MICS {
 	}
 
 	/**
-	 * Return the DUT Server RMI URL of the MICS.
-	 * @return the DUT Server RMI URL of the MICS.
+	 * Return the DUT RMI URL of the MICS.
+	 * @return the DUT RMI URL of the MICS.
 	 */
 	public String getDutRMIURL() {
 		return dutRMIURL;
 	}
 
 	/**
-	 * Return the DUT Server RMI Port of the MICS.
-	 * @return the DUT Server RMI Port of the MICS.
+	 * Return the DUT  RMI Port of the MICS.
+	 * @return the DUT  RMI Port of the MICS.
 	 */
 	public String getDutRMIPort() {
 		return dutRMIPort;
 	}
-
 	/**
-	 * Return the DUT Client Executable of the MICS.
-	 * @return the DUT Client Executable of the MICS.
-	 */
-	public String getDutExecutable() {
-		return dutExecutable;
-	}
-
-	/**
-	 * Return the DUT Client Call Argument for Connection stored in the MICS.
-	 * @return the DUT Client Call Argument for Connection stored in the MICS.
-	 */
-	public String getDutCallArgumentsConnect() {
-		return dutCallArgumentsConnect;
-	}
-
-	/**
-	 * Return the DUT Client Call Argument for Reconnection stored in the MICS.
-	 * @return the DUT Client Call Argument for Reconnection stored in the MICS.
-	 */
-	public String getDutCallArgumentsReconnect() {
-		return dutCallArgumentsReconnect;
-	}
-
-	/**
-	 * Return the DUT BrowserSimulator URL of the MICS.
-	 * @return the DUT BrowserSimulator URL of the MICS.
-	 */
-	public String getBrowserSimulatorURL() {
-		return browserSimulatorURL;
-	}
-
-	/**
-	 * Return the DUT BrowserSimulator Port of the MICS.
-	 * @return the DUT BrowserSimulator Port of the MICS.
-	 */
-	public String getBrowserSimulatorPort() {
-		return browserSimulatorPort;
-	}
 
 	/**
 	 * Return the DUTs value for eID-Client port stored in the MICS.
@@ -381,6 +336,14 @@ public class MICS {
 	 */
 	public Integer getDutEIDClientPort() {
 		return dutEIDClientPort;
+	}
+
+	/**
+	 * Return the "Use StartTLS" Flag stored in the MICS.
+	 * @return the Use StartTLS Flag stored in the MICS.
+	 */
+	public boolean useStartTls() {
+		return useStartTLS;
 	}
 
 	/**
@@ -456,19 +419,19 @@ public class MICS {
 	}
 
 	/**
+	 * Returns the PSK Identity stored in the MICS.
+	 * @return the PSK Identity stored in the MICS.
+	 */
+	public String getPskIdentity() {
+		return pskIdentity;
+	}
+
+	/**
 	 * Returns the PSK Value stored in the MICS.
 	 * @return the PSK Value stored in the MICS.
 	 */
 	public byte[] getPskValue() {
 		return pskValue.clone();
-	}
-
-	/**
-	 * Return the Application Specific Data stored in the MICS.
-	 * @return the Application Specific Data stored in the MICS.
-	 */
-	public ApplicationSpecificData getAppSpecificData() {
-		return appSpecificData;
 	}
 
 }

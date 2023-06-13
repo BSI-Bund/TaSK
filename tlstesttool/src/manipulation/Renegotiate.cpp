@@ -19,17 +19,17 @@
 #include "tls/TlsSession.h"
 
 namespace TlsTestTool {
-void Renegotiate::executePreHandshake(TlsSession & /*session*/) {
-}
+    void Renegotiate::executePreHandshake(TlsSession & /*session*/) {
+    }
 
-void Renegotiate::executePreStep(TlsSession & /*session*/) {
-}
+    void Renegotiate::executePreStep(TlsSession & /*session*/) {
+    }
 
-void Renegotiate::executePostStep(TlsSession & /*session*/) {
-}
+    void Renegotiate::executePostStep(TlsSession & /*session*/) {
+    }
 
-void Renegotiate::executePostHandshake(TlsSession & session) {
-    log(__FILE__, __LINE__, "Performing renegotiation.");
-    session.renegotiate();
-}
+    void Renegotiate::executePostHandshake(TlsSession &session) {
+        log(__FILE__, __LINE__, "Performing renegotiation.");
+        session.renegotiate();
+    }
 }

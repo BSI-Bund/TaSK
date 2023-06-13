@@ -1,6 +1,5 @@
 package com.achelos.task.dutpreparation;
 
-import com.achelos.task.configuration.TestRunPlanConfiguration;
 import com.achelos.task.logging.LoggingConnector;
 import com.achelos.task.rmi.tctokenprovider.TCTokenURLProvider;
 import org.w3c.dom.Document;
@@ -15,8 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 public class EIdECardAPIDUTPreparer implements DUTPreparer {
     private final LoggingConnector logger;
@@ -73,9 +70,6 @@ public class EIdECardAPIDUTPreparer implements DUTPreparer {
 
     private String requestTCTokenURL() {
         try {
-            // Get the registry
-            Registry registry = LocateRegistry.getRegistry(null);
-
             // Look up the remote object
             TCTokenURLProvider remoteTCTokenURLProvider = (TCTokenURLProvider) Naming.lookup("//" + rmiHostName+ ":"
                     + rmiPort + "/" + TCTokenURLProvider.SERVICE_NAME);

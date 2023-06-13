@@ -1,7 +1,5 @@
 package com.achelos.task.xmlparser.datastructures.testrunplan;
 
-import com.achelos.task.xmlparser.datastructures.common.ApplicationSpecificData;
-
 import generated.jaxb.testrunplan.TestRunPlan;
 
 import java.util.ArrayList;
@@ -16,13 +14,8 @@ public class TestConfiguration {
 	private String dutPort;
 	private String dutRMIURL;
 	private String dutRMIPort;
-	private String dutExecutable;
-	private String dutCallArgumentsConnect;
-	private String dutCallArgumentsReconnect;
-	private String browserSimulatorURL;
-	private String browserSimulatorPort;
+	private boolean useStartTLS;
 	private Integer dutEIDClientPort;
-	private ApplicationSpecificData applicationSpecificData;
 	private List<DUTCapabilities> dutCapabilities;
 
 
@@ -43,22 +36,10 @@ public class TestConfiguration {
 		testConfiguration.dutURL = rawTestConfig.getURL() != null ? rawTestConfig.getURL() : "";
 		testConfiguration.dutPort = rawTestConfig.getPort() != null ? rawTestConfig.getPort() : "";
 		testConfiguration.dutRMIURL = rawTestConfig.getRMIURL() != null ? rawTestConfig.getRMIURL() : "";
-		testConfiguration.dutRMIPort = rawTestConfig.getRMIPort() != null ? rawTestConfig.getRMIPort() : "";
-		testConfiguration.dutExecutable = rawTestConfig.getDUTExecutable() != null ? rawTestConfig.getDUTExecutable() : "";
-		if (rawTestConfig.getDUTCallArguments() != null) {
-			testConfiguration.dutCallArgumentsConnect = rawTestConfig.getDUTCallArguments().getStartConnectionArguments();
-			testConfiguration.dutCallArgumentsReconnect = rawTestConfig.getDUTCallArguments().getResumeConnectionArguments();
-		} else {
-			testConfiguration.dutCallArgumentsConnect = "";
-			testConfiguration.dutCallArgumentsReconnect = "";
-			testConfiguration.dutEIDClientPort = 24727;
-
-		}
-		testConfiguration.browserSimulatorURL = rawTestConfig.getBrowserSimulatorURL() != null ? rawTestConfig.getBrowserSimulatorURL() : "";
-		testConfiguration.browserSimulatorPort = rawTestConfig.getBrowserSimulatorPort() != null ? rawTestConfig.getBrowserSimulatorPort() : "1099";
+		testConfiguration.dutRMIPort = rawTestConfig.getRMIPort() != null ? rawTestConfig.getRMIPort() : "1099";
 		testConfiguration.dutEIDClientPort = rawTestConfig.getEIDClientPort() != null ?  rawTestConfig.getEIDClientPort() : 24727;
-		testConfiguration.applicationSpecificData
-				= ApplicationSpecificData.parseFromTRPJaxb(rawTestConfig.getApplicationSpecificData());
+		testConfiguration.useStartTLS = rawTestConfig.isStartTLS() != null ? rawTestConfig.isStartTLS() : false;
+
 		var dutCapablities = rawTestConfig.getDUTCapabilities();
 		testConfiguration.dutCapabilities = new ArrayList<>();
 		if (dutCapablities != null) {
@@ -99,49 +80,6 @@ public class TestConfiguration {
 	}
 
 	/**
-	 * Returns the DUT RMIURL which is stored in this TestConfiguration.
-	 * @return the DUT RMIURL which is stored in this TestConfiguration.
-	 */
-	public String getDutRMIURL() {
-		return dutRMIURL;
-	}
-
-	/**
-	 * Returns the DUT RMIPort which is stored in this TestConfiguration.
-	 * @return the DUT RMIPort which is stored in this TestConfiguration.
-	 */
-	public String getDutRMIPort() {
-		return dutRMIPort;
-	}
-
-	/**
-	 * Returns the DUT Executable which is stored in this TestConfiguration.
-	 * @return the DUT Executable which is stored in this TestConfiguration.
-	 */
-	public String getDutExecutable() {
-		return dutExecutable;
-	}
-
-	/**
-	 * Returns the DUT Call Argument for Connection which is stored in this TestConfiguration.
-	 * @return the DUT Call Argument for Connection which is stored in this TestConfiguration.
-	 */
-	public String getDutCallArgumentsConnect() {
-		return dutCallArgumentsConnect;
-	}
-
-	/**
-	 * Returns the DUT Call Argument for Reconnection which is stored in this TestConfiguration,
-	 * or the DUT Call Argument for Connection, if none is provided.
-	 * @return the DUT Call Argument for Reconnection which is stored in this TestConfiguration.
-	 */
-	public String getDutCallArgumentsReconnect() {
-		if (dutCallArgumentsReconnect == null || dutCallArgumentsReconnect.isEmpty()) {
-			return dutCallArgumentsConnect;
-		}
-		return dutCallArgumentsReconnect;
-	}
-	/**
 	 * Returns the DUT eID-Client port which is stored in this TestConfiguration.
 	 * @return the DUT eID-Client port which is stored in this TestConfiguration.
 	 */
@@ -150,11 +88,11 @@ public class TestConfiguration {
 	}
 
 	/**
-	 * Returns the stored ApplicationSpecificData of this TestConfiguration.
-	 * @return the stored ApplicationSpecificData of this TestConfiguration.
+	 * Returns the use Start TLS flag which is stored in this TestConfiguration.
+	 * @return the use Start TLS flag which is stored in this TestConfiguration.
 	 */
-	public ApplicationSpecificData getApplicationSpecificData() {
-		return applicationSpecificData;
+	public boolean useStartTLS() {
+		return  this.useStartTLS;
 	}
 
 	/**
@@ -166,18 +104,18 @@ public class TestConfiguration {
 	}
 
 	/**
-	 * Return the DUT BrowserSimulator URL of the Test Run Configuration.
-	 * @return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 * Return the DUT RMI URL of the Test Run Configuration.
+	 * @return the DUT RMI URL of the Test Run Configuration.
 	 */
-	public String getBrowserSimulatorURL() {
-		return browserSimulatorURL;
+	public String getDutRMIURL() {
+		return dutRMIURL;
 	}
 
 	/**
-	 * Return the DUT BrowserSimulator Port of the Test Run Configuration.
-	 * @return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 * Return the DUT RMI Port of the Test Run Configuration.
+	 * @return the DUT RMI Port of the Test Run Configuration.
 	 */
-	public String getBrowserSimulatorPort() {
-		return browserSimulatorPort;
+	public String getDutRMIPort() {
+		return dutRMIPort;
 	}
 }

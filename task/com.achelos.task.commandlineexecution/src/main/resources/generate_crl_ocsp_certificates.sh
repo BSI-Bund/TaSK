@@ -24,7 +24,6 @@ opensslExecutable=${6:-openssl}
 keyType=${7:-rsa}
 
 configurationFile=/tmp/configfile.cnf
-caBasePath+="/tls12"
 mkdir -p $baseDirectory
 
 for keyType in ecdsa rsa

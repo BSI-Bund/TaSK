@@ -21,39 +21,43 @@
 #include <cstdio>
 
 namespace Tooling {
-class Logger;
+    class Logger;
 }
 namespace TlsTestTool {
-namespace OpenSsl {
+    namespace OpenSsl {
 /**
  * Implementation of TlsLog for LibreSSL specific log messages and general log messages.
  */
-class TlsLogger {
-public:
-	/**
-	 * Log OpenSSL specific log messages.
-	 * This code is taken from the internal libressl function and only slightly changed to use the logger.
-	 * @param logger Destination of log messages
-	 * @param write_p The direction
-	 * @param version The TLS version
-	 * @param content_type The content type
-	 * @param buf The buffer
-	 * @param len The buffer length 
-	 */
-	static void logInternalTls(Tooling::Logger * logger, int write_p, int version, int content_type, const void * buf, size_t len);
+        class TlsLogger {
+        public:
+            /**
+             * Log OpenSSL specific log messages.
+             * This code is taken from the internal libressl function and only slightly changed to use the logger.
+             * @param logger Destination of log messages
+             * @param write_p The direction
+             * @param version The TLS version
+             * @param content_type The content type
+             * @param buf The buffer
+             * @param len The buffer length
+             */
+            static void
+            logInternalTls(Tooling::Logger *logger, int write_p, int version, int content_type, const void *buf,
+                           size_t len, bool isClient);
 
-   /**
-	* Log general log messages.
-	* @param logger Destination of log messages
-	* @param write_p The direction
-	* @param version The TLS version
-	* @param content_type The content type
-	* @param buf The buffer
-	* @param len The buffer length
-	*/
-   static void logTls(Tooling::Logger * logger, int write_p, int version, int content_type, const void * buf, size_t len);
-};
-}
+            /**
+                 * Log general log messages.
+                 * @param logger Destination of log messages
+                 * @param write_p The direction
+                 * @param version The TLS version
+                 * @param content_type The content type
+                 * @param buf The buffer
+                 * @param len The buffer length
+                 */
+            static void
+            logTls(Tooling::Logger *logger, int write_p, int version, int content_type, const void *buf, size_t len,
+                   bool isClient);
+        };
+    }
 }
 
 #endif /* TLS_OPENSSL_TLSLOGGER_H_ */

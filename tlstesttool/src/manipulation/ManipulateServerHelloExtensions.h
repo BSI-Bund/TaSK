@@ -26,29 +26,32 @@ namespace TlsTestTool {
 /**
  * Overwrite ServerHello.extensions with a given value.
  */
-class ManipulateServerHelloExtensions : public Manipulation {
-public:
-	/**
-	 * Create a manipulation.
-	 *
-	 * @param newExtensions Value to set the extensions field to.
-	 */
-        ManipulateServerHelloExtensions(const std::vector<uint8_t> & newExtensions)
-			: Manipulation(), extensions(newExtensions) {
-	}
+    class ManipulateServerHelloExtensions : public Manipulation {
+    public:
+        /**
+         * Create a manipulation.
+         *
+         * @param newExtensions Value to set the extensions field to.
+         */
+        ManipulateServerHelloExtensions(const std::vector<uint8_t> &newExtensions)
+                : Manipulation(), extensions(newExtensions) {
+        }
 
-	const std::vector<uint8_t> & getExtensions() const {
-		return extensions;
-	}
+        const std::vector<uint8_t> &getExtensions() const {
+            return extensions;
+        }
 
-	virtual void executePreHandshake(TlsSession & session) override;
-	virtual void executePreStep(TlsSession & session) override;
-	virtual void executePostStep(TlsSession & session) override;
-	virtual void executePostHandshake(TlsSession & session) override;
+        virtual void executePreHandshake(TlsSession &session) override;
 
-private:
-	const std::vector<uint8_t> extensions;
-};
+        virtual void executePreStep(TlsSession &session) override;
+
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+
+    private:
+        const std::vector<uint8_t> extensions;
+    };
 }
 
 #endif /* MANIPULATION_MANIPULATESERVERHELLOEXTENSIONS_H_ */

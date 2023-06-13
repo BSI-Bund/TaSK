@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_GP_06" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_GP_06</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This positive test verifies that the DUT offers a FFDHE group with a prime of a sufficient length.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>FFDHE</Profile>
@@ -18,7 +18,6 @@
 		</Command>
 		<Description>The TLS ClientHello offers the highest TLS version supported according to the ICS.</Description>
 		<Description>The TLS ClientHello offers a cipher suite that uses FFDHE and is supported according to the ICS.</Description>
-		<Description>The TLS ClientHello does not offer the named groups extensions.</Description>		
 		<Description>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all algorithms that are supported according to the ICS are listed.</Description>
 		<Description>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.</Description>
 
@@ -35,7 +34,7 @@
 	<TestStep>
 		<Command>
 			<Text>The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].</Text>
-		</Command>		
+		</Command>	
 		<ExpectedResult>
 			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
 		</ExpectedResult>

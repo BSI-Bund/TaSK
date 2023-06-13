@@ -1,7 +1,8 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.gp;
 
+import static com.achelos.task.commons.enums.TlsVersion.TLS_V1_3;
+
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -16,8 +17,6 @@ import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 import com.achelos.task.tr03116ts.testfragments.TFTLSVersionCheck;
-
-import static com.achelos.task.commons.enums.TlsVersion.TLS_V1_3;
 
 
 /**

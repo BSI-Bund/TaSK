@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tr-03116-3-wan-server [
+<!ENTITY TR-03116-3-WAN-COMMON-SPECIFICATION SYSTEM "TR-03116-3/TR-03116-3-WAN-COMMON-SPECIFICATION.xml">
+
+]>
+
+<TLSSpecification id="TR-03116-3-SMGW-WAN-SERVER">
+
+	<Metadata>
+		<Title>Application specific requirements for the WAN TLS Server interface of a Smart-Meter-Gateway according to TR-03116-3</Title>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-03116-3</Reference>
+		</References>
+	</Metadata>
+
+	<BaseSpecification>
+		&TR-03116-3-WAN-COMMON-SPECIFICATION;
+	</BaseSpecification>
+	
+</TLSSpecification>

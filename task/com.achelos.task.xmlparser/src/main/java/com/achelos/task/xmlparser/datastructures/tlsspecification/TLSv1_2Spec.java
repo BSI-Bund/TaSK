@@ -8,7 +8,7 @@ import com.achelos.task.xmlparser.configparsing.StringHelper;
 
 import generated.jaxb.configuration.CipherSuites;
 import generated.jaxb.configuration.TLS12Parameter;
-import generated.jaxb.configuration.TLS12Parameter.MiscellaneousTLSFeatures;
+import generated.jaxb.configuration.MiscellaneousTLSFeatures;
 import generated.jaxb.configuration.TLS12Parameter.SignatureAlgorithms;
 import generated.jaxb.configuration.TLS12Parameter.SupportedGroups;
 

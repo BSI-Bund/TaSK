@@ -11,8 +11,9 @@
 	<Profiles>
 		<MandatoryProfiles>
 			<Profile>CHECK_CERTS</Profile>
+			<Profile>CLIENT_CERT</Profile>
+			<Profile>DURATION</Profile>
 			<Profile>INTERIM_SUITES_SRV</Profile>
-			<Profile>CLIENT_CERT</Profile> <!-- Changed from NO_CLIENT_CERT due to discussions with BSI. -->
 			<Profile>PFS</Profile>
 			<Profile>TLS_1.2</Profile>
 			<Profile>TLS_SERVER</Profile>

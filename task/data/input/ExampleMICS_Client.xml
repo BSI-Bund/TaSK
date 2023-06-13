@@ -11,24 +11,22 @@
 			Basic information about the DUT. -->
 		<ApplicationType>TR-03116-4-CLIENT</ApplicationType>
 		<RespectiveTechnicalGuideline>TR-03116-4</RespectiveTechnicalGuideline> <!-- Optional-->
-		<DUTExecutable>/usr/bin/openssl</DUTExecutable> <!-- Here the real executable should be added. -->
-		<DUTCallArguments>
-	<!-- Note: Double quotation marks are not allowed and the arguments should 
-		be written without them. e.g. use RSA+SHA256 instead of "RSA+SHA256" -->
-			<StartConnectionArguments>s_client -connect localhost:8080 -tls1_2</StartConnectionArguments>
-		</DUTCallArguments> <!-- Here the call arguments for the real executable should be added. -->
+		<!-- URL and Port of the ClientExecutor RMI server to connect to. -->
+		<RMIURL>localhost</RMIURL>
+		<RMIPort>1099</RMIPort>
 	</ApplicationUnderTest>		
 
 	<Profiles>
 		<!-- Chapter 3.2 Table 3
 			An applicant SHALL provide a declaration containing information on the supported profiles. -->
 		<!-- mandatory profiles from TR-03116-TS_Annex, Table 1 -->
+		<Profile>DURATION</Profile>
 		<Profile>TLS_1.2</Profile>
 		<Profile>TLS_CLIENT</Profile>
 		
 		<!-- recommended profiles from TR-03116-TS_Annex, Table 1 -->
 		<Profile>CERTIFIED_CA</Profile>
-		<Profile>DURATION</Profile>
+		<Profile>CHECK_CERTS</Profile>
 		<Profile>ENC_THEN_MAC</Profile>
 		<Profile>NO_COMPRESSION</Profile>
 		<Profile>NO_HEARTBEAT</Profile>
@@ -41,6 +39,7 @@
 		<Profile>TLS_1.3</Profile>
 
 		<!-- additional profiles -->
+		<!--<Profile>CLIENT_CERT</Profile>-->
 		<Profile>NO_CLIENT_CERT</Profile>
 	</Profiles>
 		

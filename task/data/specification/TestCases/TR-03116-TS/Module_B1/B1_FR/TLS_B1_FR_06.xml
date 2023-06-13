@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_FR_06" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_FR_06</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test case verifies that the DUT supports OCSP stapling.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>OCSP_STAPLING</Profile>
@@ -31,7 +31,7 @@
 			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
 		</ExpectedResult>
 		<ExpectedResult>
-			<Text>The DUT supplies a certificate accompanied by a valid  OCSPResponse message.</Text>
+			<Text>The DUT supplies a certificate accompanied by a valid OCSPResponse message.</Text>
 		</ExpectedResult>
 	</TestStep>
 </TestCase>

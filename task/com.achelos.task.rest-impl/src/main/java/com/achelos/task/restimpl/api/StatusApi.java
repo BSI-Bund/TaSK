@@ -34,7 +34,8 @@ public class StatusApi {
         @ApiResponse(responseCode = "400", description = "RunId invalid.", content = @Content(schema = @Schema(implementation= ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "RunId not known.", content = @Content(schema = @Schema(implementation= ErrorResponse.class))),
         @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation=ErrorResponse.class))) })
-    public Response getStatus(@PathParam("runId") @Parameter( description = "Identifier of a Testrun/Test Suite Execution.") String runId) {
+	public Response getStatus(@PathParam("runId") @Parameter(example = "a4b4d23234b23ef23a",
+			description = "Identifier of a Testrun/Test Suite Execution.") String runId) {
         try {
             Response.ResponseBuilder response;
             // Parse runID into UUID.

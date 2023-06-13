@@ -3,14 +3,18 @@ package com.achelos.task.tr03116ts.testcases.a.a1.ch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsSignatureScheme;
 import com.achelos.task.commons.enums.TlsTestToolMode;
@@ -22,7 +26,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_CH_10_T - signature_algorithms_cert extension
+ * Test case TLS_A1_CH_10_T - signature_algorithms_cert extension.
  * 
  * <p>
  * This test verifies that the offered "signature_algorithms_cert" extension matches the declaration in the ICS.
@@ -48,6 +52,7 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 	private final TFServerCertificate tfserverCertificate;
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
+	private final TFTLSHighestVersionSupportCheck fFTLSHighestVersionSupportCheck;
 	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_CH_10_T() {
@@ -59,6 +64,7 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 		tfserverCertificate = new TFServerCertificate(this);
 		tfLocalServerClose = new TFLocalServerClose(this);
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
+		fFTLSHighestVersionSupportCheck = new TFTLSHighestVersionSupportCheck(this);
 		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
 	}
 
@@ -121,8 +127,6 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 		}
 		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
-		int iterationCount = 1;
-
 		var sigAlgorithms = configuration.getSupportedSignatureAlgorithmsForCertificates();
 
 		if (null == sigAlgorithms || sigAlgorithms.isEmpty()) {
@@ -130,87 +134,85 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 			return;
 		}
 		logger.debug("Supported signature schemes");
-		for (TlsSignatureScheme sigAlg : sigAlgorithms) {
+		for (TlsSignatureAlgorithmWithHashTls13 sigAlg : sigAlgorithms) {
 			logger.debug(sigAlg.toString());
 		}
 
-		for (TlsSignatureScheme sigAlg : sigAlgorithms) {
-			logger.info("Start iteration " + iterationCount + " of " + sigAlgorithms.size() + ".");
-			step(1, "Setting TLS version: " + tlsVersion.getName() + " and signature algorithm: "
-					+ sigAlg.toString(), null);
+		step(1, "Setting TLS version: " + tlsVersion.getName() , null);
 
-			tfserverCertificate.executeSteps("2", "A certificate chain [CERT_DEFAULT] with certificates that are signed"
-					+ " using [SIG_ALGORITHM_CERT] is supplied.",
-					Arrays.asList(), testTool, tlsVersion, sigAlg, TlsTestToolCertificateTypes.CERT_DEFAULT);
-			
-			tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-					Arrays.asList(),
-					testTool, tlsVersion, TlsTestToolTlsLibrary.OpenSSL, sigAlg);
-			tFDutClientNewConnection.executeSteps("4",
-					"The TLS server receives a ClientHello handshake message from the DUT.", Arrays.asList(),
-					testTool, new IterationCounter(iterationCount, sigAlgorithms.size()),
-					dutExecutor);
-			iterationCount++;
+		tfserverCertificate.executeSteps("2", "A certificate chain [CERT_DEFAULT] with certificates that are signed"
+				+ " using [SIG_ALGORITHM_CERT] is supplied.",
+				Arrays.asList(), testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+
+		tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
+				Arrays.asList(),
+				testTool, tlsVersion, TlsTestToolTlsLibrary.OpenSSL);
+		tFDutClientNewConnection.executeSteps("4",
+				"The TLS server receives a ClientHello handshake message from the DUT.", Arrays.asList(),
+				testTool,
+				dutExecutor);
+
+		fFTLSHighestVersionSupportCheck.executeSteps("5",
+				"The TLS ClientHello offers the highest TLS version stated in the ICS.", null,
+				testTool);
 
 
-			step(5, "Check if The TLS ClientHello offers the \"signature_algorithms_cert\" extension "
-					+ "containing the values stated in the ICS.",
-					"The TLS ClientHello offers the \"signature_algorithms_cert\" extension "
-							+ "containing the values stated in the ICS.");
+		step(5, "Check if The TLS ClientHello offers the \"signature_algorithms_cert\" extension "
+				+ "containing the values stated in the ICS.",
+				"The TLS ClientHello offers the \"signature_algorithms_cert\" extension "
+						+ "containing the values stated in the ICS.");
 
-			ArrayList<TlsSignatureScheme> tlsSignatureSchemes = null;
+		List <TlsSignatureAlgorithmWithHashTls13> tlsSignatureSchemes = null;
 
-			final byte[] data = testTool.assertExtensionTypeLogged(TlsTestToolMode.client,
-					TlsExtensionTypes.signature_algorithms_cert);
-			if (data == null) {
-				logger.error("The TLS ClientHello does not offer the \"signature_algorithms_cert\" extension.");
+		final byte[] data = testTool.assertExtensionTypeLogged(TlsTestToolMode.client,
+				TlsExtensionTypes.signature_algorithms_cert);
+		if (data == null) {
+			logger.error("The TLS ClientHello does not offer the \"signature_algorithms_cert\" extension.");
+			return;
+		}
+
+		try {
+			tlsSignatureSchemes
+					= (List<TlsSignatureAlgorithmWithHashTls13>)(List<?>)TlsSignatureAlgorithmWithHash.parseSignatureAlgorithmWithHashByteList(data, TlsVersion.TLS_V1_3);
+		} catch (Exception e) {
+			// Unknown_signature algorithm.
+			logger.error("Found unknown signature algorithm" + e);
 //				continue;
-			}
-			
-			try {
-				tlsSignatureSchemes
-						= TlsSignatureScheme.parsetlsSignatureSchemeWithHashByteList(data);
-			} catch (Exception e) {
-				// Unknown_signature algorithm.
-				logger.error("Found unknown signature algorithm" + e);
-//				continue;
-			}
+		}
 
-			// Find difference in sigAlgorithms with respect to supportedSignatureAndHashAlgorithms.
-			List<TlsSignatureScheme> difference
-					= getDifference(sigAlgorithms, tlsSignatureSchemes);
+		// Find difference in sigAlgorithms with respect to supportedSignatureAndHashAlgorithms.
+		var difference = getDifference(sigAlgorithms, tlsSignatureSchemes);
 
-			logger.info("Expected signature algorithms: " + sigAlgorithms);
-			logger.info("Actual signature algorithms: " + tlsSignatureSchemes);
+		logger.info("Expected signature algorithms: " + sigAlgorithms);
+		logger.info("Actual signature algorithms: " + tlsSignatureSchemes);
+		if (!difference.isEmpty()) {
+			logger.error(
+					"The TLS ClientHello does not offer following signature algorithm(s): "
+							+ difference);
+		} else {
+			difference = getDifference(tlsSignatureSchemes, sigAlgorithms);
 			if (!difference.isEmpty()) {
 				logger.error(
-						"The TLS ClientHello does not offer following signature algorithm(s): "
+						"The TLS ClientHello additionally offers following signature algorithm(s): "
 								+ difference);
 			} else {
-				difference = getDifference(tlsSignatureSchemes, sigAlgorithms);
-				if (!difference.isEmpty()) {
-					logger.error(
-							"The TLS ClientHello additionally offers following signature algorithm(s): "
-									+ difference);
-				} else {
-					logger.info("The TLS ClientHello offers the signature_algorithms_cert"
-							+ " containing the values stated in the ICS.");
-				}
+				logger.info("The TLS ClientHello offers the signature_algorithms_cert"
+						+ " containing the values stated in the ICS.");
 			}
-
-			
-			step(6, "Check if the TLS protocol is executed without errors and the channel is established.",
-					"The TLS protocol is executed without errors and the channel is established.");
-			testTool.assertMessageLogged(TestToolResource.Handshake_successful);
-
-			tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
-
-			tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
-					testTool);
-
-			dutExecutor.resetProperties();
-			testTool.resetProperties();
 		}
+		tfLocalServerClose.executeSteps("6", "Server closed successfully", Arrays.asList(),
+				testTool);
+
+		/* OpenSSL currently does not support the signature_algorithms_cert extension */
+
+		/*step(6, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
+		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
+
+		tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
+
+		tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
+				testTool);*/
 
 	}
 	
@@ -218,15 +220,28 @@ public class TLS_A1_CH_10_T extends AbstractTestCase {
 	 * Method finds the difference in list1 with respect to list2 and returns new list containing elements that do not
 	 * exist in the list2.
 	 *
-	 * @param sigAlgorithms list1.
-	 * @param list2 list2.
+	 * @param  list1.
+	 * @param  list2.
 	 * @return new list containing elements that are not presents in the list2.
 	 */
-	private List<TlsSignatureScheme> getDifference(final List<TlsSignatureScheme> sigAlgorithms,
-			final List<TlsSignatureScheme> list2) {
-		List<TlsSignatureScheme> differences = new ArrayList<>(sigAlgorithms);
-		differences.removeAll(list2);
-		return differences;
+	private List<TlsSignatureAlgorithmWithHashTls13> getDifference(final List<TlsSignatureAlgorithmWithHashTls13> list1,
+			final List<TlsSignatureAlgorithmWithHashTls13> list2) {
+
+		List<TlsSignatureAlgorithmWithHashTls13> missingSigAlgs = new LinkedList<>();
+
+		for(TlsSignatureAlgorithmWithHashTls13 sigAlg: list1){
+			boolean found = false;
+			for(TlsSignatureAlgorithmWithHashTls13 expectedSigAlg: list2){
+				if(sigAlg.getSignatureScheme() == expectedSigAlg.getSignatureScheme()){
+					found = true;
+				}
+			}
+			if(!found){
+				missingSigAlgs.add(sigAlg);
+			}
+		}
+		return missingSigAlgs;
+
 	}
 
 	@Override

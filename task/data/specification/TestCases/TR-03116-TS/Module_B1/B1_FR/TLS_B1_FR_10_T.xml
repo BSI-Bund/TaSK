@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_FR_10_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_FR_10_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This positive test verifies the behaviour of the DUT when a correct PSK is used. The test is carried out for the TLS version [TLS_VERSION] and the PSK cipher suite [CIPHERSUITE].</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>PSK</Profile>
@@ -21,7 +21,7 @@
 		<Description>The TLS ClientHello offers the TLS version [TLS_VERSION].</Description>
 		<Description>The TLS ClientHello offers only the cipher suite [CIPHERSUITE].</Description>
 		<Description>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all algorithms that are supported according to the ICS are listed.</Description>
-		<Description>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.</Description>	
+		<Description>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.</Description>
 		<ExpectedResult>
 			<Text>The DUT accepts the the ClientHello. It may send a "PSK identity hint"</Text>
 		</ExpectedResult>

@@ -27,10 +27,10 @@ namespace TlsTestTool {
  *
  * @see RFC 5246, Section 7.4
  */
-struct TlsHandshakeHeader {
-	TlsHandshakeType msgType;
-	TlsUint24 length;
-};
+    struct TlsHandshakeHeader {
+        TlsHandshakeType msgType;
+        TlsUint24 length;
+    };
 }
 
 #endif /* TLS_TLSHANDSHAKEHEADER_H_ */

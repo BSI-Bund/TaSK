@@ -9,13 +9,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.achelos.task.abstractinterface.TaskExecutionParameters;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.achelos.task.abstractinterface.TaskExecutionParameters;
 import com.achelos.task.abstractinterface.TaskTestTool;
 import com.achelos.task.logging.LoggingConnector;
 import com.achelos.task.reporting.datastructures.ReportLogger;
@@ -29,15 +32,12 @@ import com.achelos.task.xmlparser.datastructures.configuration.GlobalConfigParam
 import com.achelos.task.xmlparser.datastructures.testrunplan.TestRunPlanData;
 import com.achelos.task.xmlparser.runplanparsing.RunPlanParser;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-
 /**
  * Class representing the CommandLine Interface of the TaSK Test Tool. Provides a main method.
  */
 public class CommandLineInterface {
 
-	private final static String VERSION = "0.5.1";
+	private final static String VERSION = "1.0.1";
 
 	private enum EXEC_MODES {
 		LOCAL_MICS_MODE,
@@ -54,12 +54,14 @@ public class CommandLineInterface {
 	private static Option certOption;
 	private static Option configOption;
 	private static Option testRunPlanOption;
+	private static Option onlyGenerateTrpOption;
 	private static Option xmlReportOption;
 	private static Option pdfReportOption;
 	private static Option ignoreMicsVerificationOption;
 	private static Option restServerOption;
 	private static Option clientAuthCertChainOption;
 	private static Option clientAuthKeyOption;
+	private static Option certValidationCAOption;
 
 	/**
 	 * Hide default Constructor.
@@ -69,7 +71,6 @@ public class CommandLineInterface {
 	}
 	public static void main(final String[] args) {
 
-		String reportDirectory = null;
 		final var log_verbosity = "DEBUG";
 		initializeLogger(log_verbosity);
 
@@ -123,6 +124,11 @@ public class CommandLineInterface {
 		restServerOption.setRequired(false);
 		options.addOption(restServerOption);
 
+		onlyGenerateTrpOption = new Option("n", "only-generate-trp", false,
+				"If set, only a test run plan will be generated from MICS. No tests are executed.");
+		onlyGenerateTrpOption.setRequired(false);
+		options.addOption(onlyGenerateTrpOption);
+
 		clientAuthCertChainOption = new Option(null, "client-auth-certchain", true,
 				"Specifies the PEM encoded client authentication certificate chain to be used by a test client to test the client authentication mechanism of a server.");
 		clientAuthCertChainOption.setRequired(false);
@@ -132,6 +138,11 @@ public class CommandLineInterface {
 				"Specifies the PEM encoded private key file for the client authentication certificate to be used by a test client to test the client authentication mechanism of a server.");
 		clientAuthKeyOption.setRequired(false);
 		options.addOption(clientAuthKeyOption);
+		options.addOption(clientAuthKeyOption);
+
+		certValidationCAOption = new Option(null, "certificate-validation-ca", true, "Specifies the PEM encoded Root CA Certificate which shall be used as the trust anchor for the client authentication mechanism of the TaSK Framework test server.");
+		certValidationCAOption.setRequired(false);
+		options.addOption(certValidationCAOption);
 
 		var defaultParser = new DefaultParser();
 		helpFormatter = new HelpFormatter();
@@ -232,7 +243,8 @@ public class CommandLineInterface {
 				sslContext = SSLContext.getInstance("TLS");
 				sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
 			} catch (Exception e) {
-				logger.error("Error creating TLS context, running without TLS.", e);
+				logger.error("Error creating TLS context.", e);
+				return;
 			}
 		} else {
 			logger.warning("No TLS Credentials provided for REST Server. Running without TLS.");
@@ -292,6 +304,9 @@ public class CommandLineInterface {
 		// Ignore MICS verification
 		boolean ignoreMicsVerification = cmd.hasOption(ignoreMicsVerificationOption);
 
+		// No run plan execution
+		boolean onlyGenerateTRP = cmd.hasOption(onlyGenerateTrpOption);
+
 		// Certificate Files
 		ArrayList<File> certificateFileList = new ArrayList<>();
 		var certDirOptionValue = cmd.getOptionValue(certOption);
@@ -316,20 +331,37 @@ public class CommandLineInterface {
 
 		// Client Authentication Certificate Chain File and Private Key File
 		var clientAuthCertChainOptionValue = cmd.getOptionValue(clientAuthCertChainOption);
-		String clientAuthCertChainFile = "";
+		File clientAuthCertChainFile = null;
+		String clientAuthCertChainPath = "";
 		if (clientAuthCertChainOptionValue != null) {
-			clientAuthCertChainFile = clientAuthCertChainOptionValue;
-			if (!(new File(clientAuthCertChainFile).exists())) {
+			clientAuthCertChainFile = new File(clientAuthCertChainOptionValue);
+			if (!clientAuthCertChainFile.exists()) {
 				exit(1, "File provided as " + clientAuthCertChainOption.getLongOpt() + " does not exist.");
 			}
+			clientAuthCertChainPath = clientAuthCertChainFile.getAbsolutePath();
 		}
+
 		var clientAuthKeyOptionValue = cmd.getOptionValue(clientAuthKeyOption);
-		String clientAuthKeyFile = "";
+		File clientAuthKeyFile = null;
+		String clientAuthKeyPath = "";
 		if (clientAuthKeyOptionValue != null) {
-			clientAuthKeyFile = clientAuthKeyOptionValue;
-			if (!(new File(clientAuthKeyFile).exists())) {
+			clientAuthKeyFile = new File(clientAuthKeyOptionValue);
+			if (!(clientAuthKeyFile.exists())) {
 				exit(1, "File provided as " + clientAuthKeyOption.getLongOpt() + " does not exist.");
 			}
+			clientAuthKeyPath = clientAuthKeyFile.getAbsolutePath();
+		}
+
+		// Certificate Validation Root CA Option
+		var certValidationRootCAValue = cmd.getOptionValue(certValidationCAOption);
+		File certValidationRootCAFile = null;
+		String certValidationRootCAPath = "";
+		if (certValidationRootCAValue != null) {
+			certValidationRootCAFile = new File(certValidationRootCAValue);
+			if (!(certValidationRootCAFile.exists())) {
+				exit(1, "File provided as " + certValidationCAOption.getLongOpt() + " does not exist.");
+			}
+			certValidationRootCAPath = certValidationRootCAFile.getAbsolutePath();
 		}
 
 		HashMap<String, GlobalConfigParameter> configuration = null;
@@ -354,7 +386,7 @@ public class CommandLineInterface {
 		var reportDirectory = Paths.get(reportDir, date + "_TestReport").toString();
 
 		var executionParameters = new TaskExecutionParameters(logger, configFile, micsFile, certificateFileList,
-				ignoreMicsVerification, reportDirectory, clientAuthCertChainFile, clientAuthKeyFile);
+				ignoreMicsVerification, onlyGenerateTRP, reportDirectory, clientAuthCertChainPath, clientAuthKeyPath, certValidationRootCAPath);
 
 		TaskTestTool.executeTaskTestTool(executionParameters);
 
@@ -405,22 +437,38 @@ public class CommandLineInterface {
 
 		// Client Authentication Certificate Chain File and Private Key File
 		var clientAuthCertChainOptionValue = cmd.getOptionValue(clientAuthCertChainOption);
-		String clientAuthCertChainFile = "";
+		File clientAuthCertChainFile = null;
+		String clientAuthCertChainPath = "";
 		if (clientAuthCertChainOptionValue != null) {
-			clientAuthCertChainFile = clientAuthCertChainOptionValue;
-			if (!(new File(clientAuthCertChainFile).exists())) {
+			clientAuthCertChainFile = new File(clientAuthCertChainOptionValue);
+			if (!clientAuthCertChainFile.exists()) {
 				exit(1, "File provided as " + clientAuthCertChainOption.getLongOpt() + " does not exist.");
 			}
-		}
-		var clientAuthKeyOptionValue = cmd.getOptionValue(clientAuthKeyOption);
-		String clientAuthKeyFile = "";
-		if (clientAuthKeyOptionValue != null) {
-			clientAuthKeyFile = clientAuthKeyOptionValue;
-			if (!(new File(clientAuthKeyFile).exists())) {
-				exit(1, "File provided as " + clientAuthKeyOption.getLongOpt() + " does not exist.");
-			}
+			clientAuthCertChainPath = clientAuthCertChainFile.getAbsolutePath();
 		}
 
+		var clientAuthKeyOptionValue = cmd.getOptionValue(clientAuthKeyOption);
+		File clientAuthKeyFile = null;
+		String clientAuthKeyPath = "";
+		if (clientAuthKeyOptionValue != null) {
+			clientAuthKeyFile = new File(clientAuthKeyOptionValue);
+			if (!(clientAuthKeyFile.exists())) {
+				exit(1, "File provided as " + clientAuthKeyOption.getLongOpt() + " does not exist.");
+			}
+			clientAuthKeyPath = clientAuthKeyFile.getAbsolutePath();
+		}
+
+		// Certificate Validation Root CA Option
+		var certValidationRootCAValue = cmd.getOptionValue(certValidationCAOption);
+		File certValidationRootCAFile = null;
+		String certValidationRootCAPath = "";
+		if (certValidationRootCAValue != null) {
+			certValidationRootCAFile = new File(certValidationRootCAValue);
+			if (!(certValidationRootCAFile.exists())) {
+				exit(1, "File provided as " + certValidationCAOption.getLongOpt() + " does not exist.");
+			}
+			certValidationRootCAPath = certValidationRootCAFile.getAbsolutePath();
+		}
 
 		var configFile = new File(cmd.getOptionValue(configOption));
 		if (!configFile.exists()) {
@@ -440,7 +488,7 @@ public class CommandLineInterface {
 		var date = DateTimeUtils.getTimeStampForFileAndDirectoryNames();
 		var reportDirectory = Paths.get(reportDir, date + "_TestReport").toString();
 
-		var executionParameters = new TaskExecutionParameters(logger, testRunPlanFile, configFile, reportDirectory, clientAuthCertChainFile, clientAuthKeyFile);
+		var executionParameters = new TaskExecutionParameters(logger, testRunPlanFile, configFile, reportDirectory, clientAuthCertChainPath, clientAuthKeyPath,  certValidationRootCAPath);
 
 		TaskTestTool.executeTaskTestTool(executionParameters);
 		if (pdfReportSet) {

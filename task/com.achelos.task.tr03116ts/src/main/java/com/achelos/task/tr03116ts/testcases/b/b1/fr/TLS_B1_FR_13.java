@@ -15,6 +15,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_13 - Connection closed by server.
  * <p>
  * This tests verifies that it is not possible to keep a TLS connection alive for more than the maximum allowed amount
  * of time.
@@ -84,7 +85,7 @@ public class TLS_B1_FR_13 extends AbstractTestCase {
 	 * <h2>TestStep 2</h2>
 	 * <h3>Command</h3>
 	 * <ol>
-	 * <li>The server tries to keep the connection running for more than the maximum allowed amount of time.
+	 * <li>The client tries to keep the connection running for more than the maximum allowed amount of time.
 	 * </ol>
 	 * <h3>ExpectedResult</h3>
 	 * <ul>

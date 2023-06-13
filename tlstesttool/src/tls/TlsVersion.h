@@ -22,14 +22,14 @@
 #include <utility>
 
 namespace TlsTestTool {
-using TlsVersion = std::pair<uint8_t, uint8_t>;
+    using TlsVersion = std::pair<uint8_t, uint8_t>;
 
-const TlsVersion TLS_VERSION_INVALID(0, 0);
-const TlsVersion TLS_VERSION_SSL_3_0(3, 0);
-const TlsVersion TLS_VERSION_TLS_1_0(3, 1);
-const TlsVersion TLS_VERSION_TLS_1_1(3, 2);
-const TlsVersion TLS_VERSION_TLS_1_2(3, 3);
-const TlsVersion TLS_VERSION_TLS_1_3(3, 4);
+    const TlsVersion TLS_VERSION_INVALID(0, 0);
+    const TlsVersion TLS_VERSION_SSL_3_0(3, 0);
+    const TlsVersion TLS_VERSION_TLS_1_0(3, 1);
+    const TlsVersion TLS_VERSION_TLS_1_1(3, 2);
+    const TlsVersion TLS_VERSION_TLS_1_2(3, 3);
+    const TlsVersion TLS_VERSION_TLS_1_3(3, 4);
 }
 
 #endif /* TLS_TLSVERSION_H_ */

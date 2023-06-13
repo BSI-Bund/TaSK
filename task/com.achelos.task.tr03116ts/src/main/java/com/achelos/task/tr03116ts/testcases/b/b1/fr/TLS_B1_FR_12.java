@@ -14,6 +14,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_12 - Compression not selected.
  * <p>
  * This test case checks that compression is not selected by the DUT.
  */

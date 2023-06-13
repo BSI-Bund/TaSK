@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author csr
- *
- */
-module RmiBrowserTest {
-}

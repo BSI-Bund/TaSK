@@ -9,7 +9,7 @@ if (USE_3RDPARTYBUILD)
   include (3rdparty/CMakeLists.txt)
   return()
 else()
-  project(TlsTestTool VERSION 0.5.2 LANGUAGES C CXX)
+  project(TlsTestTool VERSION 1.0.1 LANGUAGES C CXX)
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)

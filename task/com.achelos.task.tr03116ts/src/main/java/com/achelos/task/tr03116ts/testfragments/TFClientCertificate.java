@@ -1,14 +1,19 @@
 package com.achelos.task.tr03116ts.testfragments;
 
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestFragment;
 import com.achelos.task.abstracttestsuite.IStepExecution;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
+import com.achelos.task.commons.certificatehelper.CertificateHelper;
 import com.achelos.task.commons.certificatehelper.ManipulateForceCertificateUsage;
 import com.achelos.task.configuration.TestRunPlanConfiguration;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
@@ -72,23 +77,28 @@ public class TFClientCertificate extends AbstractTestFragment {
 	}
 
 
-	public Path manipulateClientCertificateInvalidSignature() throws IOException {
-		String certFile = Files.readString(Path.of(configuration.getClientAuthCertChainFile()));
+	public Path manipulateClientCertificateInvalidSignature() throws IOException, CertificateEncodingException {
+		FileInputStream fis = new FileInputStream(configuration.getClientAuthCertChainFile());
+		List<X509Certificate> certList =CertificateHelper.parseMultipleCertificates(fis);
 
-		String certificate = certFile
-				.replace("-----BEGIN CERTIFICATE-----", "")
-				.replaceAll(System.lineSeparator(), "")
-				.replace("-----END CERTIFICATE-----", "");
+		if(certList.size()==0){
+			throw new FileNotFoundException("Certificate File could not be parsed correctly");
+		}
 
-		byte[] encoded = Base64.decode(certificate);
-
+		var encoded = certList.get(0).getEncoded();
 		encoded[encoded.length-1] ^= (byte) 0xff; //flip last byte of certificate (last byte is part of signature)
 
 		String manipulatedCertificate = Base64.toBase64String(encoded);
 
-		String outputCertFile = String.format("-----BEGIN CERTIFICATE-----%n%s%n-----END CERTIFICATE-----", manipulatedCertificate);
+		StringBuilder outputCertFile = new StringBuilder(String.format("-----BEGIN CERTIFICATE-----%n%s%n-----END CERTIFICATE-----", manipulatedCertificate));
+		//append all remaining certs
+		for(X509Certificate cert: certList.subList(1, certList.size())){
+			String certString = Base64.toBase64String(cert.getEncoded());
+			outputCertFile.append(String.format("%n-----BEGIN CERTIFICATE-----%n%s%n-----END CERTIFICATE-----", certString));
+		}
+
 		var tmpCertFilePath = Files.createTempFile("", ".pem");
-		Files.writeString(Path.of(tmpCertFilePath.toString()), outputCertFile);
+		Files.writeString(Path.of(tmpCertFilePath.toString()), outputCertFile.toString());
 		return tmpCertFilePath;
 	}
 

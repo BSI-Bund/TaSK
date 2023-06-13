@@ -1038,6 +1038,17 @@ public enum TlsCipherSuite {
 	 * @return the List<TlsCipherSuite>
 	 */
 	public static List<TlsCipherSuite> parseCipherSuiteStringList(final String cipherSuiteList) {
+		return parseCipherSuiteStringList(cipherSuiteList, false, null);
+	}
+
+	/**
+	 * Method takes a string representation of one or more cipher suites concatenated (format: C0 2B C0 2F...) and find
+	 * all consisting cipher suites which are returned within object representation.
+	 *
+	 * @param cipherSuiteList the cipher suites list in String representation
+	 * @return the List<TlsCipherSuite>
+	 */
+	public static List<TlsCipherSuite> parseCipherSuiteStringList(final String cipherSuiteList, boolean filterVersion, TlsVersion tlsVersion) {
 		List<TlsCipherSuite> foundCipherSuites = new ArrayList<>();
 		if (cipherSuiteList == null || cipherSuiteList.isBlank()) {
 			return foundCipherSuites;
@@ -1051,7 +1062,9 @@ public enum TlsCipherSuite {
 		for (int i = 0; i < valuePairs.length; i += 2) {
 			for (TlsCipherSuite cipherSuite : TlsCipherSuite.values()) {
 				if (cipherSuite.getValueHexString().equalsIgnoreCase(valuePairs[i] + " " + valuePairs[i + 1])) {
-					foundCipherSuites.add(cipherSuite);
+					if(filterVersion && cipherSuite.isVersionSupported(tlsVersion)) {
+						foundCipherSuites.add(cipherSuite);
+					}
 				}
 			}
 		}

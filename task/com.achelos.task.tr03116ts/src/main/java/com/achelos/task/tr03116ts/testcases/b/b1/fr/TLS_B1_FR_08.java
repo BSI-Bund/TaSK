@@ -7,6 +7,7 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
+import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tools.StringTools;
 import com.achelos.task.logging.BasicLogger;
@@ -17,13 +18,14 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_08 - Heartbeat message is ignored.
  * <p>
  * This test verifies the correct behaviour of the DUT if the client sends heartbeat messages.
  */
 public class TLS_B1_FR_08 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B1_FR_08";
-	private static final String TEST_CASE_DESCRIPTION = "Heartbeat-Message is ignored";
+	private static final String TEST_CASE_DESCRIPTION = "Heartbeat message is ignored";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies the correct behaviour of the DUT if the client sends heartbeat messages.";
 
@@ -118,7 +120,8 @@ public class TLS_B1_FR_08 extends AbstractTestCase {
 		step(1, "The tester connects to the DUT.", "");
 
 		tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
-				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite);
+				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite,
+				TlsTestToolTlsLibrary.OpenSSL);
 
 		// prepare the Heartbeat Request
 		final byte payloadByte31 = 0x31;
@@ -137,14 +140,12 @@ public class TLS_B1_FR_08 extends AbstractTestCase {
 				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-		step(5, "The TLS client sends a \"heartbeat_request\"", "The DUT ignores the request.");
-		tfAlertMessageCheck.executeSteps("6", "",
-				Arrays.asList("level=warning/fatal"), testTool);
+		step(5, "The TLS client sends a \"heartbeat_request\".", "The DUT ignores the request.");
 
-		if(tlsVersion == TlsVersion.TLS_V1_3) {
-			if (testTool.assertMessageLogged(TestToolResource.Heartbeat_message_received, BasicLogger.INFO)) {
-				logger.log(BasicLogger.ERROR, "The DUT did answered with a Heartbeat response.");
-			}
+		if (testTool.assertMessageLogged(TestToolResource.Heartbeat_message_received, BasicLogger.INFO)) {
+			logger.error("The DUT did answered with a Heartbeat response.");
+		} else {
+			logger.info("The DUT ignored the request.");
 		}
 	}
 

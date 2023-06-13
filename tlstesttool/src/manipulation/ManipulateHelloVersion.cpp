@@ -20,18 +20,18 @@
 #include <string>
 
 namespace TlsTestTool {
-void ManipulateHelloVersion::executePreHandshake(TlsSession & session) {
-	log(__FILE__, __LINE__, "Setting version for Hello message to (" + std::to_string(version.first) + ", "
-				+ std::to_string(version.second) + ").");
-	session.overwriteHelloVersion(version);
-}
+    void ManipulateHelloVersion::executePreHandshake(TlsSession &session) {
+        log(__FILE__, __LINE__, "Setting version for Hello message to (" + std::to_string(version.first) + ", "
+                                + std::to_string(version.second) + ").");
+        session.overwriteHelloVersion(version);
+    }
 
-void ManipulateHelloVersion::executePreStep(TlsSession & /*session*/) {
-}
+    void ManipulateHelloVersion::executePreStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateHelloVersion::executePostStep(TlsSession & /*session*/) {
-}
+    void ManipulateHelloVersion::executePostStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateHelloVersion::executePostHandshake(TlsSession & /*session*/) {
-}
+    void ManipulateHelloVersion::executePostHandshake(TlsSession & /*session*/) {
+    }
 }

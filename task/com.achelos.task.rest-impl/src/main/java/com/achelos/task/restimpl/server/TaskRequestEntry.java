@@ -2,6 +2,8 @@ package com.achelos.task.restimpl.server;
 
 import com.achelos.task.abstractinterface.TaskExecutionParameters;
 import com.achelos.task.logging.LoggingConnector;
+import com.achelos.task.xmlparser.datastructures.mics.MICS;
+import com.achelos.task.xmlparser.datastructures.testrunplan.TestRunPlanData;
 import com.achelos.task.xmlparser.inputparsing.InputParser;
 import com.achelos.task.xmlparser.runplanparsing.RunPlanParser;
 
@@ -20,9 +22,11 @@ public class TaskRequestEntry {
 	private File testRunplanFile;
 	private List<File> serverCertificateChain;
 	private boolean ignoreMicsVerification;
+	private boolean onlyGenerateTRP;
 
 	private File clientAuthCertChain;
 	private File clientAuthKeyFile;
+	private File certificateValidationRootCA;
 
 	protected TaskRequestEntry(final UUID uuid) {
 		this.uuid = uuid;
@@ -31,21 +35,24 @@ public class TaskRequestEntry {
 	public TaskRequestEntry(final UUID uuid,
 							final File testRunplanFile,
 							final List<InputStream> clientAuthCertChain,
-							final File clientAuthKeyFile) throws IOException {
+							final File clientAuthKeyFile,
+							final File certificateValidationRootCA) throws IOException {
 		this.uuid = uuid;
+		
+		// basic plausibility checks
 		if (testRunplanFile == null || !testRunplanFile.exists()) {
 			throw new RuntimeException("TaSKRequestHandler: TRP file does not exist.");
 		}
-		// Verify TestRunplan
-		var runPlan = RunPlanParser.parseRunPlan(testRunplanFile);
-		if (!runPlan.getDUTApplicationType().toUpperCase().contains("TR-03124-1-EID-CLIENT-TLS")
-				&& !runPlan.getDUTApplicationType().toUpperCase().contains("SERVER")) {
-			throw new IllegalArgumentException("TestRunplan provided for invalid DUT Application Type.");
+		
+		TestRunPlanData runPlanData = RunPlanParser.parseRunPlan(testRunplanFile);
+		// do not allow manual DUT execution
+		if (runPlanData.getDutRMIURL().isEmpty()) {
+			throw new RuntimeException("TaSKRequestHandler: RMI URL is not defined in TestRunPlan.");
 		}
-
 
 		requestDir = Files.createTempDirectory(uuid.toString());
 		this.testRunplanFile = Files.copy(testRunplanFile.toPath(), requestDir.resolve(testRunplanFile.getName())).toFile();
+		
 		if (clientAuthCertChain != null && !clientAuthCertChain.isEmpty()) {
 			this.clientAuthCertChain = Files.createTempFile(null, ".pem").toFile();
 			try (OutputStream out = Files.newOutputStream(this.clientAuthCertChain.toPath(), StandardOpenOption.WRITE)) {
@@ -59,25 +66,32 @@ public class TaskRequestEntry {
 		if (clientAuthKeyFile != null && clientAuthKeyFile.exists()) {
 			this.clientAuthKeyFile = Files.copy(clientAuthKeyFile.toPath(), requestDir.resolve(clientAuthKeyFile.getName())).toFile();
 		}
+		if (certificateValidationRootCA != null && certificateValidationRootCA.exists()) {
+			this.certificateValidationRootCA = Files.copy(certificateValidationRootCA.toPath(), requestDir.resolve(certificateValidationRootCA.getName())).toFile();
+		}
 
 	}
 	
 	public TaskRequestEntry(final UUID uuid,
 							final File micsFile,
 							final List<InputStream> serverCertificateChain,
-							final boolean ignoreMicsVerification,
+							final boolean ignoreMicsVerification, 
+							final boolean onlyGenerateTRP,
 							final List<InputStream> clientAuthCertChain,
-							final File clientAuthKeyFile) throws IOException {
+							final File clientAuthKeyFile,
+							final File certificateValidationRootCA) throws IOException {
 		this.uuid = uuid;
 		requestDir = Files.createTempDirectory(uuid.toString());
+		
+		// basic plausibility checks
 		if (micsFile == null || !micsFile.exists()) {
 			throw new RuntimeException("TaSKRequestHandler: MICS file does not exist.");
 		}
-		// Verify TestRunplan
-		var mics = InputParser.parseMICS(micsFile);
-		if (!mics.getApplicationType().toUpperCase().contains("TR-03124-1-EID-CLIENT-TLS")
-				&& !mics.getApplicationType().toUpperCase().contains("SERVER")) {
-			throw new IllegalArgumentException("MICS provided for invalid DUT Application Type.");
+		
+		MICS micsData = InputParser.parseMICS(micsFile);
+		// do not allow manual DUT execution
+		if (micsData.getDutRMIURL().isEmpty()) {
+			throw new RuntimeException("TaSKRequestHandler: RMI URL is not defined in MICS.");
 		}
 
 		this.micsFile = Files.copy(micsFile.toPath(), requestDir.resolve(micsFile.getName())).toFile();
@@ -94,6 +108,7 @@ public class TaskRequestEntry {
 			}
 		}
 		this.ignoreMicsVerification = ignoreMicsVerification;
+		this.onlyGenerateTRP = onlyGenerateTRP;
 		if (clientAuthCertChain != null && !clientAuthCertChain.isEmpty()) {
 			this.clientAuthCertChain = Files.createTempFile(null, ".pem").toFile();
 			try (OutputStream out = Files.newOutputStream(this.clientAuthCertChain.toPath(), StandardOpenOption.WRITE)) {
@@ -106,6 +121,10 @@ public class TaskRequestEntry {
 		}
 		if (clientAuthKeyFile != null && clientAuthKeyFile.exists()) {
 			this.clientAuthKeyFile = Files.copy(clientAuthKeyFile.toPath(), requestDir.resolve(clientAuthKeyFile.getName())).toFile();
+		}
+
+		if (certificateValidationRootCA != null && certificateValidationRootCA.exists()) {
+			this.certificateValidationRootCA = Files.copy(certificateValidationRootCA.toPath(), requestDir.resolve(certificateValidationRootCA.getName())).toFile();
 		}
 	}
 	
@@ -132,6 +151,12 @@ public class TaskRequestEntry {
 	 */
 	public boolean ignoreMicsVerification() {
 		return ignoreMicsVerification;
+	}
+	/**
+	 * @return true, if execution shall be skipped
+	 */
+	public boolean onlyGenerateTRP() {
+		return onlyGenerateTRP;
 	}
 	/**
 	 * @return the testRunplanFile
@@ -166,23 +191,27 @@ public class TaskRequestEntry {
 	public TaskExecutionParameters toTaskExecutionParameters(final LoggingConnector logger, final File configFile, final String reportDirectory) {
 		var clientAuthCertChain = this.clientAuthCertChain == null ? null : this.clientAuthCertChain.getAbsolutePath();
 		var clientAuthKeyFile = this.clientAuthKeyFile == null ? null : this.clientAuthKeyFile.getAbsolutePath();
+		var certificateValidationRootCA = this.certificateValidationRootCA == null ? null : this.certificateValidationRootCA.getAbsolutePath();
 
 		if (testRunplanFile != null) {
 			return new TaskExecutionParameters(logger,
-				testRunplanFile,
-				configFile,
-				reportDirectory,
-				clientAuthCertChain,
-				clientAuthKeyFile);
+					testRunplanFile,
+					configFile,
+					reportDirectory,
+					clientAuthCertChain,
+					clientAuthKeyFile,
+					certificateValidationRootCA);
 		} else {
 			return new TaskExecutionParameters(logger,
 					configFile,
 					micsFile,
 					serverCertificateChain,
 					ignoreMicsVerification,
+					onlyGenerateTRP,
 					reportDirectory,
 					clientAuthCertChain,
-					clientAuthKeyFile);
+					clientAuthKeyFile,
+					certificateValidationRootCA);
 
 		}
 	}

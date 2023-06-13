@@ -22,62 +22,64 @@
 #include "asio/ip/tcp.hpp"
 
 namespace TlsTestTool {
-class TcpClient;
+    class TcpClient;
+
 /**
  * TCP/IP server socket working with a single client connection.
  */
-class TcpServer {
-public:
-	class Data;
-	/**
-	 * Construct a non-connected TCP/IP server socket.
-	 */
-	TcpServer();
+    class TcpServer {
+    public:
+        class Data;
 
-	/**
-	 * Free the TCP/IP server socket.
-	 */
-	~TcpServer();
+        /**
+         * Construct a non-connected TCP/IP server socket.
+         */
+        TcpServer();
 
-	/**
-	 * Bind the TCP/IP server socket and listen for incoming connections.
-	 *
-	 * @param port TCP port number to listen to.
-	 * @throw std::exception Thrown on failure.
-	 */
-	void listen(uint16_t port);
+        /**
+         * Free the TCP/IP server socket.
+         */
+        ~TcpServer();
 
-
-	/**
-	 * Perform pending tasks on the TCP/IP server socket. This function has to be called regularly from the event loop.
-	 */
-	void work();
-
-	/**
-	 * Get the currently active TcpConnection
-	 *
-	 * @return
-	 */
-	std::shared_ptr<TcpConnection> & getActiveTcpConnection();
-
-	/**
-	 * Returns the acceptor of the TcpServer
-	 * @return acceptor
-	 */
-	asio::ip::tcp::acceptor& getAcceptor();
-
-	/**
-	 * Add a new TcpConnection to server
-	 * @return new added tcpConnection
-	 */
-	std::shared_ptr<TcpConnection> addNewTcpConnection();
+        /**
+         * Bind the TCP/IP server socket and listen for incoming connections.
+         *
+         * @param port TCP port number to listen to.
+         * @throw std::exception Thrown on failure.
+         */
+        void listen(uint16_t port);
 
 
-private:
-	//! Use pimpl idiom.
-	std::unique_ptr<Data> impl;
+        /**
+         * Perform pending tasks on the TCP/IP server socket. This function has to be called regularly from the event loop.
+         */
+        void work();
 
-};
+        /**
+         * Get the currently active TcpConnection
+         *
+         * @return
+         */
+        std::shared_ptr<TcpConnection> &getActiveTcpConnection();
+
+        /**
+         * Returns the acceptor of the TcpServer
+         * @return acceptor
+         */
+        asio::ip::tcp::acceptor &getAcceptor();
+
+        /**
+         * Add a new TcpConnection to server
+         * @return new added tcpConnection
+         */
+        std::shared_ptr<TcpConnection> addNewTcpConnection();
+
+
+    private:
+        //! Use pimpl idiom.
+        std::unique_ptr<Data> impl;
+
+    };
 }
 
 #endif /* NETWORK_TCPSERVER_H_ */

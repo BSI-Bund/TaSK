@@ -21,22 +21,23 @@
 #include <string>
 
 namespace TlsTestTool {
-class Configuration;
+    class Configuration;
+
 /**
  * Parser for configuration arguments describing a manipulation.
  */
-class ManipulationsParser {
-public:
-	/**
-	 * Factory function parsing the given name-value pair and adding a manipulation to the configuration.
-	 *
-	 * @param name Name of a name-value pair
-	 * @param value Value of a name-value pair
-	 * @param configuration Configuration description that will be extended
-	 * @throw std::exception Thrown, if a parsing the manipulation fails.
-	 */
-	static void parse(const std::string & name, const std::string & value, Configuration & configuration);
-};
+    class ManipulationsParser {
+    public:
+        /**
+         * Factory function parsing the given name-value pair and adding a manipulation to the configuration.
+         *
+         * @param name Name of a name-value pair
+         * @param value Value of a name-value pair
+         * @param configuration Configuration description that will be extended
+         * @throw std::exception Thrown, if a parsing the manipulation fails.
+         */
+        static void parse(const std::string &name, const std::string &value, Configuration &configuration);
+    };
 }
 
 #endif /* CONFIGURATION_CONFIGURATIONFILEPARSER_H_ */

@@ -15,8 +15,9 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_15 - Reconnect with Session ID.
  * <p>
- * This tests verifies that it is possible to perform session resumption via Session ID for the sessions which are not
+ * This test verifies that it is possible to perform session resumption via Session ID for the sessions which are not
  * older than the maximum allowed amount of time.
  */
 public class TLS_B1_FR_15 extends AbstractTestCase {
@@ -66,7 +67,7 @@ public class TLS_B1_FR_15 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers a cipher suite that is supported according to the ICS.
 	 * <li>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate
 	 * extension according to the ICS.

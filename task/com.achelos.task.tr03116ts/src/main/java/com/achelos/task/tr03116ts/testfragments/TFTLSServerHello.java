@@ -4,14 +4,15 @@ package com.achelos.task.tr03116ts.testfragments;
 import com.achelos.task.abstracttestsuite.AbstractTestFragment;
 import com.achelos.task.abstracttestsuite.IStepExecution;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
 import com.achelos.task.commons.enums.*;
-import com.achelos.task.commons.tlsextensions.TlsExtEncryptThenMac;
-import com.achelos.task.commons.tlsextensions.TlsExtRenegotiationInfo;
-import com.achelos.task.commons.tlsextensions.TlsExtension;
-import com.achelos.task.commons.tlsextensions.TlsExtensionList;
+import com.achelos.task.commons.tlsextensions.*;
 import com.achelos.task.configuration.TestRunPlanConfiguration;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -48,7 +49,8 @@ public class TFTLSServerHello extends AbstractTestFragment {
 	 * cipherSuite: <br>
 	 * signature algorithm: <br>
 	 * supported group: <br>
-	 * tlsLibrary: TLS Library default = {@link TlsTestToolTlsLibrary#MBED_TLS}
+	 * tlsLibrary: TLS Library default = {@link TlsTestToolTlsLibrary#MBED_TLS} <br>
+	 * requestClientCertificate:
 	 * @return caller relevant information
 	 */
 	@SuppressWarnings("unchecked")
@@ -63,9 +65,11 @@ public class TFTLSServerHello extends AbstractTestFragment {
 		List<TlsNamedCurves> tlsSupportedGroups = new ArrayList<>();
 		TlsExtension tlsExtension = null;
 		TlsExtensionList tlsExtensions = TlsExtensionList.emptyList();
-		TlsTestToolTlsLibrary tlsLibrary = TlsTestToolTlsLibrary.MBED_TLS; // default library
+		TlsTestToolTlsLibrary tlsLibrary = null; // default library
 		TlsECGroup ecGroup = null;
 		TlsDHGroup dhGroup = null;
+		List<TlsSignatureAlgorithmWithHash> tlsSignatureAlgorithms = new ArrayList<>();
+		boolean requestClientCertificate = false;
 		
 		
 		// Fetch the TlsTestToolExecutor
@@ -85,6 +89,8 @@ public class TFTLSServerHello extends AbstractTestFragment {
 				tlsSupportedGroups.add((TlsNamedCurves) param);
 			} else if (param instanceof TlsECGroup) {
 				ecGroup = (TlsECGroup) param;
+			} else if (param instanceof TlsSignatureAlgorithmWithHash) {
+				tlsSignatureAlgorithms.add((TlsSignatureAlgorithmWithHash) param);
 			} else if (param instanceof TlsDHGroup) {
 				dhGroup = (TlsDHGroup) param;
 			} else if (param instanceof List) {
@@ -111,6 +117,8 @@ public class TFTLSServerHello extends AbstractTestFragment {
 				}
 			} else if (param instanceof TlsTestToolTlsLibrary) {
 				tlsLibrary = (TlsTestToolTlsLibrary) param;
+			} else if (param instanceof RequestClientCertificate) {
+				requestClientCertificate = true;
 			}
 		}
 
@@ -127,11 +135,18 @@ public class TFTLSServerHello extends AbstractTestFragment {
 		stepCounter++;
 		testTool.setMode(TlsTestToolMode.server);
 		testTool.setServerHostAndPort();
+		testTool.setListenTimeout();
 
 		// The TLS ClientHello offers the configured TLS version.
 		step(prefix, stepCounter++, "The TLS server supports the following TLS version: " + tlsVersion, "");
-		if (tlsVersion == TlsVersion.TLS_V1_2 || tlsVersion == TlsVersion.TLS_V1_3) {
+		if (tlsVersion == TlsVersion.TLS_V1_2) {
+			if(tlsLibrary==null){
+				tlsLibrary = TlsTestToolTlsLibrary.MBED_TLS;
+			}
 			testTool.setTlsVersion(tlsVersion);
+		} else if (tlsVersion == TlsVersion.TLS_V1_3){
+			testTool.setTlsVersion(TlsVersion.TLS_V1_3);
+			tlsLibrary = TlsTestToolTlsLibrary.OpenSSL;
 		} else {
 			testTool.setTlsVersion(TlsVersion.TLS_V1_2);
 			testTool.manipulateHelloVersion(tlsVersion.getMajor(), tlsVersion.getMinor());
@@ -186,25 +201,48 @@ public class TFTLSServerHello extends AbstractTestFragment {
 				}
 			} else if (tlsVersion == TlsVersion.TLS_V1_3) {
 				testTool.setTlsSupportedGroups(tlsSupportedGroups); // maybe this works for OpenSSL
-				logger.error("This functionality is not implemented for TLS 1.3 yet");
+				//logger.error("This functionality is not implemented for TLS 1.3 yet");
 			}
 		}
+		if(tlsSignatureAlgorithms.size()>0&& tlsVersion == TlsVersion.TLS_V1_3){
+			List<TlsSignatureScheme> signatureSchemes = new LinkedList<>();
+			tlsSignatureAlgorithms.forEach(ss -> signatureSchemes.add(((TlsSignatureAlgorithmWithHashTls13)(ss)).getSignatureScheme()));
+			testTool.setSignatureSchemes(signatureSchemes);		}
 
 		if (null != tlsExtensions && !tlsExtensions.isEmpty()) {
-			tlsExtensions.add(new TlsExtRenegotiationInfo()); // Maybe add for all testcases in ServerHello Fragment
+			if(tlsVersion != TlsVersion.TLS_V1_3) {
+				tlsExtensions.add(new TlsExtRenegotiationInfo()); // Maybe add for all testcases in ServerHello Fragment
+			}
+//			if(tlsVersion == TlsVersion.TLS_V1_3) {
+//				tlsExtensions.add(new TlsExtSupportedVersions(TlsVersion.TLS_V1_3, false));
+//			}
 			step(prefix, stepCounter++, "The TLS ServerHello offers the following extension(s): "
 					+ tlsExtensions.getExtensionNames(), "");
-			testTool.manipulateServerHelloExtensions(tlsExtensions);
+			if(tlsVersion != TlsVersion.TLS_V1_3) {
+				testTool.manipulateServerHelloExtensions(tlsExtensions);
+			}
+			else{
+				testTool.manipulateEncryptedExtensionsTls13(tlsExtensions);
+			}
 		}
 
 		if(configuration.getPSKValue()!=null && configuration.getPSKValue().length>0){
 			step(prefix, stepCounter++, "Set the PreSharedKey value for the TLS server", "");
 			testTool.setPSK(configuration.getPSKValue());
 			// Always set default PSK Identity.
-			testTool.setPSKIdentity("Client_identity");
+			if (configuration.getPSKIdentity()!=null && !configuration.getPSKIdentity().isBlank()){
+				testTool.setPSKIdentity(configuration.getPSKIdentity());
+			} else {
+				testTool.setPSKIdentity("Client_identity");
+			}
 			if(configuration.getPSKIdentityHint()!=null && !configuration.getPSKIdentityHint().isEmpty()){
 				testTool.setPSKIdentityHint(configuration.getPSKIdentityHint());
 			}
+		}
+		
+		if (requestClientCertificate) {
+			testTool.setCaCertificateFile(Path.of(configuration.getCertificateValidationRootCA()));
+			testTool.tlsVerifyPeer();
 		}
 
 		testTool.setTlsLibrary(tlsLibrary);

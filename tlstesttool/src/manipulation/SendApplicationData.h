@@ -28,36 +28,39 @@ namespace TlsTestTool {
  * send process @c n times.
  * @see RFC 5246, Appendix A.3 (https://tools.ietf.org/html/rfc5246#page-69)
  */
-class SendApplicationData : public Manipulation {
-public:
-	/**
-	 * Create a manipulation.
-	 *
-	 * @param newNumberSendData	 Integer specifying how many times the specified message will be send after a TLS
-	 * handshake was finished successfully.
-	 * @param newApplicationData Application data that will be sent.
-	 */
-	SendApplicationData(const uint64_t newNumberSendData, const std::vector<uint8_t> newApplicationData)
-			: Manipulation(), numberSendData(newNumberSendData), applicationData(newApplicationData) {
-	}
+    class SendApplicationData : public Manipulation {
+    public:
+        /**
+         * Create a manipulation.
+         *
+         * @param newNumberSendData	 Integer specifying how many times the specified message will be send after a TLS
+         * handshake was finished successfully.
+         * @param newApplicationData Application data that will be sent.
+         */
+        SendApplicationData(const uint64_t newNumberSendData, const std::vector<uint8_t> newApplicationData)
+                : Manipulation(), numberSendData(newNumberSendData), applicationData(newApplicationData) {
+        }
 
-	const std::vector<uint8_t> & getTlsApplicationData() const {
-		return applicationData;
-	}
+        const std::vector<uint8_t> &getTlsApplicationData() const {
+            return applicationData;
+        }
 
-	uint64_t getNumberSendData() const {
-		return numberSendData;
-	}
+        uint64_t getNumberSendData() const {
+            return numberSendData;
+        }
 
-	virtual void executePreHandshake(TlsSession & session) override;
-	virtual void executePreStep(TlsSession & session) override;
-	virtual void executePostStep(TlsSession & session) override;
-	virtual void executePostHandshake(TlsSession & session) override;
+        virtual void executePreHandshake(TlsSession &session) override;
 
-private:
-	const uint64_t numberSendData;
-	const std::vector<uint8_t> applicationData;
-};
+        virtual void executePreStep(TlsSession &session) override;
+
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+
+    private:
+        const uint64_t numberSendData;
+        const std::vector<uint8_t> applicationData;
+    };
 }
 
 #endif /* MANIPULATION_SENDAPPLICATIONDATA_H_ */

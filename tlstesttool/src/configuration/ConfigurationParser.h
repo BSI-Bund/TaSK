@@ -22,24 +22,25 @@
 #include <vector>
 
 namespace TlsTestTool {
-class Configuration;
+    class Configuration;
+
 /**
  * Parser for configuration arguments given as key-value pairs.
  *
  */
-class ConfigurationParser {
-public:
-	/**
-	 * Factory function parsing the configuration arguments and storing them in a configuration description.
-	 *
-	 * @param configuration Configuration description that will be updated
-	 * @param keyValuePairs Array of key-value pairs containing the configuration arguments
-	 * @return Configuration description
-	 * @throw std::exception Thrown, if a required argument is missing, or a error occurred during reading.
-	 */
-	static void updateConfiguration(Configuration & configuration,
-									const std::vector<Tooling::KeyValuePair> & keyValuePairs);
-};
+    class ConfigurationParser {
+    public:
+        /**
+         * Factory function parsing the configuration arguments and storing them in a configuration description.
+         *
+         * @param configuration Configuration description that will be updated
+         * @param keyValuePairs Array of key-value pairs containing the configuration arguments
+         * @return Configuration description
+         * @throw std::exception Thrown, if a required argument is missing, or a error occurred during reading.
+         */
+        static void updateConfiguration(Configuration &configuration,
+                                        const std::vector<Tooling::KeyValuePair> &keyValuePairs);
+    };
 }
 
 #endif /* CONFIGURATION_CONFIGURATIONPARSER_H_ */

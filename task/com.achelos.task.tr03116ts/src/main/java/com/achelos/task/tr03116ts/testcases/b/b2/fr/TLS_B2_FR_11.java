@@ -6,6 +6,7 @@ import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
@@ -14,7 +15,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_B2_FR_11 - Client cert with invalid signature
+ * Test case TLS_B2_FR_11 - Client cert with invalid signature.
  * <p>
  * The test case verifies the correct behaviour of the DUT in case the client sends a certificate with an invalid
  * signature.
@@ -148,7 +149,7 @@ public class TLS_B2_FR_11 extends AbstractTestCase {
 		// check for handshake_failure
 		tFAlertMessageCheck.executeSteps("5", "The DUT does not accept the certificate and sends a \"bad_certificate\" "
 				+ "alert or another suitable error description",
-				Arrays.asList("level=warning/fatal", "description=bad_certificate"), testTool);
+				Arrays.asList("level=warning/fatal", "description=bad_certificate"), testTool, TlsAlertDescription.bad_certificate);
 
 		tfHandshakeNotSuccessfulCheck.executeSteps("6", "No TLS channel is established", null, testTool, tlsVersion);
 

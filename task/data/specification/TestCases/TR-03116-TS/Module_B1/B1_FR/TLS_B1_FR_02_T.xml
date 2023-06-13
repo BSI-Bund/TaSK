@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_FR_02_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_FR_02_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test case checks that the Truncated HMAC extension is not selected by the DUT.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>NO_TRUNC_HMAC</Profile>

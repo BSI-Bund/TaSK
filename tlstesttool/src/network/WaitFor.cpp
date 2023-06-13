@@ -22,27 +22,29 @@
 #include <functional>
 
 namespace TlsTestTool {
-static bool waitFor(TcpServer & tcpServer, const uint32_t timeoutSeconds, const std::function<bool()> & condition) {
-	const std::chrono::seconds timeout(timeoutSeconds);
-	auto start = std::chrono::steady_clock::now();
-	while ((std::chrono::steady_clock::now() - start) < timeout) {
-		tcpServer.work();
-		if (condition()) {
-			return true;
-		}
-	}
-	return false;
-}
+    static bool waitFor(TcpServer &tcpServer, const uint32_t timeoutSeconds, const std::function<bool()> &condition) {
+        const std::chrono::seconds timeout(timeoutSeconds);
+        auto start = std::chrono::steady_clock::now();
+        while ((std::chrono::steady_clock::now() - start) < timeout) {
+            tcpServer.work();
+            if (condition()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-WaitFor::WaitFor(TcpServer & tcpServer, const uint32_t timeoutSeconds) : server(tcpServer), timeout(timeoutSeconds) {
-}
+    WaitFor::WaitFor(TcpServer &tcpServer, const uint32_t timeoutSeconds) : server(tcpServer), timeout(timeoutSeconds) {
+    }
 
-bool WaitFor::clientConnection() const {
-	return waitFor(server, timeout, [this] { return !server.getActiveTcpConnection()->isClosed(); });
-}
+    bool WaitFor::clientConnection() const {
+        return waitFor(server, timeout, [this] { return !server.getActiveTcpConnection()->isClosed(); });
+    }
 
-bool WaitFor::clientData(const std::size_t expectedLength) const {
-	return waitFor(server, timeout,
-				   [this, expectedLength] { return expectedLength <= server.getActiveTcpConnection()->available(); });
-}
+    bool WaitFor::clientData(const std::size_t expectedLength) const {
+        return waitFor(server, timeout,
+                       [this, expectedLength] {
+                           return expectedLength <= server.getActiveTcpConnection()->available();
+                       });
+    }
 }

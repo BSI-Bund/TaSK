@@ -19,23 +19,23 @@
 #include "logging/Logger.h"
 
 namespace TlsTestTool {
-class Manipulation::Data {
-public:
-	Tooling::Logger * logger = nullptr;
-};
+    class Manipulation::Data {
+    public:
+        Tooling::Logger *logger = nullptr;
+    };
 
-Manipulation::Manipulation() : impl(std::make_unique<Data>()) {
-}
+    Manipulation::Manipulation() : impl(std::make_unique<Data>()) {
+    }
 
-Manipulation::~Manipulation() = default;
+    Manipulation::~Manipulation() = default;
 
-void Manipulation::setLogger(Tooling::Logger & logger) {
-	impl->logger = &logger;
-}
+    void Manipulation::setLogger(Tooling::Logger &logger) {
+        impl->logger = &logger;
+    }
 
-void Manipulation::log(const std::string & file, const int line, const std::string & message) {
-	if (nullptr != impl->logger) {
-		impl->logger->log(Tooling::LogLevel::HIGH, "Manipulation", file, line, message);
-	}
-}
+    void Manipulation::log(const std::string &file, const int line, const std::string &message) {
+        if (nullptr != impl->logger) {
+            impl->logger->log(Tooling::LogLevel::HIGH, "Manipulation", file, line, message);
+        }
+    }
 }

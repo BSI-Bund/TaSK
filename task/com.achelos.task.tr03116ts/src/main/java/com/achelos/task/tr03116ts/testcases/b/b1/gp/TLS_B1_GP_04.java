@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
-import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsVersion;
@@ -144,7 +144,7 @@ public class TLS_B1_GP_04 extends AbstractTestCase {
 		// check for handshake_failure
 		tFAlertMessageCheck.executeSteps("4", "The DUT rejects the ClientHello and sends a \"handshake failure\" alert "
 				+ "or another suitable error description",
-				Arrays.asList("level=warning/fatal", "description=handshake_failure"), testTool);
+				Arrays.asList("level=warning/fatal", "description=handshake_failure"), testTool, TlsAlertDescription.handshake_failure);
 
 		tfHandshakeNotSuccessfulCheck.executeSteps("5", "No TLS channel is established", null, testTool, tlsVersion);
 

@@ -26,17 +26,17 @@ namespace TlsTestTool {
  *
  * @see RFC 5246, Section 6.2.1
  */
-enum class TlsContentType : TlsUint8 {
-	CHANGE_CIPHER_SPEC = 20,
-	ALERT = 21,
-	HANDSHAKE = 22,
-	APPLICATION_DATA = 23,
-	/**
-	 * heartbeat content type (24)
-	 * @see http://tools.ietf.org/html/rfc6520#section-6
-	 */
-	HEARTBEAT = 24
-};
+    enum class TlsContentType : TlsUint8 {
+        CHANGE_CIPHER_SPEC = 20,
+        ALERT = 21,
+        HANDSHAKE = 22,
+        APPLICATION_DATA = 23,
+        /**
+         * heartbeat content type (24)
+         * @see http://tools.ietf.org/html/rfc6520#section-6
+         */
+        HEARTBEAT = 24
+    };
 }
 
 #endif /* TLS_TLSCONTENTTYPE_H_ */

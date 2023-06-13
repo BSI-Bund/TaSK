@@ -23,26 +23,26 @@
 #include <vector>
 
 namespace Tooling {
-class Logger;
+    class Logger;
 }
 namespace TlsTestTool {
-namespace OpenSsl {
+    namespace OpenSsl {
 /**
  * Writing of log messages from OpenSSL specific data.
  */
-class TlsMessageLogger {
-public:
-	/**
-	 * Log the given TLS handshake message.
-	 * @param logger Destination of log messages
-	 * @param type Type of handshake message
-	 * @param isSent @c true if the message is outgoing, @c false if the message is incoming.
-	 * @param msg Data of the TLS handshake message without header.
-	 */
-	static void logTlsHandshakeMessage(Tooling::Logger & logger, const TlsHandshakeType & type, const bool isSent,
-									   const std::vector<uint8_t> & msg);
-};
-}
+        class TlsMessageLogger {
+        public:
+            /**
+             * Log the given TLS handshake message.
+             * @param logger Destination of log messages
+             * @param type Type of handshake message
+             * @param isSent @c true if the message is outgoing, @c false if the message is incoming.
+             * @param msg Data of the TLS handshake message without header.
+             */
+            static void logTlsHandshakeMessage(Tooling::Logger &logger, const TlsHandshakeType &type, const bool isSent,
+                                               const std::vector<uint8_t> &msg, bool isClient);
+        };
+    }
 }
 
 #endif /* TLS_OPENSSL_TLSMESSAGELOGGER_H_ */

@@ -3,12 +3,12 @@ package com.achelos.task.xmlparser.datastructures.testrunplan;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
 import com.achelos.task.commons.enums.*;
 import com.achelos.task.xmlparser.datastructures.common.CertificateIdentifier;
 import com.achelos.task.xmlparser.datastructures.common.TR03145CertificationInfo;
@@ -272,7 +272,7 @@ public class TestRunPlanData {
 	 * @return A list of all Signature Algorithms in certificates which are supported by the DUT, if the DUT supports
 	 * TLSv1.3.
 	 */
-	public List<TlsSignatureScheme> getSupportedSignatureAlgorithmsForCertificates() {
+	public List<TlsSignatureAlgorithmWithHashTls13> getSupportedSignatureAlgorithmsForCertificates() {
 		return tlsConfiguration.getSupportedSignatureAlgorithmsForCertificate();
 	}
 
@@ -602,6 +602,15 @@ public class TestRunPlanData {
 	}
 
 	/**
+	 * Returns the information, what value the PSK Identity must contain, if it is applicable.
+	 *
+	 * @return Information, what value the PSK Identity must contain, if it is applicable.
+	 */
+	public String getPSKIdentity() {
+		return tlsConfiguration.getPSKIdentity();
+	}
+
+	/**
 	 * The PSK Value to use when establishing a connection to the DUT. According to Table 12 of the TR-03116-TS ICS
 	 * document.
 	 *
@@ -693,7 +702,7 @@ public class TestRunPlanData {
 	 *
 	 * @return the port under which the RMI for the DUT can be found.
 	 */
-	public String getDutRMIPort() {
+	public String getDutServerRMIPort() {
 		return testConfiguration.getDutRMIPort();
 	}
 
@@ -702,37 +711,8 @@ public class TestRunPlanData {
 	 *
 	 * @return the address under which the RMI for the DUT can be found.
 	 */
-	public String getDutRMIURL() {
+	public String getDutServerRMIURL() {
 		return testConfiguration.getDutRMIURL();
-	}
-
-	/**
-	 * In case of a TLS client returns the executable by which the DUT can be executed.
-	 *
-	 * @return the executable by which the DUT can be executed.
-	 */
-	public String getDUTExecutable() {
-		return testConfiguration.getDutExecutable();
-	}
-
-	/**
-	 * In case of a TLS client returns the call arguments which shall be used to execute the DUT for a simple
-	 * connection.
-	 *
-	 * @return the call arguments which shall be used to execute the DUT.
-	 */
-	public String getDUTCallArgumentsConnect() {
-		return testConfiguration.getDutCallArgumentsConnect();
-	}
-
-	/**
-	 * In case of a TLS client returns the call arguments which shall be used to execute the DUT for a session
-	 * resumption.
-	 *
-	 * @return the call arguments which shall be used to execute the DUT.
-	 */
-	public String getDUTCallArgumentsResume() {
-		return testConfiguration.getDutCallArgumentsReconnect();
 	}
 
 	/**
@@ -741,6 +721,14 @@ public class TestRunPlanData {
 	 */
 	public Integer getDutEIDClientPort() {
 		return testConfiguration.getDutEIDClientPort();
+	}
+
+	/**
+	 * Returns the information whether the StartTLS protocol shall be used.
+	 * @return e information whether the StartTLS protocol shall be used.
+	 */
+	public boolean useStartTLS() {
+		return testConfiguration.useStartTLS();
 	}
 
 	/**
@@ -770,33 +758,6 @@ public class TestRunPlanData {
 	 */
 	public TlsSignatureAlgorithmWithHash getNotSupportedSignatureAlgorithm() {
 		return new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.ecdsa, TlsHashAlgorithm.sha1);
-	}
-
-	/**
-	 * In case if the DUT is a TLS Server, returns the test client certificate file, used to test the mutual
-	 * authentication to the server.
-	 *
-	 * @return the Client Certificate file, used to test the mutual authentication to the server.
-	 */
-	public File getClientCertificate() {
-		if (testConfiguration.getApplicationSpecificData().isTestClientCertSet()) {
-			return new File(testConfiguration.getApplicationSpecificData().getTestClientCertPath());
-		}
-		throw new NullPointerException("Trying to access test TLS client certificate path, which is not set.");
-	}
-
-	/**
-	 * In case if the DUT is a TLS Server, returns the private key of the test client certificate, used to test the
-	 * mutual authentication to the server.
-	 *
-	 * @return the private key of the client, used to test the mutual authentication to the server.
-	 */
-	public File getClientPrivateKey() {
-		if (testConfiguration.getApplicationSpecificData().isTestClientCertSet()) {
-			return new File(testConfiguration.getApplicationSpecificData().getTestClientPrivateKeyPath());
-		}
-		throw new NullPointerException(
-				"Trying to access test TLS client certificate private key path, which is not set.");
 	}
 
 	/**
@@ -845,18 +806,18 @@ public class TestRunPlanData {
 	}
 
 	/**
-	 * Return the DUT BrowserSimulator URL of the Test Run Configuration.
-	 * @return the DUT BrowserSimulator URL of the Test Run Configuration.
+	 * Return the DUT RMI URL of the Test Run Configuration.
+	 * @return the DUT RMI URL of the Test Run Configuration.
 	 */
-	public String getBrowserSimulatorURL() {
-		return testConfiguration.getBrowserSimulatorURL();
+	public String getDutRMIURL() {
+		return testConfiguration.getDutRMIURL();
 	}
 
 	/**
-	 * Return the DUT BrowserSimulator Port of the Test Run Configuration.
-	 * @return the DUT BrowserSimulator Port of the Test Run Configuration.
+	 * Return the DUT RMI Port of the Test Run Configuration.
+	 * @return the DUT RMI Port of the Test Run Configuration.
 	 */
-	public String getBrowserSimulatorPort() {
-		return testConfiguration.getBrowserSimulatorPort();
+	public String getDutRMIPort() {
+		return testConfiguration.getDutRMIPort();
 	}
 }

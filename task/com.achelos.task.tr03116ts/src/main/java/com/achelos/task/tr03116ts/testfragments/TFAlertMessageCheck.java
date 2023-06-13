@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestFragment;
 import com.achelos.task.abstracttestsuite.IStepExecution;
-import com.achelos.task.abstracttestsuite.TestCaseCanceledException;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsAlertLevel;
@@ -35,40 +34,49 @@ public class TFAlertMessageCheck extends AbstractTestFragment {
 	public Object executeSteps(final String prefix, final String result,
 			final List<String> strParams, final Object... params) throws Exception {
 		super.executeSteps(prefix, result, strParams, params);
-		// Fetch the TlsTestToolExecutor
-		if (null != params && 0 < params.length && params[0] instanceof TlsTestToolExecutor) {
-			final TlsTestToolExecutor testTool = (TlsTestToolExecutor) params[0];
-			if (params.length == 1) {
-				logStep(prefix, params);
-				testTool.assertAlertLogged(null, null);
-				return testTool;
-			}
-			if (params.length == 2) {
-				logStep(prefix, params);
-				testTool.assertAlertLogged((TlsAlertLevel) params[1], null);
-				return testTool;
-			}
-			if (params.length == 3) {
-				logStep(prefix, params);
-				testTool.assertAlertLogged((TlsAlertLevel) params[1], (TlsAlertDescription) params[2]);
-				return testTool;
+		
+		TlsTestToolExecutor testTool = null;
+		TlsAlertLevel level = null;
+		TlsAlertDescription description = null;
+		
+		for (Object param : params) {
+			if (param instanceof TlsTestToolExecutor) {
+				testTool = (TlsTestToolExecutor) param;
+			} else if (param instanceof TlsAlertLevel) {
+				level = (TlsAlertLevel) param;
+			} else if (param instanceof TlsAlertDescription) {
+				description = (TlsAlertDescription) param;
 			}
 		}
-		logger.error("The test fragment" + testFragmentName + " called without TLS Test Tool Executor parameter. Aborting.");
-		return null;
-	}
-
-
-	private void logStep(final String prefix, final Object... params) throws TestCaseCanceledException {
-		if (params.length == 2 || params.length == 3 && params[2] == null) {
-			step(prefix, 1, "Check if the DUT has sent an alert message with level = " + params[1].toString() + ".",
-					"Receive an alert message with level = " + params[1].toString() + ".");
-		} else if (params.length == 3) {
-			step(prefix, 1,
-					"Check if the DUT has sent an alert message with level = " + params[1].toString()
-							+ " and description = " + params[2].toString() + ".",
-					"Receive an alert message with level = " + params[1].toString() + " and description = "
-							+ params[2].toString() + ".");
+		
+		if (null == testTool) {
+			logger.error("The test fragment" + testFragmentName + " called without TLS Test Tool Executor parameter. Aborting.");
+			return null;
 		}
+		
+		
+		String stepDescription = "Check if the DUT has sent an alert message";
+		String expectedResult = "Receive an alert message";
+		if(level != null) {
+			stepDescription += " [level = " + level + "]";
+			expectedResult += " [level = " + level + "]";
+		}
+		
+		if(description != null) {
+			stepDescription += " [description = " + description + "]";
+			expectedResult += " [description = " + description + "]";
+		}
+		
+		stepDescription += ".";
+		expectedResult += ".";
+		
+		step(prefix, 1, stepDescription, expectedResult);
+		
+		
+		testTool.assertAlertLogged(level, description);
+		return testTool;
+		
+		
+		
 	}
 }

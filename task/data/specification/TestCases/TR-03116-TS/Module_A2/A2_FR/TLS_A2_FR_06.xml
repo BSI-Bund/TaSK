@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_A2_FR_06" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_A2_FR_06</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test verifies that the Encrypt-then-MAC Extension is offered and can be used in a connection with a CBC-mode cipher suite</Purpose>
 	<Profile>TLS_CLIENT</Profile>
 	<Profile>ENC_THEN_MAC</Profile>
@@ -27,7 +27,7 @@
 			<Text>The TLS ClientHello offers at least one CBC-based cipher suite.</Text>
 		</ExpectedResult>
 		<ExpectedResult>
-			<Text>The TLS ClientHello offers the Encrypt-then-MAC  extension.</Text>
+			<Text>The TLS ClientHello offers the Encrypt-then-MAC extension.</Text>
 		</ExpectedResult>
 
 
@@ -35,12 +35,12 @@
 
 	<TestStep>
 		<Command>
-			<Text>The TLS server answers the DUT choosing a TLS version and a CBC-based cipher suite that is contained in the ClientHello.</Text>	
+			<Text>The TLS server answers the DUT choosing a TLS version and a CBC-based cipher suite that is contained in the ClientHello.</Text>
 		</Command>
 		<Description>The TLS server supplies the certificate chain [CERT_DEFAULT].</Description>
 		<Description>The server sends a CertificateRequest to the DUT.</Description>
 
-		<Description>The server selects the   Encrypt-then-MAC extension.</Description>
+		<Description>The server selects the Encrypt-then-MAC extension.</Description>
 
 		<Description>No further extensions are supplied by the server.</Description>
 		<ExpectedResult>

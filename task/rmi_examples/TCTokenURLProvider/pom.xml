@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.achelos.task</groupId>
-    <artifactId>RemoteTCTokenURlProvider</artifactId>
+    <artifactId>TCTokenURLProvider</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -15,21 +15,42 @@
     </properties>
     
 	<build>		
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.owasp</groupId>
+					<artifactId>dependency-check-maven</artifactId>
+					<version>8.1.2</version>
+					<configuration>
+						<formats>HTML,XML</formats>
+						<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+            			<failOnError>false</failOnError>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>aggregate</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.4.2</version>				
+				<version>3.5.0</version>				
 				<executions>
 					
 					<execution>
-						<id>make-browsersimulator-jar</id>
+						<id>make-tctokenprovider-jar</id>
 						<configuration>
 							<descriptorRefs>
 						        <descriptorRef>jar-with-dependencies</descriptorRef>
 						      </descriptorRefs>
 						      <finalName>TCTokenURLProvider</finalName>
         					  <appendAssemblyId>false</appendAssemblyId>
-        					  <!--outputDirectory>${browsersimulator.directory}</outputDirectory-->
+        					  <attach>false</attach>
 						      <archive>
 						        <manifest>
 						          <mainClass>com.achelos.task.rmi.server.RMIServer</mainClass>
@@ -40,6 +61,32 @@
 						<goals>
 							<goal>single</goal>
 						</goals>						
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.2</version>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<phase/>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>default-install</id>
+						<phase />
 					</execution>
 				</executions>
 			</plugin>

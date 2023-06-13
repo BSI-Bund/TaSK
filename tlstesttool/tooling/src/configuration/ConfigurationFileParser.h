@@ -26,18 +26,18 @@ namespace Tooling {
 /**
  * Parser for configuration arguments stored line by line in a configuration file.
  */
-class ConfigurationFileParser {
-public:
-	/**
-	 * Factory function parsing configuration arguments and creating an array of key-value pairs. Arguments of the form
-	 * "key=value" are accepted. Empty lines and lines starting with '#' are ignored.
-	 *
-	 * @param input Input stream containing the data to parse
-	 * @return Array of key-value pairs
-	 * @throw std::exception Thrown, if a required argument is missing, or a error occurred during reading.
-	 */
-	static std::vector<KeyValuePair> parse(std::istream & input);
-};
+    class ConfigurationFileParser {
+    public:
+        /**
+         * Factory function parsing configuration arguments and creating an array of key-value pairs. Arguments of the form
+         * "key=value" are accepted. Empty lines and lines starting with '#' are ignored.
+         *
+         * @param input Input stream containing the data to parse
+         * @return Array of key-value pairs
+         * @throw std::exception Thrown, if a required argument is missing, or a error occurred during reading.
+         */
+        static std::vector<KeyValuePair> parse(std::istream &input);
+    };
 }
 
 #endif /* CONFIGURATION_CONFIGURATIONFILEPARSER_H_ */

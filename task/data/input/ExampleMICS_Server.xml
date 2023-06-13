@@ -20,6 +20,7 @@
 			An applicant SHALL provide a declaration containing information on the supported profiles. -->
 			<!-- mandatory profiles from TR-03116-TS_Annex, Table 2 -->
 			<Profile>CHECK_CERTS</Profile>
+			<Profile>DURATION</Profile>
 			<Profile>ECC</Profile>
 			<Profile>ENC_THEN_MAC</Profile>
 			<Profile>INTERIM_SUITES_SRV</Profile>
@@ -31,7 +32,6 @@
 			
 			<!-- recommended profiles from TR-03116-TS_Annex, Table 2 -->
 			<Profile>CERTIFIED_CA</Profile>
-			<!-- <Profile>DURATION</Profile> -->
 			<Profile>NO_COMPRESSION</Profile>
 			<Profile>NO_HEARTBEAT</Profile>
 			<Profile>NO_RENEGOTIATION</Profile>
@@ -39,8 +39,10 @@
 			<Profile>PFS</Profile>
 			<Profile>SESSION_ID</Profile>
 			<Profile>SESSION_TICKET</Profile>
+			<Profile>TLS_1.3</Profile>
 			
 			<!-- additional profiles -->
+			<!--<Profile>CLIENT_CERT</Profile>-->
 			<Profile>NO_CLIENT_CERT</Profile>
 	</Profiles>
 		
@@ -240,10 +242,5 @@
 			<SubDomain>tls-check.de</SubDomain>
 		</ServerDomains>
 	</TLSCertificates>
-	
-	<!-- <ApplicationSpecificData> -->
-		<!-- additional data
-			TLS client certificate for testing TLS client authentication -->
-	<!-- </ApplicationSpecificData> -->
 	
 </ICS>

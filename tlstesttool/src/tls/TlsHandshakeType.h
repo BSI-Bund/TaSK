@@ -26,24 +26,24 @@ namespace TlsTestTool {
  *
  * @see RFC 5246, Section 7.4
  */
-enum class TlsHandshakeType : TlsUint8 {
-	HELLO_REQUEST = 0,
-	CLIENT_HELLO = 1,
-	SERVER_HELLO = 2,
-	HELLO_VERIFY_REQUEST = 3,
-	NEW_SESSION_TICKET = 4,
-	END_OF_EARLY_DATA = 5,
-	ENCRYPTED_EXTENSION = 8,
-	CERTIFICATE = 11,
-	SERVER_KEY_EXCHANGE = 12,
-	CERTIFICATE_REQUEST = 13,
-	SERVER_HELLO_DONE = 14,
-	CERTIFICATE_VERIFY = 15,
-    CLIENT_KEY_EXCHANGE = 16,
-    FINISHED = 20,
-    CERTIFICATE_STATUS = 22,
-    KEY_UPDATE = 24
-};
+    enum class TlsHandshakeType : TlsUint8 {
+        HELLO_REQUEST = 0,
+        CLIENT_HELLO = 1,
+        SERVER_HELLO = 2,
+        HELLO_VERIFY_REQUEST = 3,
+        NEW_SESSION_TICKET = 4,
+        END_OF_EARLY_DATA = 5,
+        ENCRYPTED_EXTENSION = 8,
+        CERTIFICATE = 11,
+        SERVER_KEY_EXCHANGE = 12,
+        CERTIFICATE_REQUEST = 13,
+        SERVER_HELLO_DONE = 14,
+        CERTIFICATE_VERIFY = 15,
+        CLIENT_KEY_EXCHANGE = 16,
+        FINISHED = 20,
+        CERTIFICATE_STATUS = 22,
+        KEY_UPDATE = 24
+    };
 }
 
 #endif /* TLS_TLSHANDSHAKETYPE_H_ */

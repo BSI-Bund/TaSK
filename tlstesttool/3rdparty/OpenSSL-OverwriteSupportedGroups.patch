@@ -1,0 +1,15 @@
+--- a/ssl/t1_lib.c	2023-04-28 19:32:22.747059000 +0200
++++ b/ssl/t1_lib.c	2023-05-08 17:56:13.865983763 +0200
+@@ -213,6 +213,12 @@
+         OSSL_TLS_GROUP_ID_ffdhe4096,     /* ffdhe4096 (0x102) */
+         OSSL_TLS_GROUP_ID_ffdhe6144,     /* ffdhe6144 (0x103) */
+         OSSL_TLS_GROUP_ID_ffdhe8192,     /* ffdhe8192 (0x104) */
++        OSSL_TLS_GROUP_ID_brainpoolP256r1,
++        OSSL_TLS_GROUP_ID_brainpoolP384r1,
++        OSSL_TLS_GROUP_ID_brainpoolP512r1,
++        OSSL_TLS_GROUP_ID_brainpoolP256r1_tls13,
++        OSSL_TLS_GROUP_ID_brainpoolP384r1_tls13,
++        OSSL_TLS_GROUP_ID_brainpoolP512r1_tls13,
+ };
+ 
+ static const uint16_t suiteb_curves[] = {

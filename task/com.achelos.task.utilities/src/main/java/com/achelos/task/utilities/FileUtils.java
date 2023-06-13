@@ -22,27 +22,35 @@ public class FileUtils {
 	/**
 	 * Generate the SHA256 Fingerprint of the provided file.
 	 * @param fileToHash The file to generate the fingerprint for.
-	 * @return The SHA256 Fingerprint of the provieded file.
+	 * @return The SHA256 Fingerprint of the provided file.
 	 */
 	public static byte[] getFileFingerprint(final File fileToHash) {
+		return getFileFingerprint(fileToHash, "SHA-256");
+	}
+	/**
+	 * Generate a Fingerprint of the provided file.
+	 * @param fileToHash The file to generate the fingerprint for.
+	 * @param hashFunction The name of the hashfunction to use.
+	 * @return The hashfunction Fingerprint of the provided file.
+	 */
+	public static byte[] getFileFingerprint(final File fileToHash, final String hashFunction) {
 		if (fileToHash == null) {
 			return new byte[] { };
 		}
 		try (var fileInputStream = new FileInputStream(fileToHash)){
-			var sha256Digest = MessageDigest.getInstance("SHA-256");
+			var digest = MessageDigest.getInstance(hashFunction);
 
 			byte[] buffer = new byte[1024];
 			int bytesCount = 0;
 
 			while ((bytesCount = fileInputStream.read(buffer)) != -1) {
-				sha256Digest.update(buffer, 0, bytesCount);
+				digest.update(buffer, 0, bytesCount);
 			}
 
 			fileInputStream.close();
 
 			// Get the hash's bytes
-			var fingerprint = sha256Digest.digest();
-			return fingerprint;
+			return digest.digest();
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to calculate fingerprint of file: " + fileToHash.getAbsolutePath(), e);
 		}

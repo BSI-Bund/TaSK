@@ -22,7 +22,7 @@ import static com.achelos.task.commons.enums.TlsVersion.TLS_V1_3;
 
 
 /**
- * Testcase TLS_B2_GP_07_T - Perfect forward secrecy cipher suites.
+ * Test case TLS_B2_GP_07_T - Perfect forward secrecy cipher suites.
  * <p>
  * This positive test evaluates the ability of the DUT to establish a TLS connection with valid parameters using named
  * DHE groups and PFS. The test is carried out for the TLS version [TLS_VERSION], the PFS-cipher suite [CIPHERSUITE] and
@@ -184,7 +184,7 @@ public class TLS_B2_GP_07_T extends AbstractTestCase {
 					tfClientCertificate.executeSteps("1",
 							"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].",
 							Arrays.asList(),
-							testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+							testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 					
 					tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 							+ ", cipher suite " + cipherSuite.getName() + " and named groups extension "

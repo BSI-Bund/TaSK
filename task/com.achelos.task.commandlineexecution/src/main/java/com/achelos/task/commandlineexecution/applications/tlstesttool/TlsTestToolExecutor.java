@@ -8,10 +8,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +20,8 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.configurat
 import com.achelos.task.commandlineexecution.applications.tlstesttool.configuration.TlsTestToolConfigurationOption;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.genericcommandlineexecution.Executor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.commandlineexecution.genericcommandlineexecution.RunLogger;
 import com.achelos.task.commons.certificatehelper.CertificateHelper;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
@@ -49,6 +47,8 @@ import com.achelos.task.configuration.TlsTestToolCertificateTypes;
 import com.achelos.task.logging.BasicLogger;
 import com.achelos.task.logging.LoggingConnector;
 import com.achelos.task.utilities.logging.LogBean;
+
+import javax.print.DocFlavor;
 
 
 /**
@@ -101,6 +101,11 @@ public class TlsTestToolExecutor extends RunLogger {
 		final String tlsSecretFile = configuration.getTlsSecretFile();
 		addConfigOption(TlsTestToolConfigurationOption.TLSSECRETFILE, tlsSecretFile);
 
+		// If StartTLS protocol is enabled, set the config.
+		if (configuration.useStartTLS()) {
+			setStartTLSConfig();
+		}
+
 		// Set the variable waitBeforeClose from the global parameters if it has not yet
 		// been set in the test case
 		if (getWaitBeforeClose() == null) {
@@ -148,9 +153,6 @@ public class TlsTestToolExecutor extends RunLogger {
 		command.add("--configFile=" + configurationFile);
 
 		start(command, null, new File(testToolWorkingDir));
-		// We add a small delay for the process to finish
-		final int finishProcessDelay = 3000;
-		startSleepTimer(finishProcessDelay);
 	}
 
 
@@ -376,6 +378,18 @@ public class TlsTestToolExecutor extends RunLogger {
 		addConfigOption(TlsTestToolConfigurationOption.TLSENCRYPTTHENMAC, "true");
 	}
 
+	/**
+	 * Enable the usage of Encrypt-then-MAC.
+	 *
+	 */
+	public final void setTlsExtendedMasterSecret(boolean enable) {
+		if(enable)
+			addConfigOption(TlsTestToolConfigurationOption.TLSEXTENDEDMASTERSECRET, "true");
+		else
+			addConfigOption(TlsTestToolConfigurationOption.TLSEXTENDEDMASTERSECRET, "false");
+
+	}
+
 
 	/**
 	 * caCertificateFile=[path] (with path pointing to a PEM- or DER-encoded file) File containing an X.509 CA
@@ -483,32 +497,12 @@ public class TlsTestToolExecutor extends RunLogger {
 			return "";
 		}
 		TlsSignatureAlgorithm defaultSignatureAlgorithm = signatureWithHashAlgorithms.get(0).getSignatureAlgorithm();
-
 		TlsHashAlgorithm defaultHashAlgorithm = signatureWithHashAlgorithms.get(0).getHashAlgorithm();
-
-
-		// TLS 1.2
-		String tlsVersionString = "";
-		switch (tlsVersion) {
-			case SSL_V3_0:
-				tlsVersionString = "";
-				break;
-			case TLS_V1_0:
-			case TLS_V1_1:
-			case TLS_V1_2:
-				tlsVersionString = "tls12";
-				break;
-			case TLS_V1_3:
-				tlsVersionString = "tls13";
-				break;
-			default:
-				throw new IllegalStateException("Unexpected value: " + tlsVersion);
-		}
-
 		TlsSignatureAlgorithm signatureAlgorithm = defaultSignatureAlgorithm;
 		TlsHashAlgorithm hashAlgorithm = defaultHashAlgorithm;
+		TlsNamedCurves defaultCurve = null;
 
-		if (cipherSuite != null) {
+		if (cipherSuite != null && tlsVersion == TlsVersion.TLS_V1_2) {
 			/* Find out which signature algorithm is used in selected cipher suite */
 			if (TlsCipherSuite.filterByName("RSA").contains(cipherSuite)) {
 				signatureAlgorithm = TlsSignatureAlgorithm.rsa;
@@ -522,24 +516,43 @@ public class TlsTestToolExecutor extends RunLogger {
 				signatureAlgorithm = signatureAlgorithmWithHash.getSignatureAlgorithm();
 				hashAlgorithm = signatureAlgorithmWithHash.getHashAlgorithm();
 			} else {
-				/* TLS 1.3 */
+				signatureAlgorithm = signatureAlgorithmWithHash.getSignatureAlgorithm();
+				hashAlgorithm = signatureAlgorithmWithHash.getHashAlgorithm();
+				defaultCurve = ((TlsSignatureAlgorithmWithHashTls13) signatureAlgorithmWithHash).getSignatureScheme().getEllipticCurveGroup();
 			}
 		}
 
-		var prefixName = String.format("test_server_%s_%s_%s", tlsVersionString,
-				signatureAlgorithm.getSignatureAlgorithmValueDescription(),
+		String signatureAlgorithmName = signatureAlgorithm.getSignatureAlgorithmValueDescription();
+		//TLS 1.3 edge case when RSA_PSS_PSS signature schemes are used
+		if(tlsVersion == TlsVersion.TLS_V1_3 &&  ((TlsSignatureAlgorithmWithHashTls13) signatureAlgorithmWithHash).getSignatureScheme().isRsaPssPss() ) {
+			signatureAlgorithmName+="-pss";
+		}
+		/*has to be adapted for Ed448 as well*/
+		if(hashAlgorithm == TlsHashAlgorithm.intrinsic ){
+			if(signatureAlgorithm == TlsSignatureAlgorithm.ed448){
+				hashAlgorithm = TlsHashAlgorithm.sha256;
+			}
+			if(signatureAlgorithm == TlsSignatureAlgorithm.ed25519){
+				hashAlgorithm = TlsHashAlgorithm.sha512;
+			}
+		}
+
+		var prefixName = String.format("test_server_%s_%s",
+				signatureAlgorithmName,
 				hashAlgorithm.getHashAlgorithmDescription());
 		if (signatureAlgorithm == TlsSignatureAlgorithm.ecdsa) {
-			List<TlsNamedCurves> defaultCurves
-					= configuration.filterSupportedGroupsToEllipticCurveGroups(tlsVersion);
-			TlsNamedCurves defaultCurve;
-			if (defaultCurves.isEmpty()) {
-				logInfo("No Elliptic Curve support in MICS. Using NIST P-256 EC Certificate.");
-				defaultCurve = TlsNamedCurves.secp256r1;
-			} else {
-				defaultCurve = defaultCurves.get(0);
+
+			if(defaultCurve == null) {
+				List<TlsNamedCurves> defaultCurves
+						= configuration.filterSupportedGroupsToEllipticCurveGroups(tlsVersion);
+				if (defaultCurves.isEmpty()) {
+					logInfo("No Elliptic Curve support in MICS. Using NIST P-256 EC Certificate.");
+					defaultCurve = TlsNamedCurves.secp256r1;
+				} else {
+					defaultCurve = defaultCurves.get(0);
+				}
 			}
-			if(certificateType ==TlsTestToolCertificateTypes.CERT_SHORT_KEY){
+			if (certificateType == TlsTestToolCertificateTypes.CERT_SHORT_KEY) {
 				defaultCurve = TlsNamedCurves.secp192r1;
 			}
 			prefixName += "_" + defaultCurve.getName();
@@ -548,14 +561,13 @@ public class TlsTestToolExecutor extends RunLogger {
 
 		String certificateTypeSubfolder = certificateType.getRelativePathName();
 
-		var certificateFile = String.format("%s/%s/%s/%s/%s_certificate.pem", certificatesBasePath,
-				tlsVersionString,
+		var certificateFile = String.format("%s/%s/%s/%s_certificate.pem", 
+				certificatesBasePath,
 				signatureAlgorithm.getSignatureAlgorithmValueDescription(),
 				certificateTypeSubfolder,
 				prefixName);
-		var privateKeyFile = String.format("%s/%s/%s/%s/%s_private_key.pem",
+		var privateKeyFile = String.format("%s/%s/%s/%s_private_key.pem",
 				certificatesBasePath,
-				tlsVersionString,
 				signatureAlgorithm.getSignatureAlgorithmValueDescription(),
 				certificateTypeSubfolder,
 				prefixName);
@@ -591,7 +603,7 @@ public class TlsTestToolExecutor extends RunLogger {
 		addConfigOption(TlsTestToolConfigurationOption.PRIVATEKEYFILE, privateKeyPath);
 		addConfigOption(TlsTestToolConfigurationOption.CERTIFICATEFILE, certificatePath);
 
-		return certFile.getName();
+		return certFile.getAbsolutePath();
 	}
 
 
@@ -628,6 +640,14 @@ public class TlsTestToolExecutor extends RunLogger {
 		final String port = Integer.toString(configuration.getTlsTestToolPort());
 		logInfo("Setup TLS Test Tool address and port to: " + TLS_TEST_TOOL_LOCAL_HOST_AS_SERVER + ":" + port);
 		setHostAndPort(TLS_TEST_TOOL_LOCAL_HOST_AS_SERVER, port);
+	}
+
+	/**
+	 * Method takes the value for listenTimeout from global parameters and specifies it to the TlsTesttool when used as a server.
+	 */
+	public final void setListenTimeout() {
+		var listenTimeout = configuration.getTlsTesttoolListenTimeout();
+		addConfigOption(TlsTestToolConfigurationOption.LISTENTIMEOUT, Integer.toString(listenTimeout));
 	}
 
 	private final void checkServerMode() {
@@ -910,7 +930,7 @@ public class TlsTestToolExecutor extends RunLogger {
 	}
 
 	/**
-	 * Overloaded function for manipulating ClientHello extensions. Add SNI extension if configured in the global
+	 * Overloaded function for manipulating ServerHello extensions. Add SNI extension if configured in the global
 	 * parameters because this overwrites the present extensions.
 	 *
 	 * @param extensionList TLS extension list
@@ -921,13 +941,34 @@ public class TlsTestToolExecutor extends RunLogger {
 	}
 
 	/**
-	 * manipulateClientHelloExtensions=[bytes] (with bytes given as HexString) If mode=client, overwrite the field
-	 * extensions in a ClientHello message with the byte array given in bytes. Ignored, if mode=server.
+	 * manipulateServerHelloExtensions=[bytes] (with bytes given as HexString) If mode=server, overwrite the field
+	 * extensions in a ServerHello message with the byte array given in bytes. Ignored, if mode=client.
 	 *
 	 * @param hexString hexString for example "00 0A 00 0B"
 	 */
 	private void manipulateServerHelloExtensions(final String hexString) {
 		addConfigOption(TlsTestToolConfigurationOption.MANIPULATESERVERHELLOEXTENSIONS, hexString);
+	}
+
+	/**
+	 * Only in server mode: Overloaded function for manipulating Encrypted extensions. Add SNI extension if configured in the global
+	 * parameters because this overwrites the present extensions.
+	 *
+	 * @param extensionList TLS extension list
+	 */
+	public final void manipulateEncryptedExtensionsTls13(final TlsExtensionList extensionList) {
+
+		manipulateEncryptedExtensionsTls13(extensionList.toHexString());
+	}
+
+	/**
+	 * Only in server mode: Overloaded function for manipulating Encrypted extensions. If mode=server, overwrite the encrypted extensions
+	 * extensions in a EncryptedExtension message with the byte array given in bytes. Ignored, if mode=client.
+	 *
+	 * @param hexString hexString for example "00 0A 00 0B"
+	 */
+	private void manipulateEncryptedExtensionsTls13(final String hexString) {
+		addConfigOption(TlsTestToolConfigurationOption.MANIPULATEENCRYPTEDEXTENSIONSTLS13, hexString);
 	}
 
 
@@ -1178,6 +1219,7 @@ public class TlsTestToolExecutor extends RunLogger {
 	}
 
 
+
 	/**
 	 * Method searches a given message identifier by using text constants within gathered logging and returns the proper
 	 * finding or the closest message which was found.
@@ -1226,26 +1268,27 @@ public class TlsTestToolExecutor extends RunLogger {
 		}
 		if (null != description) {
 			logInfo("Expected: Alert.description=" + description + ".");
-			final byte[] bytesLevel = getHexStringValue(TestToolResource.Alert_description, logLevel);
-			if (null == bytesLevel || 1 != bytesLevel.length) {
+			final byte[] bytesDescription = getHexStringValue(TestToolResource.Alert_description, logLevel);
+			if (null == bytesDescription || 1 != bytesDescription.length) {
 				alertLogged = false;
 				log(logLevel, "Actual: Alert.description not found.");
-			} else if (description.toNumber() == bytesLevel[0]) {
+			} else if (description.toNumber() == bytesDescription[0]) {
 				logInfo("Actual: Alert.description=" + description + ".");
 			} else {
 				alertLogged = false;
 				boolean found = false;
-				for (final TlsAlertDescription potentialLevel : TlsAlertDescription.values()) {
-					if (potentialLevel.toNumber() == bytesLevel[0]) {
-						log(logLevel, "Actual: Alert.description=" + potentialLevel + ".");
+				for (final TlsAlertDescription potentialDescription : TlsAlertDescription.values()) {
+					if (potentialDescription.toNumber() == bytesDescription[0]) {
+						log(BasicLogger.WARNING, "Actual: Alert.description=" + potentialDescription + ".");
 						found = true;
 						break;
 					}
 				}
 				if (!found) {
 					alertLogged = false;
-					log(logLevel, "Actual: Alert.description=" + bytesLevel[0] + ".");
+					log(BasicLogger.WARNING, "Actual: Alert.description=" + bytesDescription[0] + ".");
 				}
+				log(BasicLogger.WARNING, "Actual alert description does not match the expected alert description. Please check whether the given alert description is suitable." );
 			}
 		}
 		return alertLogged;
@@ -1396,6 +1439,16 @@ public class TlsTestToolExecutor extends RunLogger {
 	public final List<String> getValues(final TestToolResource constant, final long logLevel)
 			throws IOException {
 		return getValues(constant.getInternalToolOutputMessage(), logLevel);
+	}
+
+	public int numberOfTimesMessageLogged(final TestToolResource message)
+			throws IOException {
+			var list = findMessages(message.getInternalToolOutputMessage());
+			if(list == null){
+				return 0;
+			} else {
+				return list.size();
+			}
 	}
 
 
@@ -1636,6 +1689,27 @@ public class TlsTestToolExecutor extends RunLogger {
 		return certList;
 	}
 
+	/**
+	 * Search for the delivered Server certificates.
+	 *
+	 * @return list of certificates, no certificates leads to empty list.
+	 * @throws IOException
+	 */
+	public final List<X509Certificate> findClientCertificateList() throws IOException {
+		final int size = getCertificateListSize();
+		if (-1 == size) {
+			return Collections.emptyList();
+		}
+		final List<X509Certificate> certList = new ArrayList<>(size);
+		for (int i = 0; i < size; ++i) {
+			final String certHex = getValue("Client Certificate.certificate_list[" + i + "]");
+			if (null != certHex) {
+				certList.add(CertificateHelper.parseData(certHex));
+			}
+		}
+		return certList;
+	}
+
 
 	/**
 	 * Check in the log output, if the TLS server supports the given TLS extension. Report the result in the test case
@@ -1819,6 +1893,30 @@ public class TlsTestToolExecutor extends RunLogger {
 		return receivedExtensions;
 	}
 
+	public final boolean supportsTls13inSupportedVersionsExt() throws IOException {
+		String extensionTypesHexString = getExtensions(TlsTestToolMode.client);
+
+		if (null != extensionTypesHexString) {
+			final byte[] extensions = StringTools.toByteArray(extensionTypesHexString);
+			if (extensions != null && extensions.length >= 4) {
+				StringBuilder sb = new StringBuilder();
+				logDebug("The DUT offers following ClientHello.extension(s): ");
+				for (int i = 0; i < extensions.length;) {
+					final TlsExtensionTypes extensionType = TlsExtensionTypes.valueOf(extensions[i],
+							extensions[i + 1]);
+					final int length = (extensions[i + 2] & A_0XFF) << 8 | extensions[i + 3] & A_0XFF;
+					if(extensionType == TlsExtensionTypes.supported_versions){
+						String suppVersionExtString = StringTools.toHexString(Arrays.copyOfRange(extensions, i+4, i+4+length));
+						return suppVersionExtString.contains(TlsVersion.TLS_V1_3.getTlsVersionHexString().replaceAll(" ", ""));
+					}
+					i += 4 + length;
+				}
+				logDebug(sb.toString());
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Checks the provided domain parameters list against received domain parameters list in the client hello message.
 	 * 
@@ -1832,7 +1930,7 @@ public class TlsTestToolExecutor extends RunLogger {
 	public final void checkDomainParameters(final List<TlsNamedCurves> namedGroups) throws IOException {
 		final byte[] data = assertExtensionTypeLogged(TlsTestToolMode.client,
 				TlsExtensionTypes.supported_groups);
-		if (data.length <= 2) {
+		if (null == data || data.length <= 2) {
 			logError("The NamedGroup extension has not the correct format.");
 			return;
 		}
@@ -1882,7 +1980,7 @@ public class TlsTestToolExecutor extends RunLogger {
 	 * received extensions in the client hello message. An error is logged if, an expected extension is not received or
 	 * TLS client hello additionally offers the extensions that are not expected (not specified in the MICS file against
 	 * the provided TLS version.
-	 * 
+	 *
 	 * @param tlsVersion the TLS version to get supported extensions as specified in the MICS file.
 	 * @throws IOException may throw an exception, If an error occurs while reading the TLS client hello extensions
 	 */
@@ -1892,21 +1990,18 @@ public class TlsTestToolExecutor extends RunLogger {
 				= getConfiguration().getSupportedExtensions(tlsVersion);
 		ArrayList<TlsExtensionTypes> receivedClientHelloExtensions = getClientHelloExtensions();
 		ArrayList<TlsExtensionTypes> noteReceivedExtensions = new ArrayList<>();
-		for (int i = 0; i < supportedExtensions.size(); i++) {
-			if (!receivedClientHelloExtensions.contains(supportedExtensions.get(i))) {
-				noteReceivedExtensions.add(supportedExtensions.get(i));
+		for (TlsExtensionTypes supportedExtension : supportedExtensions) {
+			if (!receivedClientHelloExtensions.contains(supportedExtension)) {
+				noteReceivedExtensions.add(supportedExtension);
 			}
 		}
-
 
 		ArrayList<TlsExtensionTypes> additionallyReceivedExtensions = new ArrayList<>();
-		for (int i = 0; i < receivedClientHelloExtensions.size(); i++) {
-			if (!supportedExtensions.contains(receivedClientHelloExtensions.get(i))) {
-				additionallyReceivedExtensions.add(receivedClientHelloExtensions.get(i));
+		for (TlsExtensionTypes receivedClientHelloExtension : receivedClientHelloExtensions) {
+			if (!supportedExtensions.contains(receivedClientHelloExtension)) {
+				additionallyReceivedExtensions.add(receivedClientHelloExtension);
 			}
 		}
-
-
 		if (!noteReceivedExtensions.isEmpty()) {
 			logError("TLS ClientHello does not offer following extensions: "
 					+ noteReceivedExtensions.toString());
@@ -1922,6 +2017,60 @@ public class TlsTestToolExecutor extends RunLogger {
 		logInfo("Expected extensions: " + supportedExtensions);
 		logInfo("Actual extensions: " + receivedClientHelloExtensions);
 
+	}
+
+	/**
+	 * Gets all the supported TLS extensions from the MICS file for specified TLS version and checks them against
+	 * received extensions in the client hello message. An error is logged if, an expected extension is not received or
+	 * TLS client hello additionally offers the extensions that are not expected (not specified in the MICS file against
+	 * the provided TLS version.
+	 *
+	 * @param tlsVersion the TLS version to get supported extensions as specified in the MICS file.
+	 * @throws IOException may throw an exception, If an error occurs while reading the TLS client hello extensions
+	 */
+	public final void checkSupportedExtensionsForAGP01(final TlsVersion tlsVersion) throws IOException {
+
+		List<TlsExtensionTypes> supportedExtensions = new LinkedList<>();
+		if(tlsVersion == TlsVersion.TLS_V1_2){
+			supportedExtensions = getConfiguration().getSupportedExtensions(tlsVersion);
+		}
+		if(tlsVersion == TlsVersion.TLS_V1_3){
+			var tls12Extensions = getConfiguration().getSupportedExtensions(TlsVersion.TLS_V1_2);
+			var tls13Extensions = getConfiguration().getSupportedExtensions(TlsVersion.TLS_V1_3);
+			if(tls12Extensions!=null)
+				supportedExtensions.addAll(tls12Extensions);
+			supportedExtensions.addAll(tls13Extensions);
+		}
+
+		ArrayList<TlsExtensionTypes> receivedClientHelloExtensions = getClientHelloExtensions();
+		ArrayList<TlsExtensionTypes> noteReceivedExtensions = new ArrayList<>();
+		for (TlsExtensionTypes supportedExtension : supportedExtensions) {
+			if (!receivedClientHelloExtensions.contains(supportedExtension)) {
+				noteReceivedExtensions.add(supportedExtension);
+			}
+		}
+
+		ArrayList<TlsExtensionTypes> additionallyReceivedExtensions = new ArrayList<>();
+		for (TlsExtensionTypes receivedClientHelloExtension : receivedClientHelloExtensions) {
+			if (!supportedExtensions.contains(receivedClientHelloExtension)) {
+				additionallyReceivedExtensions.add(receivedClientHelloExtension);
+			}
+		}
+
+		if (!noteReceivedExtensions.isEmpty()) {
+			logError("TLS ClientHello does not offer following extensions: "
+					+ noteReceivedExtensions.toString());
+		} else if (tlsVersion == TlsVersion.TLS_V1_3 && !additionallyReceivedExtensions.isEmpty()) {
+			logError("TLS ClientHello additionally offers following extensions: "
+					+ additionallyReceivedExtensions.toString());
+		} else {
+
+			logInfo("TLS ClientHello offers only the extensions stated in the ICS that match "
+					+ "the TLS version.");
+		}
+
+		logInfo("Expected extensions: " + supportedExtensions);
+		logInfo("Actual extensions: " + receivedClientHelloExtensions);
 	}
 
 	/**
@@ -2027,6 +2176,20 @@ public class TlsTestToolExecutor extends RunLogger {
 		final String[] hexParts = random.split(" ");
 		final int sixteen = 16;
 		return Long.parseUnsignedLong(hexParts[0] + hexParts[1] + hexParts[2] + hexParts[3], sixteen);
+	}
+
+	private final void setStartTLSConfig() {
+		if (configuration.useStartTLS()) {
+			var appType = configuration.getDUTApplicationType();
+			if (appType.contains("POP3")) {
+				addConfigOption(TlsTestToolConfigurationOption.STARTTLSPROTOCOL, "pop3");
+			} else if (appType.contains("IMAP")) {
+				addConfigOption(TlsTestToolConfigurationOption.STARTTLSPROTOCOL, "imap");
+			} else {
+				// SMTP
+				addConfigOption(TlsTestToolConfigurationOption.STARTTLSPROTOCOL, "smtp");
+			}
+		}
 	}
 
 }

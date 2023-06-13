@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<parameters>
+		<parameter id="tester_in_charge">
+			<!-- Name of the person executing the test.
+				This name will be printed in the report.
+				# mandatory -->
+			<string>docker-runner</string>
+		</parameter>
+		<parameter id="tls_test_tool_path">
+			<!-- Path to the TLS Test Tool executable. 
+				# mandatory -->
+			<string>/task/src/tlstesttool/build/src/TlsTestTool</string>
+		</parameter>
+		<parameter id="tls_test_tool_port">
+			<!--Port to Start TLS Test Tool as server 
+				# mandatory only for client test cases
+				# default value: 8080
+				# NOTE: If the port is smaller than 1024, the TlsTestTool (or TaSK) must be executed with higher privileges (e.g. grant TLSTestTool CAP_NET_BIND_SERVICE). -->
+			<int>8080</int>
+		</parameter>
+		<parameter id="tls_test_tool_logLevel">
+			<!-- Log level {off, low, medium, high}
+				(for more details see the TLS Test Tool's "logLevel" option) 
+				# mandatory -->
+			<string>low</string>
+		</parameter>
+		<parameter id="tls_test_tool_certificates_path">
+			<!--Path where the certificates required by the TLS Test Tool are stored
+				This is automatically set based on the "tls_test_tool_path"
+				The certificates can be found in TLS Test Tool sources
+				# optional -->
+			<string></string>
+		</parameter>
+		<parameter id="maximum_wait_time_for_reading_log_message">
+			<!-- Timeout in seconds to wait for a log message.
+				# optional
+				# default value: 60 -->
+			<int>60</int>
+		</parameter>
+		<parameter id="tls_test_tool_wait_before_close">
+			<!-- Waiting time in seconds until connection is closed by the TlsTestTool.
+				# optional
+				# default value: 5 -->
+			<int>5</int>
+		</parameter>
+		<parameter id="tls_test_tool_listen_timeout">
+			<!-- Waiting time in seconds for which the TlsTesttool waits for an incoming TCP/IP connection.
+				# optional
+				# default value: 60 -->
+			<int>60</int>
+		</parameter>
+		<parameter id="specification_directory">
+			<!-- The path of the specification files of the TaSK framework.
+				This directory needs to exist and needs to contain the
+				- ApplicationSpecifications directory
+				- ApplicationSpecificProfiles directory
+				- TestCases directory
+				- TestProfiles.xml
+				- TlsConfigurationData.xml
+				This should point to the `data/specification` directory contained in the TaSK source bundle.
+				# mandatory -->
+			<string>/task/src/task/data/specification</string>
+		</parameter>
+		<parameter id="report_directory">
+			<!-- The path to save log files and test reports.
+				If the directory does not exist, it will be created. 
+				# mandatory -->
+			<string>/task/reports</string>
+		</parameter>
+		<parameter id="tshark_enabled">
+			<!-- If 'true', TShark will be used to create a network traffic dump.
+				Otherwise no network dump will be written. 
+				# optional
+				# default value: false -->
+			<boolean>false</boolean>
+		</parameter>
+		<parameter id="tshark_interface">
+			<!-- TShark's network interface (option -i). 
+				Call 'tshark -D' in a console to list network interface names. 
+				# mandatory if tshark_enabled=true -->
+			<string>5</string>
+		</parameter>
+		<parameter id="tshark_options">
+			<!-- Additional TShark options 
+				(see https://www.wireshark.org/docs/man-pages/tshark.html) 
+				# optional 
+				# default value: "" -->
+			<string>-f "host localhost" -P -t ad</string>
+		</parameter>
+		<parameter id="tshark_path">
+			<!-- Path to the TShark executable.
+				If TShark does not exist at this path, TShark will be disabled. 
+				# mandatory if tshark_enabled=true -->
+			<string>tshark</string>
+		</parameter>
+		<parameter id="openssl_path">
+			<!-- Path to the openssl executable
+				An OpenSSL executable is required to run the TaSK Test Tool.
+				The path to the OpenSSL executable which shall be used can be provided here.
+				# optional
+				# default value: openssl -->
+			<string>/task/src/tlstesttool/build/EP_OPENSSL-prefix/src/EP_OPENSSL/apps/openssl</string>
+		</parameter>
+		<parameter id="ocsp_responder_port">
+			<!-- Port of the OCSP Responder
+				For some Test Cases a OCSP responder will be started locally.
+				This parameter specifies the port under which the OCSP responder should listen.
+				# optional
+				# default value: 9080 -->
+			<int>9080</int>
+		</parameter>
+		<parameter id="crl_responder_port">
+			<!-- Port of the CRL Responder
+				For some Test Cases a CRL responder will be started locally.
+				This parameter specifies the port under which the CRL responder should listen.
+				# optional
+				# default value: 8081 -->
+			<int>8081</int>
+		</parameter>
+		<parameter id="dut_executable_timeout">
+			<!-- Waiting time in seconds until the DUT executable is forcefully closed after sending an interrupt.
+				# optional
+				# default value: 5 -->
+			<int>5</int>
+		</parameter>
+		<parameter id="rest_api_port">
+			<!-- The port which the TaSK Framework should use, when executed as a REST server.
+			# optional
+			# default value: 8088 -->
+			<int>8088</int>
+		</parameter>
+		<parameter id="rest_api_credentials">
+			<!--
+			The absolute or relative path to the TLS Credentials (i.e. key and certificate chain) in a PKCS#12 format which shall
+			be used by the REST Interface of the TaSK Framework. All necessary data must be contained in this file.
+			# optional
+			-->
+			<string></string>
+		</parameter>
+		<parameter id="rest_api_credential_pass">
+			<!--
+			Password of the TLS Credentials (i.e. key and certificate chain) in a PKCS#12 format which shall
+			be used by the REST Interface of the TaSK Framework. All necessary data must be contained in this file.
+			# optional
+			# default value: empty string
+			-->
+			<string></string>
+		</parameter>
+
+		<!-- The following parameters are only used for the experimental support of the TR-03108-1-EMSP-CLIENT-CETI-DANE application type. -->
+		<!--
+		<parameter id="experimental_dns_server_ip">
+			<string>192.168.11.101</string>
+		</parameter>
+		<parameter id="experimental_dane_task_host_ip">
+			<string>192.168.11.102</string>
+		</parameter>
+		-->
+	</parameters>
+</configuration>

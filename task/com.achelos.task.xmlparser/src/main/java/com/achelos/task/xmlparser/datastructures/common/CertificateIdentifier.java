@@ -3,6 +3,8 @@ package com.achelos.task.xmlparser.datastructures.common;
 import generated.jaxb.input.TLSCertificates.CertificateChain.Certificate;
 import generated.jaxb.testrunplan.TestRunPlan;
 
+import java.security.MessageDigest;
+
 /**
  * An internal data structure class representing the Identifier of a Certificate.
  */
@@ -48,11 +50,13 @@ public class CertificateIdentifier {
 	String subject;
 	byte[] fingerprint;
 	CertificateType certType;
+	String fingerprintHashFunction;
 
-	private CertificateIdentifier(final String subject, final byte[] fingerprint, final CertificateType certType) {
+	private CertificateIdentifier(final String subject, final byte[] fingerprint, final CertificateType certType, final String fingerprintHashfunction) {
 		this.subject = subject;
 		this.fingerprint = fingerprint;
 		this.certType = certType;
+		this.fingerprintHashFunction = fingerprintHashfunction;
 	}
 
 	/**
@@ -65,7 +69,7 @@ public class CertificateIdentifier {
 					"Unable to create CertificateIdentifier Object: Illegal Argument \"null\".");
 		}
 		var certType = CertificateType.fromCertificateTypeName(cert.getType());
-		return new CertificateIdentifier(cert.getSubject(), cert.getFingerprint(), certType);
+		return new CertificateIdentifier(cert.getSubject(), cert.getFingerprint(), certType, cert.getHashfunction());
 	}
 
 	/**
@@ -79,7 +83,7 @@ public class CertificateIdentifier {
 					"Unable to create CertificateIdentifier Object: Illegal Argument \"null\".");
 		}
 		var certType = CertificateType.fromCertificateTypeName(cert.getType());
-		return new CertificateIdentifier(cert.getSubject(), cert.getFingerprint(), certType);
+		return new CertificateIdentifier(cert.getSubject(), cert.getFingerprint(), certType, cert.getHashfunction());
 	}
 
 	/**
@@ -104,5 +108,13 @@ public class CertificateIdentifier {
 	 */
 	public CertificateType getCertType() {
 		return certType;
+	}
+
+	/**
+	 * Return the Fingerprint hash function of the Certificate.
+	 * @return the Fingerprint hash function of the Certificate.
+	 */
+	public String getFingerprintHashFunction() {
+		return fingerprintHashFunction;
 	}
 }

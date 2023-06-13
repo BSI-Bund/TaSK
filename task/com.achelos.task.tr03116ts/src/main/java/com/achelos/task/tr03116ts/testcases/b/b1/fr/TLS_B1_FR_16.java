@@ -19,6 +19,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_16 - Reconnect via Session Ticket.
  * <p>
  * This tests verifies that it is possible to perform session resumption via Session Ticket for the sessions which are
  * not older than the maximum allowed amount of time.

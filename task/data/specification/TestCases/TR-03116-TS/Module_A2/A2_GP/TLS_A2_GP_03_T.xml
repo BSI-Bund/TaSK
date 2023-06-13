@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_A2_GP_03_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_A2_GP_03_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test verifies that the offered Supported Groups extension matches the declaration in the ICS. Furthermore, a TLS connection is possible.</Purpose>
 	<Profile>TLS_CLIENT</Profile>
 	<Profile>SUPP_GROUPS</Profile>
@@ -32,7 +32,7 @@
 
 	<TestStep>
 		<Command>
-			<Text>The TLS server answers the DUT choosing a valid TLS version, a cipher suite supported by the ICS and domain parameters [GROUP].</Text>		
+			<Text>The TLS server answers the DUT choosing a valid TLS version, a cipher suite supported by the ICS and domain parameters [GROUP].</Text>	
 		</Command>
 		<Description>The TLS server supplies the certificate chain [CERT_DEFAULT].</Description>
 		<Description>The server sends a CertificateRequest to the DUT.</Description>

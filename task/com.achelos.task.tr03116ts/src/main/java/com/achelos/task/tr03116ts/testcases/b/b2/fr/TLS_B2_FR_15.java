@@ -18,7 +18,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * Test case TLS_B2_FR_15 - Reconnect with Session ID
+ * Test case TLS_B2_FR_15 - Reconnect with Session ID.
  * <p>
  * This tests verifies that it is possible to perform session resumption via Session ID for the sessions which are not
  * older than the maximum allowed amount of time.
@@ -74,7 +74,7 @@ public class TLS_B2_FR_15 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers a cipher suite that is supported according to the ICS.
 	 * <li>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate
 	 * extension according to the ICS.
@@ -151,7 +151,7 @@ public class TLS_B2_FR_15 extends AbstractTestCase {
 
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion, cipherSuite,
@@ -192,7 +192,7 @@ public class TLS_B2_FR_15 extends AbstractTestCase {
 		
 		tfClientCertificate.executeSteps("6",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		tfClientHello.executeSteps("7", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite,

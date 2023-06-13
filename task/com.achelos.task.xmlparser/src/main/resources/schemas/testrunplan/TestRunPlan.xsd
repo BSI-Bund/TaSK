@@ -19,22 +19,14 @@
 								<xsd:sequence>
 									<xsd:element name="URL" type="xsd:string" minOccurs="1" maxOccurs="1" />
 									<xsd:element name="Port" type="xsd:string" minOccurs="1" maxOccurs="1" />
-									<!-- In the case of an eID Server, an RMI Interface may be necessary. -->
-									<xsd:element name="RMIURL" type="xsd:string" minOccurs="0" maxOccurs="1" />
-									<xsd:element name="RMIPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
 								</xsd:sequence>
 								<xsd:sequence>
-									<xsd:element name="DUTExecutable" type="xsd:string" minOccurs="1" maxOccurs="1" />
-									<xsd:element name="DUTCallArguments" type="DUTCallArguments" minOccurs="0" maxOccurs="1" />
-								</xsd:sequence>
-								<xsd:sequence>
-									<xsd:element name="BrowserSimulatorURL" minOccurs="1" maxOccurs="1" type="xsd:string" />
-									<!-- A port to use to establish a connection to the DUT/ TLS server -->
-									<xsd:element name="BrowserSimulatorPort" minOccurs="0" maxOccurs="1" type="xsd:string" />
 									<xsd:element name="EIDClientPort" type="xsd:int" minOccurs="0" maxOccurs="1" />
 								</xsd:sequence>
 							</xsd:choice>
-							<xsd:element name="ApplicationSpecificData" type="AppSpecificData" minOccurs="0" maxOccurs="1" />
+							<xsd:element name="RMIURL" type="xsd:string" minOccurs="0" maxOccurs="1" />
+							<xsd:element name="RMIPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
+							<xsd:element name="StartTLS" type="xsd:boolean" minOccurs="0" maxOccurs="1" />
 							<xsd:element name="DUTCapabilities" type="DUTCapabilities" minOccurs="0" maxOccurs="1" />
 						</xsd:sequence>
 					</xsd:complexType>
@@ -230,6 +222,7 @@
 									<xsd:sequence>
 										<xsd:element name="PSKValue" type="xsd:hexBinary" minOccurs="1" maxOccurs="1"/>
 										<xsd:element name="PSKIdentityHintValue" type="xsd:string" minOccurs="0" maxOccurs="1" />
+										<xsd:element name="PSKIdentity" type="xsd:string" minOccurs="0" maxOccurs="1" />
 									</xsd:sequence>
 								</xsd:complexType>
 							</xsd:element>
@@ -249,7 +242,7 @@
 							
 							
 							<!-- Maximum TLS Session Lifetime -->
-							<xsd:element name="TlsSessionLifetime" minOccurs="1" maxOccurs="1" type="xsd:string" />
+							<xsd:element name="TlsSessionLifetime" minOccurs="0" maxOccurs="1" type="xsd:string" />
 							<!-- Zero Roundtrip Data Support -->
 							<xsd:element name="ZeroRTTSupport" minOccurs="0" maxOccurs="1" type="xsd:boolean" />
 							
@@ -273,6 +266,15 @@
 																			<xsd:enumeration value="IntermediateCertificate" />
 																			<xsd:enumeration value="EndEntityCertificate" />
 																		</xsd:restriction>
+																</xsd:simpleType>
+															</xsd:attribute>
+															<xsd:attribute name="hashfunction" default="SHA-256">
+																<xsd:simpleType>
+																	<xsd:restriction base="xsd:string">
+																		<xsd:enumeration value="SHA-256" />
+																		<xsd:enumeration value="SHA-384" />
+																		<xsd:enumeration value="SHA-512" />
+																	</xsd:restriction>
 																</xsd:simpleType>
 															</xsd:attribute>
 														</xsd:complexType>
@@ -336,27 +338,6 @@
 		</xsd:sequence>
 	</xsd:complexType>
 	
-	<!-- ApplicationSpecificData: e.g. TLS client certificate for the test of client authentication -->
-	<xsd:complexType name="AppSpecificData">
-		<xsd:sequence>
-			<!-- Table 16 -->
-			<xsd:element name="TestClientCertificate" minOccurs="0" maxOccurs="1">
-				<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="CertificateFile" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-						<xsd:element name="CertificatePrivateKey" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-					</xsd:sequence>
-				</xsd:complexType>
-			</xsd:element>
-		</xsd:sequence>
-	</xsd:complexType>
-	<!-- DUTCallArguments: -->
-	<xsd:complexType name="DUTCallArguments">
-		<xsd:sequence>
-			<xsd:element name="StartConnectionArguments" type="xsd:string" minOccurs="1" maxOccurs="1" />
-			<xsd:element name="ResumeConnectionArguments" type="xsd:string" minOccurs="0" maxOccurs="1" />
-		</xsd:sequence>
-	</xsd:complexType>
 	<xsd:complexType name="DUTCapabilities" >
 			<xsd:sequence>
 				<xsd:element name="Capability" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>

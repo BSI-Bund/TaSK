@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_GP_05_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_GP_05_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test verifies that no downgrade to a TLS version that is not supported according to the ICS is possible.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>NO_CLIENT_CERT</Profile>

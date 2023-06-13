@@ -11,8 +11,6 @@ import com.achelos.task.utilities.DateTimeUtils;
 import com.achelos.task.xmlparser.datastructures.mics.MICS;
 import com.achelos.task.xmlparser.runplanparsing.RunPlanParser;
 
-import generated.jaxb.testrunplan.AppSpecificData;
-import generated.jaxb.testrunplan.DUTCallArguments;
 import generated.jaxb.testrunplan.DUTCapabilities;
 import generated.jaxb.testrunplan.TestRunPlan;
 
@@ -79,16 +77,6 @@ public class TestSuiteSetup {
 		// Set the DUT Application Type and Information
 		setDUTApplicationType(testConfiguration, mics);
 
-		// ApplicationSpecificData
-		if (mics.getAppSpecificData().isTestClientCertSet()) {
-			var appSpecificData = new AppSpecificData();
-			var testClientCert = new AppSpecificData.TestClientCertificate();
-			testClientCert.setCertificateFile(mics.getAppSpecificData().getTestClientCertPath());
-			testClientCert.setCertificatePrivateKey(mics.getAppSpecificData().getTestClientPrivateKeyPath());
-			appSpecificData.setTestClientCertificate(testClientCert);
-			testConfiguration.setApplicationSpecificData(appSpecificData);
-		}
-
 		// DUTCapabilities
 		var dutCapabilityList = getDUTCapabilities(mics.getProfiles());
 		if (!dutCapabilityList.isEmpty()) {
@@ -123,10 +111,15 @@ public class TestSuiteSetup {
 		var dUTApplicationType = mics.getApplicationType();
 		testConfiguration.setApplicationType(dUTApplicationType);
 
-		if (dUTApplicationType.contains("EID-CLIENT")) {
-			testConfiguration.setBrowserSimulatorPort(mics.getBrowserSimulatorPort());
-			testConfiguration.setBrowserSimulatorURL(mics.getBrowserSimulatorURL());
-			testConfiguration.setEIDClientPort(mics.getDutEIDClientPort());
+		if (dUTApplicationType.contains("TR-03108-1-EMSP")) {
+			testConfiguration.setStartTLS(mics.useStartTls());
+		}
+		if (dUTApplicationType.contains("CLIENT")) {
+			testConfiguration.setRMIURL(mics.getDutRMIURL());
+			testConfiguration.setRMIPort(mics.getDutRMIPort());
+			if (dUTApplicationType.contains("EID-CLIENT")) {
+				testConfiguration.setEIDClientPort(mics.getDutEIDClientPort());
+			}
 
 		} else if (dUTApplicationType.contains("SERVER")) {
 			testConfiguration.setURL(mics.getServerURL());
@@ -135,12 +128,6 @@ public class TestSuiteSetup {
 				testConfiguration.setRMIURL(mics.getDutRMIURL());
 				testConfiguration.setRMIPort(mics.getDutRMIPort());
 			}
-		} else if (dUTApplicationType.contains("CLIENT")) {
-			testConfiguration.setDUTExecutable(mics.getDutExecutable());
-			var callArguments = new DUTCallArguments();
-			callArguments.setStartConnectionArguments(mics.getDutCallArgumentsConnect());
-			callArguments.setResumeConnectionArguments(mics.getDutCallArgumentsReconnect());
-			testConfiguration.setDUTCallArguments(callArguments);
 		} else {
 			throw new RuntimeException("DUT is of unknown type: " + dUTApplicationType);
 		}

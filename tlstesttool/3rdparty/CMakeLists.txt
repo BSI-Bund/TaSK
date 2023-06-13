@@ -54,8 +54,8 @@ ExternalProject_Add(${EP_MBEDTLS}
 ExternalProject_Add(${EP_OPENSSL}
 	URL https://www.openssl.org/source/openssl-3.0.1.tar.gz
 	URL_HASH SHA256=c311ad853353bce796edad01a862c50a8a587f62e7e2100ef465ab53ec9b06d1
-	PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-OverwriteExtensions.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-SendHeartbeatRecords.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-enableAllTls13Ciphersuites.patch
-	BUILD_ALWAYS ON
+	PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-OverwriteExtensions.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-SendHeartbeatRecords.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-enableAllTls13Ciphersuites.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSLSL-EnableBrainpoolTls13Support.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-OverwriteHelloVersion.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSLForceCertificateUsage.patch && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-UpdateMessageLogging.patch  && patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/OpenSSL-OverwriteSupportedGroups.patch
+		BUILD_ALWAYS ON
 	BUILD_IN_SOURCE 1
 	INSTALL_DIR ${EP_INSTALL_DIR}
 	CONFIGURE_COMMAND <SOURCE_DIR>/Configure --prefix=<INSTALL_DIR> no-shared no-dtls enable-ec_nistp_64_gcc_128 enable-weak-ssl-ciphers ${SSL_CONF_PLATFORM}

@@ -6,11 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
@@ -33,7 +33,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 public class TLS_A1_GP_02_T extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_GP_02_T";
-	private static final String TEST_CASE_DESCRIPTION = "Signature_algorithms match the ICS.";
+	private static final String TEST_CASE_DESCRIPTION = "Signature_algorithms match the ICS";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies that the offered signature_algorithms extension matches the declaration in the ICS. "
 					+ "Furthermore, a TLS connection is possible. The test uses the signature algorithm and "
@@ -124,6 +124,7 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 		}
 
 		int iterationCount = 1;
+		int maxIterationCount = calculateMaxIterationCount(tlsVersions) ;
 		for (TlsVersion tlsVersion : tlsVersions) {
 
 			var sigAlgorithms = configuration.getSupportedSignatureAlgorithms(tlsVersion);
@@ -147,15 +148,14 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 						"A certificate chain [CERT_DEFAULT] with certificates that are signed using [SIG_ALGORITHM] is "
 						+ "supplied.",
 						Arrays.asList(), testTool, tlsVersion, sigAlg, TlsTestToolCertificateTypes.CERT_DEFAULT);
-				
+
 				tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
 						Arrays.asList(),
-						testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS);
+						testTool, tlsVersion);
 				tFDutClientNewConnection.executeSteps("4",
 						"The TLS server receives a ClientHello handshake message from the DUT.", Arrays.asList(),
-						testTool, new IterationCounter(iterationCount, tlsVersions.size() * sigAlgorithms.size()),
+						testTool, new IterationCounter(iterationCount++, maxIterationCount),
 						dutExecutor);
-				iterationCount++;
 
 
 				fFTLSHighestVersionSupportCheck.executeSteps("5",
@@ -174,7 +174,7 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 						TlsExtensionTypes.signature_algorithms);
 				try {
 					supportedSignatureAndHashAlgorithms
-							= TlsSignatureAlgorithmWithHashTls12.parseSignatureAlgorithmWithHashByteList(data);
+							= TlsSignatureAlgorithmWithHash.parseSignatureAlgorithmWithHashByteList(data, tlsVersion);
 				} catch (Exception e) {
 					// Unknown_signature algorithm.
 					logger.error("Found known signature algorithm" + e);
@@ -215,8 +215,15 @@ public class TLS_A1_GP_02_T extends AbstractTestCase {
 				dutExecutor.resetProperties();
 				testTool.resetProperties();
 			}
-
 		}
+	}
+
+	public int calculateMaxIterationCount(List<TlsVersion> tlsVersionList){
+		int maxIterationCount=0;
+		for(var tlsVersion: tlsVersionList){
+			maxIterationCount += configuration.getSupportedSignatureAlgorithms(tlsVersion).size();
+		}
+		return maxIterationCount;
 	}
 
 	/**

@@ -2,8 +2,8 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_FR_01_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_FR_01_T</Title>
-	<Version>1.0</Version>
-	<Purpose>These test cases verify that the Encrypt then MAC extension is used if the clients offers it. The test is carried out for the TLS version [TLS_VERSION] and the CBC-based cipher suite [CIPHERSUITE].</Purpose>
+	<Version>1.1</Version>
+	<Purpose>This test case verifies that the Encrypt then MAC extension is used if the clients offers it. The test is carried out for the TLS version [TLS_VERSION] and the CBC-based cipher suite [CIPHERSUITE].</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>ENC_THEN_MAC</Profile>
 	<Profile>NO_CLIENT_CERT</Profile>

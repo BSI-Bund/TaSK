@@ -17,6 +17,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_03 - Check server certificate.
  * <p>
  * This test case checks the server certificate used by the DUT. In particular, the domain name and the signature are
  * verified.
@@ -24,7 +25,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 public class TLS_B1_FR_03 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B1_FR_03";
-	private static final String TEST_CASE_DESCRIPTION = "Check Server Certificate";
+	private static final String TEST_CASE_DESCRIPTION = "Check server certificate";
 	private static final String TEST_CASE_PURPOSE
 			= "This test case checks the server certificate used by the DUT. In particular, the domain name and the signature are verified.";
 

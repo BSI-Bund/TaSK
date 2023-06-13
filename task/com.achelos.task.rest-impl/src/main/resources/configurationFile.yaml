@@ -1,0 +1,24 @@
+openAPI:
+  info:
+    version: '1.0.1'
+    title: TaSK Framework - Remote API
+    description: 'This document defines a RESTful API for executing runs of the TaSK testsuites and accessing their result.'
+    license:
+      name: European Union Public Licence (EUPL) 1.2
+      url: https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  servers:
+    - url: '{protocol}://{task_ip}:{task_port}/'
+      description: The TaSK REST API.
+      variables:
+        protocol:
+          default: https
+          enum:
+            -  http
+            -  https
+        task_ip:
+          default: 127.0.0.1
+          description: IP or HostName of TaSK Server, which is served at the location the OpenAPI YAML is served.
+        task_port:
+          default: '8088'
+          description: Port of TaSK Server.
+prettyPrint: true

@@ -4,7 +4,7 @@ package com.achelos.task.tr03116ts.testcases.a.a1.fr;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.configuration.TlsTestToolConfigurationHandshakeType;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
@@ -19,14 +19,14 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_10 - Session resumption with session ID
+ * Test case TLS_A1_FR_10 - Session resumption with Session ID.
  * <p>
  * Positive test verifying the session resumption through the Session ID.
  */
 public class TLS_A1_FR_10 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_FR_10";
-	private static final String TEST_CASE_DESCRIPTION = "Session resumption with session ID";
+	private static final String TEST_CASE_DESCRIPTION = "Session resumption with Session ID";
 	private static final String TEST_CASE_PURPOSE
 			= "Positive test verifying the session resumption through the Session ID.";
 
@@ -137,13 +137,15 @@ public class TLS_A1_FR_10 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);

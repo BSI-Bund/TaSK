@@ -4,7 +4,7 @@ package com.achelos.task.tr03116ts.testcases.a.a1.gp;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
@@ -17,7 +17,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_GP_04 - Unsupported cipher suite
+ * Test case TLS_A1_GP_04 - Unsupported cipher suite.
  * <p>
  * This test checks the correct behaviour of the DUT in case the server can only use an unsupported cipher suite
  * according to the ICS.
@@ -99,7 +99,7 @@ public class TLS_A1_GP_04 extends AbstractTestCase {
 	 */
 	@Override
 	protected final void executeUsecase() throws Exception {
-
+		
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
@@ -138,8 +138,7 @@ public class TLS_A1_GP_04 extends AbstractTestCase {
 
 		step(4, "Check if the Server rejects the connection.", "No TLS connection is established.");
 
-
-		testTool.assertMessageLogged(TestToolResource.Handshake_failed);
+		testTool.assertMessageNotLogged(TestToolResource.Handshake_successful);
 
 		tfApplicationCheck.executeSteps("5", "", Arrays.asList(), testTool, dutExecutor);
 

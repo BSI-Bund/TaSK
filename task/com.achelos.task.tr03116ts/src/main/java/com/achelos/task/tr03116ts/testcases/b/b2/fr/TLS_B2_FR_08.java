@@ -18,14 +18,14 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * Testcase TLS_B2_FR_08 - Heartbeat-Message is ignored
+ * Test case TLS_B2_FR_08 - Heartbeat message is ignored.
  * <p>
  * This test verifies the correct behaviour of the DUT if the client sends heartbeat messages.
  */
 public class TLS_B2_FR_08 extends AbstractTestCase {
 	
 	private static final String TEST_CASE_ID = "TLS_B2_FR_08";
-	private static final String TEST_CASE_DESCRIPTION = "Heartbeat-Message is ignored";
+	private static final String TEST_CASE_DESCRIPTION = "Heartbeat message is ignored";
 	private static final String TEST_CASE_PURPOSE = 
 			"This test verifies the correct behaviour of the DUT if the client sends heartbeat messages.";
 
@@ -132,7 +132,7 @@ public class TLS_B2_FR_08 extends AbstractTestCase {
 
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 		
 		step(2, "The tester connects to the DUT.", "");
 		

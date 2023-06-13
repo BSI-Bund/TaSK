@@ -11,18 +11,19 @@
 	<Profiles>
 		<MandatoryProfiles>
 			<Profile>CHECK_CERTS</Profile>
+			<Profile>DURATION</Profile>
 			<Profile>INTERIM_SUITES_SRV</Profile>
-			<Profile>NO_CLIENT_CERT</Profile> <!-- Changed from CLIENT_CERT due to discussions with BSI. -->
+			<Profile>NO_CLIENT_CERT</Profile>
+			<Profile>PFS</Profile>
 			<Profile>TLS_1.2</Profile>
 			<Profile>TLS_SERVER</Profile>
-			<Profile>PFS</Profile> <!-- Mandatory in Non-PSK case -->
 		</MandatoryProfiles>
 		<RecommendedProfiles>
 			<Profile>ECC</Profile>
 			<Profile>ENC_THEN_MAC</Profile>
 			<Profile>SESSION_ID</Profile>
 			<Profile>SESSION_TICKET</Profile>
-			<!--<Profile>PSK</Profile> Changed from "Recommended" to "not allowed", since this Application Type represents the NON-PSK Version  of the eCard API-->
+			<Profile>TLS_1.3</Profile>
 		</RecommendedProfiles>
 	</Profiles>
 	<ICSSections>
@@ -35,7 +36,7 @@
 		</MandatoryICSSections>
 		<OptionalICSSections>
 			<Section>3.4</Section>
-			<Section>3.5</Section>
+			<Section>3.7</Section>
 		</OptionalICSSections>
 	</ICSSections>
 </ApplicationMapping>

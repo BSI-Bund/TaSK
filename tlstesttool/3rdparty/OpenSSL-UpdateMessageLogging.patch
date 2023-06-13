@@ -1,0 +1,19 @@
+--- a/ssl/record/ssl3_record.c	2023-04-25 11:45:10.106504338 +0200
++++ b/ssl/record/ssl3_record.c	2023-04-24 10:18:03.038922000 +0200
+@@ -294,10 +294,15 @@
+                 thisrr->type = type;
+                 thisrr->rec_version = version;
+ 
+-                if (s->msg_callback)
++                
++                if (s->msg_callback) {
+                     s->msg_callback(0, version, SSL3_RT_HEADER, p, 5, s,
+                                     s->msg_callback_arg);
+ 
++                    s->msg_callback(0, version, type, p, 5, s,
++                                    s->msg_callback_arg);
++                }
++
+                 /*
+                  * Lets check version. In TLSv1.3 we only check this field
+                  * when encryption is occurring (see later check). For the

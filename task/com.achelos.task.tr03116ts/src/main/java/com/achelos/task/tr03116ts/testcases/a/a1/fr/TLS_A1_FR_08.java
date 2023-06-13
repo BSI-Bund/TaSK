@@ -4,7 +4,7 @@ package com.achelos.task.tr03116ts.testcases.a.a1.fr;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
@@ -16,7 +16,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_08 - Disconnection after maximum time
+ * Test case TLS_A1_FR_08 - Disconnect after maximum time.
  * <p>
  * This test verify that an active connection is disconnected by the client after being active for the maximum allowed
  * amount of time.
@@ -24,7 +24,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 public class TLS_A1_FR_08 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_FR_08";
-	private static final String TEST_CASE_DESCRIPTION = "Disconnection after maximum time";
+	private static final String TEST_CASE_DESCRIPTION = "Disconnect after maximum time";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verify that an active connection is disconnected by the client after being active "
 					+ "for the maximum allowed amount of time.";

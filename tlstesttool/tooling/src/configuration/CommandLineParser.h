@@ -25,19 +25,19 @@ namespace Tooling {
 /**
  * Parser for command line arguments.
  */
-class CommandLineParser {
-public:
-	/**
-	 * Factory function parsing the command line arguments and extracting key-value pairs. Arguments of the form
-	 * "--key=value" are accepted.
-	 *
-	 * @param argc Number of arguments in @p argv
-	 * @param argv Array of arguments
-	 * @return Array of key-value pairs
-	 * @throw std::exception Thrown, if an argument with unexpected format is found.
-	 */
-	static std::vector<KeyValuePair> parseArgs(const int argc, const char ** argv);
-};
+    class CommandLineParser {
+    public:
+        /**
+         * Factory function parsing the command line arguments and extracting key-value pairs. Arguments of the form
+         * "--key=value" are accepted.
+         *
+         * @param argc Number of arguments in @p argv
+         * @param argv Array of arguments
+         * @return Array of key-value pairs
+         * @throw std::exception Thrown, if an argument with unexpected format is found.
+         */
+        static std::vector<KeyValuePair> parseArgs(const int argc, const char **argv);
+    };
 }
 
 #endif /* CONFIGURATION_COMMANDLINEPARSER_H_ */

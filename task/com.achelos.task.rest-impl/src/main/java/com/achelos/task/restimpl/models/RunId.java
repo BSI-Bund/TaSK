@@ -19,7 +19,7 @@ public class RunId {
   }
 
 
-  @Schema
+  @Schema(example = "a4b4d23234b23ef23a")
   @JsonProperty("runId")
   public String getRunId() {
     return runId;

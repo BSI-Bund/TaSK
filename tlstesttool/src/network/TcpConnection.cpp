@@ -20,123 +20,125 @@
 
 namespace TlsTestTool {
 
-class TcpConnection::Data {
-public:
-	asio::ip::tcp::socket socket;
-	bool connectionClosedByError;
-	std::vector<std::reference_wrapper<AbstractSocketObserver>> observers;
+    class TcpConnection::Data {
+    public:
+        asio::ip::tcp::socket socket;
+        bool connectionClosedByError;
+        std::vector<std::reference_wrapper<AbstractSocketObserver>> observers;
 
-   Data(asio::io_context* io_context) : socket(*io_context), connectionClosedByError(false), observers()  {
-   }
+        Data(asio::io_context *io_context) : socket(*io_context), connectionClosedByError(false), observers() {
+        }
 
-   void closeConnectionByError() {
-	   connectionClosedByError = true;
-   }
+        void closeConnectionByError() {
+            connectionClosedByError = true;
+        }
 
-   void registerObserver(AbstractSocketObserver & observer) {
-	   observers.emplace_back(std::ref(observer));
-   }
+        void registerObserver(AbstractSocketObserver &observer) {
+            observers.emplace_back(std::ref(observer));
+        }
 
-   void notifyWrite(std::size_t length) {
-	   for (auto & observer : observers) {
-		   observer.get().onBlockWritten(length);
-	   }
-   }
+        void notifyWrite(std::size_t length) {
+            for (auto &observer: observers) {
+                observer.get().onBlockWritten(length);
+            }
+        }
 
-   void notifyRead(std::size_t length) {
-	   for (auto & observer : observers) {
-		   observer.get().onBlockRead(length);
-	   }
-   }
-};
+        void notifyRead(std::size_t length) {
+            for (auto &observer: observers) {
+                observer.get().onBlockRead(length);
+            }
+        }
+    };
 
-TcpConnection::TcpConnection(asio::io_context* io_context) : impl(std::make_unique<Data>(io_context)) {
-}
+    TcpConnection::TcpConnection(asio::io_context *io_context) : impl(std::make_unique<Data>(io_context)) {
+    }
 
-TcpConnection::~TcpConnection() = default;
+    TcpConnection::~TcpConnection() = default;
 
-void TcpConnection::close() {
-	impl->socket.shutdown(asio::ip::tcp::socket::shutdown_both);
-	impl->socket.close();
-}
+    void TcpConnection::close() {
+        impl->socket.shutdown(asio::ip::tcp::socket::shutdown_both);
+        impl->socket.close();
+    }
 
-std::size_t TcpConnection::write(const std::vector<char> & data) {
-	try {
-		const auto numBytesWritten = asio::write(impl->socket, asio::buffer(data));
-		impl->notifyWrite(numBytesWritten);
-		return numBytesWritten;
-	} catch (const asio::system_error & e) {
-		if ((asio::error::connection_aborted == e.code()) || (asio::error::connection_reset == e.code())) {
-			impl->closeConnectionByError();
-		}
-		throw e;
-	}
-}
+    std::size_t TcpConnection::write(const std::vector<char> &data) {
+        try {
+            const auto numBytesWritten = asio::write(impl->socket, asio::buffer(data));
+            impl->notifyWrite(numBytesWritten);
+            return numBytesWritten;
+        } catch (const asio::system_error &e) {
+            if ((asio::error::connection_aborted == e.code()) || (asio::error::connection_reset == e.code())) {
+                impl->closeConnectionByError();
+            }
+            throw e;
+        }
+    }
 
-std::vector<char> TcpConnection::read(std::size_t length) {
-	try {
-		std::vector<char> buffer(length);
-		asio::read(impl->socket, asio::buffer(buffer));
-		impl->notifyRead(buffer.size());
-		return buffer;
-	} catch (const asio::system_error & e) {
-		if ((asio::error::connection_aborted == e.code()) || (asio::error::connection_reset == e.code())) {
-			impl->closeConnectionByError();
-		}
-		throw e;
-	}
-}
+    std::vector<char> TcpConnection::read(std::size_t length) {
+        try {
+            std::vector<char> buffer(length);
+            asio::read(impl->socket, asio::buffer(buffer));
+            impl->notifyRead(buffer.size());
+            return buffer;
+        } catch (const asio::system_error &e) {
+            if ((asio::error::connection_aborted == e.code()) || (asio::error::connection_reset == e.code())) {
+                impl->closeConnectionByError();
+            }
+            throw e;
+        }
+    }
 
-std::size_t TcpConnection::available() const {
-	return impl->socket.available();
-}
+    std::size_t TcpConnection::available() const {
+        return impl->socket.available();
+    }
 
-bool TcpConnection::isClosed() {
-	if (impl->connectionClosedByError) {
-		return true;
-	}
-	if (!impl->socket.is_open()) {
-		return true;
-	}
-	{
-		// No connection, if the remote endpoint cannot be accessed.
-		asio::error_code ec;
-		impl->socket.remote_endpoint(ec);
-		if (ec) {
-			return true;
-		}
-	}
+    bool TcpConnection::isClosed() {
+        if (impl->connectionClosedByError) {
+            return true;
+        }
+        if (!impl->socket.is_open()) {
+            return true;
+        }
+        {
+            // No connection, if the remote endpoint cannot be accessed.
+            asio::error_code ec;
+            impl->socket.remote_endpoint(ec);
+            if (ec) {
+                return true;
+            }
+        }
         char c;
-        int r = recv(getSocketFileDesriptor(), &c, 0, MSG_DONTWAIT|MSG_PEEK); // See: https://stackoverflow.com/questions/10965633/how-to-determine-if-a-blocking-ssl-bio-connection-was-closed
-        bool isReadable = (0==r);
+        int r = recv(getSocketFileDesriptor(), &c, 0, MSG_DONTWAIT |
+                                                      MSG_PEEK); // See: https://stackoverflow.com/questions/10965633/how-to-determine-if-a-blocking-ssl-bio-connection-was-closed
+        bool isReadable = (0 == r);
 
-	impl->socket.get_executor().context().restart();
-	impl->socket.get_executor().context().poll();
-	
-	impl->socket.cancel();
-	// Check, if the number of readable bytes is zero (similar to ioctl with FIONREAD).
-	const bool nothingToRead = (0 == available());
-	return (isReadable && nothingToRead);
-}
+        impl->socket.get_executor().context().restart();
+        impl->socket.get_executor().context().poll();
 
-std::string TcpConnection::getRemoteIpAddress() const {
-	return impl->socket.remote_endpoint().address().to_string();
-}
+        impl->socket.cancel();
+        // Check, if the number of readable bytes is zero (similar to ioctl with FIONREAD).
+        const bool nothingToRead = (0 == available());
+        return (isReadable && nothingToRead);
+    }
 
-uint16_t TcpConnection::getRemoteTcpPort() const {
-	return impl->socket.remote_endpoint().port();
-}
+    std::string TcpConnection::getRemoteIpAddress() const {
+        return impl->socket.remote_endpoint().address().to_string();
+    }
 
-void TcpConnection::registerObserver(AbstractSocketObserver & observer) {
-	impl->registerObserver(observer);
-}
-int TcpConnection::getSocketFileDesriptor() {
-	return impl->socket.native_handle();
-}
+    uint16_t TcpConnection::getRemoteTcpPort() const {
+        return impl->socket.remote_endpoint().port();
+    }
 
-asio::ip::tcp::socket & TcpConnection::getSocket() {
-	return impl->socket;
-}
+    void TcpConnection::registerObserver(AbstractSocketObserver &observer) {
+        impl->registerObserver(observer);
+    }
+
+    int TcpConnection::getSocketFileDesriptor() {
+        return impl->socket.native_handle();
+    }
+
+    asio::ip::tcp::socket &TcpConnection::getSocket() {
+        return impl->socket;
+    }
 
 }
 

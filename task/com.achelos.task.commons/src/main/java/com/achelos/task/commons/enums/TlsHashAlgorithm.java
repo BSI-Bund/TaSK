@@ -71,6 +71,9 @@ public enum TlsHashAlgorithm {
 		return String.format("%s(%d)", hashAlgorithmValueDescription, value);
 	}
 
+	public final boolean isReservedHashAlgorithm(){
+		return value == reserved.value;
+	}
 
 	/**
 	 * Method searches a given (hash algorithm value) element in string representation and returns the
@@ -80,13 +83,13 @@ public enum TlsHashAlgorithm {
 	 * @return the {@link TlsHashAlgorithm} enumeration matching the given {@link TlsHashAlgorithm} input value.
 	 * @throws InvalidAttributeValueException if the given value is not a valid {@link TlsHashAlgorithm}.
 	 */
-	public static TlsHashAlgorithm getElement(final byte value) throws InvalidAttributeValueException {
+	public static TlsHashAlgorithm getElement(final byte value) {
 		for (TlsHashAlgorithm hash : TlsHashAlgorithm.values()) {
 			if (hash.value == value) {
 				return hash;
 			}
 		}
-		throw new InvalidAttributeValueException("The given value " + value + " is not a valid hash algorithm");
+		return null;
 	}
 
 

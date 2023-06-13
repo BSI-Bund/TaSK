@@ -3,13 +3,15 @@ package com.achelos.task.tr03116ts.testcases.a.a1.gp;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.utilities.logging.IterationCounter;
+import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
@@ -19,7 +21,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_GP_03_T - Supported Groups match the ICS
+ * Test case TLS_A1_GP_03_T - Supported groups match the ICS.
  * <p>
  * This test verifies that the offered Supported Groups extension matches the declaration in the ICS. Furthermore, a TLS
  * connection is possible.
@@ -29,7 +31,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 public class TLS_A1_GP_03_T extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_GP_03_T";
-	private static final String TEST_CASE_DESCRIPTION = "Supported Groups match the ICS";
+	private static final String TEST_CASE_DESCRIPTION = "Supported groups match the ICS";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies that the offered Supported Groups extension matches the declaration in the ICS. "
 					+ "Furthermore, a TLS connection is possible.";
@@ -122,126 +124,109 @@ public class TLS_A1_GP_03_T extends AbstractTestCase {
 		}
 
 		int iterationCount = 1;
+		int maxIterationCount
+				= calculateMaxIterationCount(tlsVersions);
+
 		for (TlsVersion tlsVersion : tlsVersions) {
 			var eccCipherSuite = configuration.getSingleSupportedECCCipherSuite(tlsVersion);
 			var dheCipherSuite = configuration.getSingleSupportedFFDHECipherSuite(tlsVersion);
+			var cipherSuiteTls13 = configuration.getSingleSupportedCipherSuite(tlsVersion);
+			if(tlsVersion == TlsVersion.TLS_V1_2){
+				if (null == eccCipherSuite && null == dheCipherSuite) {
+					logger.error("No supported ECDH or DH cipher suite found");
+					return;
+				}
+			} else /*TLS 1.3*/{
+				if (null == cipherSuiteTls13) {
+					logger.error("No supported cipher suite found");
+					return;
+				}
+			}
+			var namedGroups = configuration.getSupportedGroups(tlsVersion);
 
-			if (null == eccCipherSuite && null == dheCipherSuite) {
-				logger.error("No supported ECDH or DH cipher suite found");
+			if (namedGroups.isEmpty()) {
+				logger.error("No supported groups found");
 				return;
 			}
 
-			int maxIterationCount
-					= configuration.getSupportedGroups(tlsVersion).size();
-
-			if (null != eccCipherSuite) {
-				var namedGroups = configuration.getSupportedGroups(tlsVersion);
-
-				for (TlsNamedCurves curve : namedGroups) {
-					boolean res = curve.isFFDHEGroup();
-				}
-
-				for (TlsNamedCurves namedGroup : namedGroups) {
-					if (!namedGroup.isFFDHEGroup()) {
-						logger.info("Start iteration " + iterationCount + " of " + maxIterationCount + ".");
-						step(1, "Setting TLS version: " + tlsVersion.getName() + " and Supported Group: "
-								+ namedGroup + " and ECC CipherSuite: " + eccCipherSuite.name(), null);
-						
-						tfserverCertificate.executeSteps("2",
-								"The TLS server supplies the certificate chain [CERT_DEFAULT].",
-								Arrays.asList(), testTool, tlsVersion, eccCipherSuite,
-								TlsTestToolCertificateTypes.CERT_DEFAULT);
-
-						tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-								Arrays.asList(),
-								testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, eccCipherSuite, namedGroup);
-
-						tFDutClientNewConnection.executeSteps("4",
-								"The TLS server receives a ClientHello handshake message from the DUT.",
-								Arrays.asList(), testTool, new IterationCounter(iterationCount, maxIterationCount),
-								dutExecutor);
-						iterationCount++;
-
-						fFTLSHighestVersionSupportCheck.executeSteps("5",
-								"The TLS ClientHello offers the highest TLS version stated in the ICS.", null,
-								testTool);
-
-						step(6, "Check if the NamedGroup extension contains the domain parameters stated in "
-								+ "the ICS in specified order.",
-								"The NamedGroup extension contains the domain parameters "
-										+ "stated in the ICS in specified order.");
-						testTool.checkDomainParameters(namedGroups);
-
-						step(7, "Check if the TLS protocol is executed without errors and the channel is established.",
-								"The TLS protocol is executed without errors and the channel is established.");
-						testTool.assertMessageLogged(TestToolResource.Handshake_successful);
-
-						tfApplicationCheck.executeSteps("8", "", Arrays.asList(), testTool, dutExecutor);
-
-						tfLocalServerClose.executeSteps("9", "Server closed successfully", Arrays.asList(),
-								testTool);
-						dutExecutor.resetProperties();
-						testTool.resetProperties();
+			for(var namedGroup: namedGroups){
+				TlsCipherSuite cipherSuite = null;
+				if(tlsVersion == TlsVersion.TLS_V1_2){
+					if(namedGroup.isFFDHEGroup()){
+						cipherSuite = dheCipherSuite;
 					}
-				}
-			}
-
-			if (null != dheCipherSuite) {
-
-				var namedGroups = configuration.getSupportedGroups(tlsVersion);
-
-				for (TlsNamedCurves namedGroup : namedGroups) {
-					if (namedGroup.isFFDHEGroup()) {
-						logger.info("Start iteration " + iterationCount + " of " + maxIterationCount + ".");
-						step(1, "Setting TLS version: " + tlsVersion.getName() + " and Supported Group: "
-								+ namedGroup + " and DHE CipherSuite: " + eccCipherSuite.name(), null);
-
-						tfserverCertificate.executeSteps("2",
-								"The TLS server supplies the certificate chain [CERT_DEFAULT].",
-								Arrays.asList(), testTool, tlsVersion, dheCipherSuite,
-								TlsTestToolCertificateTypes.CERT_DEFAULT);
-						
-						tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-								Arrays.asList(),
-								testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, dheCipherSuite, namedGroup);
-
-						tFDutClientNewConnection.executeSteps("4",
-								"The TLS server receives a ClientHello handshake message from the DUT.",
-								Arrays.asList(), testTool, new IterationCounter(iterationCount, maxIterationCount),
-								dutExecutor);
-						iterationCount++;
-
-						step(5, "Check if the highest TLS version is offered by Client.",
-								"The TLS ClientHello offers the highest TLS version stated in the ICS.");
-
-						fFTLSHighestVersionSupportCheck.executeSteps("6",
-								"The TLS ClientHello offers the highest TLS version stated in the ICS.", null,
-								testTool);
-
-						step(7, "Check if the NamedGroup extension contains the domain parameters stated in "
-								+ "the ICS in specified order.",
-								"The NamedGroup extension contains the domain parameters "
-										+ "stated in the ICS in specified order.");
-						testTool.checkDomainParameters(namedGroups);
-
-						step(8, "Check if the TLS protocol is executed without errors and the channel is established.",
-								"The TLS protocol is executed without errors and the channel is established.");
-						testTool.assertMessageLogged(TestToolResource.Handshake_successful);
-
-						tfApplicationCheck.executeSteps("9", "", Arrays.asList(), testTool, dutExecutor);
-
-						tfApplicationCheck.executeSteps("10", "", Arrays.asList(), testTool, dutExecutor);
-
-						tfLocalServerClose.executeSteps("11", "Server closed successfully", Arrays.asList(),
-								testTool);
-						dutExecutor.resetProperties();
-						testTool.resetProperties();
+					else /*Elliptic Curve Group*/{
+						cipherSuite = eccCipherSuite;
 					}
+				} else /*TLS 1.3*/ {
+					cipherSuite = cipherSuiteTls13;
 				}
+				executeHandshake(tlsVersion, cipherSuite, namedGroup, namedGroups, iterationCount++, maxIterationCount);
 			}
-
 		}
 
+	}
+
+	public void executeHandshake(TlsVersion tlsVersion, TlsCipherSuite cipherSuite, TlsNamedCurves namedGroup, List<TlsNamedCurves> namedGroups,  int iterationCount, int maxIterationCount) throws Exception {
+		logger.info("Start iteration " + iterationCount + " of " + maxIterationCount + ".");
+		step(1, "Setting TLS version: " + tlsVersion.getName() + " and Supported Group: "
+				+ namedGroup + " and CipherSuite: " + cipherSuite.name(), null);
+
+		tfserverCertificate.executeSteps("2",
+				"The TLS server supplies the certificate chain [CERT_DEFAULT].",
+				Arrays.asList(), testTool, tlsVersion, cipherSuite,
+				TlsTestToolCertificateTypes.CERT_DEFAULT);
+
+		tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
+				Arrays.asList(),
+				testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, cipherSuite, namedGroup);
+
+		tFDutClientNewConnection.executeSteps("4",
+				"The TLS server receives a ClientHello handshake message from the DUT.",
+				Arrays.asList(), testTool, new IterationCounter(iterationCount, maxIterationCount),
+				dutExecutor);
+
+		step(5, "Check if the highest TLS version is offered by Client.",
+				"The TLS ClientHello offers the highest TLS version stated in the ICS.");
+
+		fFTLSHighestVersionSupportCheck.executeSteps("6",
+				"The TLS ClientHello offers the highest TLS version stated in the ICS.", null,
+				testTool);
+
+		step(7, "Check if the NamedGroup extension contains the domain parameters stated in "
+						+ "the ICS in specified order.",
+				"The NamedGroup extension contains the domain parameters "
+						+ "stated in the ICS in specified order.");
+		testTool.checkDomainParameters(namedGroups);
+
+		step(8, "Check if the TLS protocol is executed without errors and the channel is established.",
+				"The TLS protocol is executed without errors and the channel is established.");
+		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
+
+		tfApplicationCheck.executeSteps("9", "", Arrays.asList(), testTool, dutExecutor);
+
+		tfLocalServerClose.executeSteps("10", "Server closed successfully", Arrays.asList(),
+				testTool);
+		dutExecutor.resetProperties();
+		testTool.resetProperties();
+
+	}
+
+	public int calculateMaxIterationCount(List<TlsVersion> tlsVersionList){
+		int maxIterationCount=0;
+		for(var tlsVersion: tlsVersionList){
+			if(tlsVersion == TlsVersion.TLS_V1_2){
+				if(!configuration.getSupportedECCCipherSuites(tlsVersion).isEmpty()){
+					maxIterationCount += configuration.getSupportedGroups(tlsVersion).
+						stream().filter(TlsNamedCurves::isECCGroup).toList().size();
+				} else if (!configuration.getSupportedFFDHECipherSuites(tlsVersion).isEmpty()) {
+					maxIterationCount += configuration.getSupportedGroups(tlsVersion).
+							stream().filter(TlsNamedCurves::isFFDHEGroup).toList().size();				}
+			} else /*TLS 1.3*/ {
+				maxIterationCount +=configuration.getSupportedGroups(tlsVersion).size();
+			}
+		}
+		return maxIterationCount;
 	}
 
 	@Override

@@ -4,7 +4,7 @@ package com.achelos.task.tr03116ts.testcases.a.a1.fr;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
@@ -14,13 +14,14 @@ import com.achelos.task.commons.enums.TlsHeartbeat;
 import com.achelos.task.commons.enums.TlsTestToolMode;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tlsextensions.TlsExtHeartbeat;
+import com.achelos.task.commons.tlsextensions.TlsExtensionList;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
 import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_02 - Heartbeat extension
+ * Test case TLS_A1_FR_02 - Heartbeat extension.
  * <p>
  * This test verifies the behaviour of the DUT if the server sends a heartbeat extension.
  */
@@ -160,7 +161,6 @@ public class TLS_A1_FR_02 extends AbstractTestCase {
 
 		tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 				testTool);
-
 
 	}
 

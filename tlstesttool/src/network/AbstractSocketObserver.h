@@ -24,27 +24,27 @@ namespace TlsTestTool {
 /**
  * Abstract base class for socket observers.
  */
-class AbstractSocketObserver {
-public:
-    /**
-     * Virtual destructor.
-     */
-    virtual ~AbstractSocketObserver() = default;
+    class AbstractSocketObserver {
+    public:
+        /**
+         * Virtual destructor.
+         */
+        virtual ~AbstractSocketObserver() = default;
 
-	/**
+        /**
      * Called when the subject has written a block of characters successfully.
      *
      * @param length Number of bytes written
-	 */
-    virtual void onBlockWritten(std::size_t length) noexcept = 0;
+         */
+        virtual void onBlockWritten(std::size_t length) noexcept = 0;
 
-	/**
+        /**
      * Called when the subject has read a block of characters successfully.
-	 *
+         *
      * @param length Number of bytes to read
-	 */
-    virtual void onBlockRead(std::size_t length) noexcept = 0;
-};
+         */
+        virtual void onBlockRead(std::size_t length) noexcept = 0;
+    };
 }
 
 #endif /* NETWORK_ABSTRACTSOCKETOBSERVER_H_ */

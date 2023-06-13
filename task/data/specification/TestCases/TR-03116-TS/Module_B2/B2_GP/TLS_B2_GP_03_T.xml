@@ -2,8 +2,8 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_GP_03_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_GP_03_T</Title>
-	<Version>1.0</Version>
-	<Purpose>This positive test verifies that the DUT supports the signature algorithms extension. The test uses the signature algorithm and hash function [SIG_ALGORITHM].</Purpose>
+	<Version>1.1</Version>
+	<Purpose>This positive test verifies that the DUT supports the signature_algorithms extension. The test uses the signature algorithm and hash function [SIG_ALGORITHM].</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>CLIENT_CERT</Profile>
 	<Reference>RFC 5246</Reference>
@@ -32,7 +32,7 @@
 	<TestStep>
 		<Command>
 			<Text>The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].</Text>
-		</Command>		
+		</Command>	
 		<ExpectedResult>
 			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
 		</ExpectedResult>

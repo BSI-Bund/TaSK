@@ -26,29 +26,32 @@ namespace TlsTestTool {
 /**
  * Overwrite ClientHello.compression_methods with a given value.
  */
-class ManipulateClientHelloCompressionMethods : public Manipulation {
-public:
-	/**
-	 * Create a manipulation.
-	 *
-	 * @param newCompressionMethods Value to set the compression_methods field to.
-	 */
-	ManipulateClientHelloCompressionMethods(const std::vector<uint8_t> & newCompressionMethods)
-			: Manipulation(), compressionMethods(newCompressionMethods) {
-	}
+    class ManipulateClientHelloCompressionMethods : public Manipulation {
+    public:
+        /**
+         * Create a manipulation.
+         *
+         * @param newCompressionMethods Value to set the compression_methods field to.
+         */
+        ManipulateClientHelloCompressionMethods(const std::vector<uint8_t> &newCompressionMethods)
+                : Manipulation(), compressionMethods(newCompressionMethods) {
+        }
 
-	const std::vector<uint8_t> & getCompressionMethods() const {
-		return compressionMethods;
-	}
+        const std::vector<uint8_t> &getCompressionMethods() const {
+            return compressionMethods;
+        }
 
-	virtual void executePreHandshake(TlsSession & session) override;
-	virtual void executePreStep(TlsSession & session) override;
-	virtual void executePostStep(TlsSession & session) override;
-	virtual void executePostHandshake(TlsSession & session) override;
+        virtual void executePreHandshake(TlsSession &session) override;
 
-private:
-	const std::vector<uint8_t> compressionMethods;
-};
+        virtual void executePreStep(TlsSession &session) override;
+
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+
+    private:
+        const std::vector<uint8_t> compressionMethods;
+    };
 }
 
 #endif /* MANIPULATION_MANIPULATECLIENTHELLOCOMPRESSIONMETHODS_H_ */

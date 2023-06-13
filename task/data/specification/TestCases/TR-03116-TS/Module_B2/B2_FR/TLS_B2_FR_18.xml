@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_FR_18" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_FR_18</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test checks the behaviour of the DUT in case TLS client authentication fails. The client does not send a client certificate during the handshake.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>SERVER_CERT</Profile>
@@ -34,7 +34,7 @@
 	<TestStep>
 		<Command>
 			<Text>The TLS client supplies an empty client certificate message.</Text>
-		</Command>		
+		</Command>	
 		<ExpectedResult>
 			<Text>The DUT does not accept the certificate and sends a "bad_certificate" alert or another suitable error description.</Text>
 		</ExpectedResult>

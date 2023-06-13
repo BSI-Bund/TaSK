@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestFragment;
 import com.achelos.task.abstracttestsuite.IStepExecution;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.configuration.TlsTestToolConfigurationHandshakeType;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.dutexecution.DUTExecutor;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 
 
@@ -80,10 +80,10 @@ public class TFDUTClientNewConnection extends AbstractTestFragment {
 		}
 
 		step(prefix, 1,
-				"Tester request: Please motivate the DUT to create a TLS connection over TCP/IP"
+				"Motivate the DUT to create a TLS connection over TCP/IP"
 						+ " to " + TlsTestToolExecutor.TLS_TEST_TOOL_LOCAL_HOST_AS_SERVER + ":"
 						+ testTool.getConfiguration().getTlsTestToolPort() + ".",
-				"Tester confirms that the DUT was motivated.\r\nReceive a ClientHello message from the DUT.");
+				"Receive a ClientHello message from the DUT.");
 
 		// Check if it's a handshake with session resumption. Do not check for TCP/IP connection in case of session
 		// resumption because connection is already established.

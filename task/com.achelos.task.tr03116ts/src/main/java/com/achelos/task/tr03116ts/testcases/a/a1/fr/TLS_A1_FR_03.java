@@ -4,7 +4,8 @@ package com.achelos.task.tr03116ts.testcases.a.a1.fr;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
@@ -12,19 +13,20 @@ import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tools.StringTools;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
+import com.achelos.task.logging.BasicLogger;
 import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_03 - Heartbeat Request
+ * Test case TLS_A1_FR_03 - Heartbeat request.
  * <p>
  * This test verifies the behaviour of the DUT if the server sends a heartbeat request.
  */
 public class TLS_A1_FR_03 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_FR_03";
-	private static final String TEST_CASE_DESCRIPTION = "Heartbeat Request";
+	private static final String TEST_CASE_DESCRIPTION = "Heartbeat request";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies the behaviour of the DUT if the server sends a heartbeat request.";
 
@@ -134,7 +136,7 @@ public class TLS_A1_FR_03 extends AbstractTestCase {
 		tfServerHello.executeSteps("3",
 				"The TLS server answers the DUT choosing a TLS version and a cipher suite that is"
 						+ " contained in the ClientHello.",
-				Arrays.asList(), testTool, tlsVersion, cipherSuite);
+				Arrays.asList(), testTool, tlsVersion, cipherSuite, TlsTestToolTlsLibrary.OpenSSL);
 
 		// prepare the Heartbeat Request
 		final byte payloadByte31 = 0x31;
@@ -155,10 +157,13 @@ public class TLS_A1_FR_03 extends AbstractTestCase {
 
 		step(6, "The TLS server sends a \"heartbeat_request\".", "The DUT ignores the request.");
 
-		tfAlertMessageCheck.executeSteps("7", "",
-				Arrays.asList("level=warning/fatal"), testTool);
+		if (testTool.assertMessageLogged(TestToolResource.Heartbeat_message_received, BasicLogger.INFO)) {
+			logger.error("The DUT did answered with a Heartbeat response.");
+		} else {
+			logger.info("The DUT ignored the request.");
+		}
 
-		tfApplicationCheck.executeSteps("5", "", Arrays.asList(), testTool, dutExecutor);
+		tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
 
 		tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
 				testTool);

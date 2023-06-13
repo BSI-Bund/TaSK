@@ -1,7 +1,6 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.fr;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
@@ -15,6 +14,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_10_T - Correct use of PSK cipher suite.
  * <p>
  * This positive test verifies the behaviour of the DUT when a correct PSK is used. The test is carried out for the TLS
  * version [TLS_VERSION] and the PSK cipher suite [CIPHERSUITE].
@@ -25,7 +25,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 public class TLS_B1_FR_10_T extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B1_FR_10_T";
-	private static final String TEST_CASE_DESCRIPTION = "correct use of PSK cipher suite";
+	private static final String TEST_CASE_DESCRIPTION = "Correct use of PSK cipher suite";
 	private static final String TEST_CASE_PURPOSE
 			= "This positive test verifies the behaviour of the DUT when a correct PSK is used. "
 					+ "The test is carried out for the TLS version [TLS_VERSION] and the PSK cipher suite "

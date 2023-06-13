@@ -22,6 +22,8 @@ public enum TlsTestToolConfigurationOption {
 	MANIPULATECLIENTHELLOEXTENSIONS("manipulateClientHelloExtensions"),
 	/** manipulateClientHelloExtensions. */
 	MANIPULATESERVERHELLOEXTENSIONS("manipulateServerHelloExtensions"),
+	/** manipulateClientHelloExtensions. */
+	MANIPULATEENCRYPTEDEXTENSIONSTLS13("manipulateEncryptedExtensionsTls13"),
 	/** manipulateEllipticCurveGroup. */
 	MANIPULATEELLIPTICCURVEGROUP("manipulateEllipticCurveGroup"),
 	/** manipulateHelloVersion. */
@@ -52,6 +54,8 @@ public enum TlsTestToolConfigurationOption {
 	TLSCIPHERSUITES("tlsCipherSuites"),
 	/** tlsEncryptThenMac. */
 	TLSENCRYPTTHENMAC("tlsEncryptThenMac"),
+	/** tlsExtendedMasterSecret. */
+	TLSEXTENDEDMASTERSECRET("tlsExtendedMasterSecret"),
 	/** tlsSecretFile. */
 	TLSSECRETFILE("tlsSecretFile"),
 	/** tlsServerDHParams. */
@@ -77,7 +81,9 @@ public enum TlsTestToolConfigurationOption {
 	/** psk. */
 	PSKIDENTITIYHINT("pskIdentityHint"),
 	/** psk identity */
-	PSKIDENTITY("pskIdentity");
+	PSKIDENTITY("pskIdentity"),
+	LISTENTIMEOUT("listenTimeout"),
+	STARTTLSPROTOCOL("startTLSProtocol");
 
 	private final String value;
 

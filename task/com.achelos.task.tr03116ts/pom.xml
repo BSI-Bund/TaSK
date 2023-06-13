@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.achelos.task</groupId>
 		<artifactId>com.achelos.task</artifactId>
-		<version>0.5.2</version>
+		<version>1.0.1</version>
 	</parent>
 	<artifactId>com.achelos.task.tr03116ts</artifactId>
 
@@ -11,19 +11,19 @@
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.abstracttestsuite</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.commandlineexecution</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.logging</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -22,7 +22,7 @@
 #include <utility>
 
 namespace TlsTestTool {
-using TlsSignatureScheme = std::pair<uint8_t, uint8_t>;
+    using TlsSignatureScheme = std::pair<uint8_t, uint8_t>;
 }
 
 #endif /* TLS_TLSSIGNATURESCHEME_H_ */

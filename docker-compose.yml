@@ -1,0 +1,30 @@
+version: '3'
+services:
+  task:
+    image: task-docker
+    container_name: task-docker
+    build:
+      context: .
+    restart: "no"
+    ports:
+        - 8080:8080 # TLSTestTool
+        - 8081:8081 # CRL
+        - 9080:9080 # OCSP 
+        - 8088:8088 # REST API
+    stdin_open: true
+    tty: true
+
+# experimental setup regarding the TR-03108-1-EMSP-CLIENT-CETI-DANE application type
+#  task-dns-server:
+#    image: task-dns-server
+#    container_name: task-dns-server
+#    build:
+#      context: ./task/docker/dnsserver_docker/Dockerfile
+#    environment:
+#      TZ: UTC
+#    ports:
+#      - "53:53/udp"
+#      - "53:53/tcp"
+#    restart: "no"
+#    stdin_open: true
+#    tty: true

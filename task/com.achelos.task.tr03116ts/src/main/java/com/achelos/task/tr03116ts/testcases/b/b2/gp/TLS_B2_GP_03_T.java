@@ -31,7 +31,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSVersionCheck;
 public class TLS_B2_GP_03_T extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B2_GP_03_T";
-	private static final String TEST_CASE_DESCRIPTION = " signature algorithms extension";
+	private static final String TEST_CASE_DESCRIPTION = " signature_algorithms extension";
 	private static final String TEST_CASE_PURPOSE
 			= "This positive test verifies that the DUT supports the signature algorithms extension. "
 					+ "The test uses the signature algorithm and hash function [SIG_ALGORITHM].";
@@ -151,7 +151,7 @@ public class TLS_B2_GP_03_T extends AbstractTestCase {
 				
 				tfClientCertificate.executeSteps("1",
 						"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(),
-						testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+						testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 				tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 						+ ", cipher suite " + cipherSuite.name() + ", signature algorithm "

@@ -26,14 +26,14 @@ namespace Tooling {
 /**
  * Collection of helper functions that deal with strings of hexadecimal encoded bytes.
  */
-namespace HexStringHelper {
+    namespace HexStringHelper {
 /**
  * Convert an array of bytes to a string containing hexadecimal values separated by space.
  *
  * @param byteArray Array of bytes
  * @return String containing hexdecimal values
  */
-std::string byteArrayToHexString(const std::vector<uint8_t> & byteArray);
+        std::string byteArrayToHexString(const std::vector<uint8_t> &byteArray);
 
 /**
  * Convert a string containing hexadecimal values separated by space to an array of bytes.
@@ -41,8 +41,8 @@ std::string byteArrayToHexString(const std::vector<uint8_t> & byteArray);
  * @param hexString String containing hexdecimal values
  * @return Array of bytes
  */
-std::vector<uint8_t> hexStringToByteArray(const std::string & hexString);
-}
+        std::vector<uint8_t> hexStringToByteArray(const std::string &hexString);
+    }
 }
 
 #endif /* STRINGS_HEXSTRINGHELPER_H_ */

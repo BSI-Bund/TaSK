@@ -1,7 +1,6 @@
 package com.achelos.task.tr03116ts.testcases.b.b1.fr;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;

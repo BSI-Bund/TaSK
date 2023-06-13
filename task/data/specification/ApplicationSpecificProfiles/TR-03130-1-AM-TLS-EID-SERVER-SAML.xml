@@ -11,6 +11,7 @@
 	<Profiles>
 		<MandatoryProfiles>
 			<Profile>CHECK_CERTS</Profile>
+			<Profile>DURATION</Profile>
 			<Profile>INTERIM_SUITES_SRV</Profile>
 			<Profile>NO_CLIENT_CERT</Profile>
 			<Profile>PFS</Profile>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B1_GP_04" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B1_GP_04</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test ensures that the connection is not established if the client offers only elliptic curve cipher suites and unsupported curves according to the ICS.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>ECC</Profile>

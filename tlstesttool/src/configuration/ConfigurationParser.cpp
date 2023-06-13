@@ -29,7 +29,7 @@ namespace TlsTestTool {
     void ConfigurationParser::updateConfiguration(Configuration &configuration,
                                                   const std::vector<Tooling::KeyValuePair> &keyValuePairs) {
         bool tlsLibrarySet = false;
-        for(const auto &keyValuePair: keyValuePairs){
+        for (const auto &keyValuePair: keyValuePairs) {
             const std::string &name = keyValuePair.first;
             const std::string &value = keyValuePair.second;
             if (name == "tlsLibrary") {
@@ -44,19 +44,19 @@ namespace TlsTestTool {
                 } else {
                     throw std::invalid_argument{std::string{"Unknown TLS library "} + value};
                 }
-                tlsLibrarySet= true;
+                tlsLibrarySet = true;
                 break;
             }
         }
         //set default TLS-Library here (or set default value in Config Constructor)
-        if(!tlsLibrarySet){
+        if (!tlsLibrarySet) {
             configuration.setTlsLibrary(Configuration::TlsLibrary::OPENSSL);
         }
 
         for (const auto &keyValuePair: keyValuePairs) {
             const std::string &name = keyValuePair.first;
             const std::string &value = keyValuePair.second;
-            if(name=="tlsLibrary"){
+            if (name == "tlsLibrary") {
                 continue;
             }
             if (name == "mode") {
@@ -67,7 +67,7 @@ namespace TlsTestTool {
                 } else {
                     throw std::invalid_argument{std::string{"Unknown mode "} + value};
                 }
-            }else if (name == "host") {
+            } else if (name == "host") {
                 configuration.setHost(value);
             } else if (name == "port") {
                 configuration.setPort(std::stoul(value));
@@ -78,9 +78,8 @@ namespace TlsTestTool {
             } else if (name == "receiveTimeout") {
                 configuration.setTcpReceiveTimeoutSeconds(std::stoul(value));
             } else if (name == "sessionLifetime") {
-				configuration.setSessionLifetime(std::stoi( value ));
-			}
-			else if (name == "logLevel") {
+                configuration.setSessionLifetime(std::stoi(value));
+            } else if (name == "logLevel") {
                 if (value == "high") {
                     configuration.setLogLevel(Tooling::LogLevel::HIGH);
                 } else if (value == "medium") {
@@ -141,6 +140,14 @@ namespace TlsTestTool {
                     configuration.setTlsEncryptThenMac(true);
                 } else if (value == "false") {
                     configuration.setTlsEncryptThenMac(false);
+                } else {
+                    throw std::invalid_argument{std::string{"Invalid value for "} + name + " " + value};
+                }
+            } else if (name == "tlsExtendedMasterSecret") {
+                if (value == "true") {
+                    configuration.setTlsExtendedMasterSecret(true);
+                } else if (value == "false") {
+                    configuration.setTlsExtendedMasterSecret(false);
                 } else {
                     throw std::invalid_argument{std::string{"Invalid value for "} + name + " " + value};
                 }
@@ -220,8 +227,7 @@ namespace TlsTestTool {
                     configuration.addTlsSignatureScheme(
                             std::make_pair(static_cast<uint8_t>(upper), static_cast<uint8_t>(lower)));
                 }
-            }
-            else if (name == "tlsSignatureAlgorithms") {
+            } else if (name == "tlsSignatureAlgorithms") {
                 const std::regex numberPairRegEx{"\\(([0-9]+),([0-9]+)\\)"};
                 auto numberPairsBegin = std::sregex_iterator(value.begin(), value.end(), numberPairRegEx);
                 auto numberPairsEnd = std::sregex_iterator();
@@ -246,42 +252,44 @@ namespace TlsTestTool {
                             std::make_pair(static_cast<uint8_t>(signature), static_cast<uint8_t>(hash)));
                 }
             }
-            //Values for Session Resumption
-            else if (name == "sessionCache"){
+                //Values for Session Resumption
+            else if (name == "sessionCache") {
                 configuration.setSessionCache(value);
-            }
-            else if (name == "earlyData"){
+            } else if (name == "earlyData") {
                 configuration.setEarlyData(Tooling::HexStringHelper::hexStringToByteArray(value));
-            }
-            else if (name == "psk"){
+            } else if (name == "psk") {
                 configuration.setPreSharedKey(Tooling::HexStringHelper::hexStringToByteArray(value));
-            }
-            else if (name == "pskIdentity"){
+            } else if (name == "pskIdentity") {
                 configuration.setPskIdentity(value);
-            }
-            else if (name == "pskIdentityHint"){
+            } else if (name == "pskIdentityHint") {
                 configuration.setPskIdentityHint(value);
-            }
-            else if (name == "handshakeType"){
-                if(value == "normal"){
+            } else if (name == "handshakeType") {
+                if (value == "normal") {
                     configuration.setHandshakeType(Configuration::HandshakeType::NORMAL);
-                }else if (value == "resumptionWithSessionID"){
+                } else if (value == "resumptionWithSessionID") {
                     configuration.setHandshakeType(Configuration::HandshakeType::SESSION_RESUMPTION_WITH_SESSION_ID);
-                }
-                else if (value == "resumptionWithSessionTicket"){
+                } else if (value == "resumptionWithSessionTicket") {
                     configuration.setHandshakeType(Configuration::HandshakeType::SESSION_RESUMPTION_WITH_TICKET);
-                }
-                else if (value == "zeroRTT"){
+                } else if (value == "zeroRTT") {
                     configuration.setHandshakeType(Configuration::HandshakeType::ZERO_RTT);
+                } else {
+                    throw std::invalid_argument{std::string{"Unknown handshakeType argument "} + name};
                 }
-				else{
-					throw std::invalid_argument{std::string{"Unknown handshakeType argument "} + name};
-				}
-            }
-            else if (name == "ocspResponseFile"){
+            } else if (name == "ocspResponseFile") {
                 configuration.setOcspResponseFile(value);
-            }
-            else if (name.substr(0, manipulatePrefix.size()) == manipulatePrefix) {
+            } else if (name == "startTLSProtocol") {
+                if (value == "smtp") {
+                    configuration.setStartTlsProtocol(Configuration::StartTLSProtocol::SMTP);
+                } else if (value == "imap") {
+                    configuration.setStartTlsProtocol(Configuration::StartTLSProtocol::IMAP);
+                } else if (value == "pop3") {
+                    configuration.setStartTlsProtocol(Configuration::StartTLSProtocol::POP3);
+                } else if (value == "ftp") {
+                    configuration.setStartTlsProtocol(Configuration::StartTLSProtocol::FTP);
+                } else {
+                    throw std::invalid_argument{std::string{"Invalid StartTLS protocol: "} + value};
+                }
+            } else if (name.substr(0, manipulatePrefix.size()) == manipulatePrefix) {
                 ManipulationsParser::parse(name, value, configuration);
             } else {
                 throw std::invalid_argument{std::string{"Unknown argument "} + name};

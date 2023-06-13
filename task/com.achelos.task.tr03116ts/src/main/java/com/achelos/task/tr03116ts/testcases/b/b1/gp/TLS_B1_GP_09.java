@@ -67,7 +67,7 @@ public class TLS_B1_GP_09 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers cipher suites which are supported according to the ICS, however in the reverted
 	 * order. This means that the less preferable cipher suite is put at the beginning of the list, while the most
 	 * preferable is put at the end of the list.

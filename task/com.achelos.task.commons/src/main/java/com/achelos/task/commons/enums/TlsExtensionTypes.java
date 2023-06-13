@@ -209,7 +209,6 @@ public enum TlsExtensionTypes {
 
 	}
 
-
 	public static List<TlsExtensionTypes> getClientHelloExtensions() {
 
 		return EnumSet.allOf(TlsExtensionTypes.class).stream().filter(e -> e.messageAcronym.contains("CH"))

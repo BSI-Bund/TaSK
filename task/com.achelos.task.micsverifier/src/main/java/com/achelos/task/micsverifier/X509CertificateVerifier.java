@@ -66,7 +66,7 @@ class X509CertificateVerifier {
 		for (var cert : mics.getCertificateChain()) {
 			boolean addedCert = false;
 			for (var certFile : certificateFiles) {
-				if (Arrays.areEqual(getFileFingerprint(certFile), cert.getFingerprint())) {
+				if (Arrays.areEqual(getFileFingerprint(certFile, cert.getFingerprintHashFunction()), cert.getFingerprint())) {
 					try {
 						var certInputStream = new FileInputStream(certFile);
 						var parsedCertificate = certFactory.engineGenerateCertificate(certInputStream);
@@ -247,7 +247,7 @@ class X509CertificateVerifier {
 		for (var cert : mics.getCertificateChain()) {
 			boolean addedCert = false;
 			for (var certFile : certificateFiles) {
-				if (Arrays.areEqual(getFileFingerprint(certFile), cert.getFingerprint())) {
+				if (Arrays.areEqual(getFileFingerprint(certFile, cert.getFingerprintHashFunction()), cert.getFingerprint())) {
 					try {
 						var certInputStream = new FileInputStream(certFile);
 						var parsedCertificate = certFactory.engineGenerateCertificate(certInputStream);
@@ -1048,7 +1048,7 @@ class X509CertificateVerifier {
 		final String testCaseName = "TLS_CERT_10";
 		final String testCaseDescription = "TLS_CERT_10 in TR-03116-TS";
 		final String testCasePurpose
-				= "All CA certificates in the chain contain a BasicConstraints extension marked as critical. This extension must have the field \"pathLenConstraint\" with a reasonable small value.";
+				= "All CA certificates in the chain contain a BasicConstraints extension marked as critical. This extension must have the field \"pathLenConstraint\". The field \"pathLenConstraint\" must have a reasonable small value, depending on the respective application context";
 		var testRun = new TestCaseRun(testCaseName, RunState.RUNNING, "MICS Verifier");
 		logger.tellLogger(BasicLogger.MSG_NEW_TESTCASE, testRun);
 		logger.tellLogger(BasicLogger.MSG_TESTCASE_DESCRIPTION, testCaseDescription);
@@ -1325,8 +1325,8 @@ class X509CertificateVerifier {
 		return sb.toString();
 	}
 
-	private static byte[] getFileFingerprint(final File fileToHash) {
-		return FileUtils.getFileFingerprint(fileToHash);
+	private static byte[] getFileFingerprint(final File fileToHash, final String hashFunction) {
+		return FileUtils.getFileFingerprint(fileToHash, hashFunction);
 	}
 
 }

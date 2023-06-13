@@ -4,7 +4,7 @@ package com.achelos.task.tr03116ts.testcases.a.a1.fr;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.configuration.TlsTestToolConfigurationHandshakeType;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
@@ -21,7 +21,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_11 - Session resumption with Session Ticket
+ * Test case TLS_A1_FR_11 - Session resumption with Session Ticket.
  * <p>
  * Positive test verifying the session resumption through the Session Ticket.
  */
@@ -204,12 +204,22 @@ public class TLS_A1_FR_11 extends AbstractTestCase {
 				"The tester causes the DUT to connect to the TLS server for the second time.", Arrays.asList(),
 				testTool,
 				sessionResumptionWithSessionTicket, dutExecutor);
-		step(10, "Check if the TLS ClientHello correctly initiates session resumption via Session Ticket.",
-				"The TLS ClientHello correctly initiates session resumption via Session Ticket.");
-		sessionTicket = testTool.assertExtensionTypeLogged(TlsTestToolMode.client, TlsExtensionTypes.SessionTicket_TLS);
-		if (sessionTicket == null || sessionTicket.length == 0) {
-			logger.error("The TLS ClientHello does not indicate support for session resumption via Session Ticket.");
-			return;
+		if(tlsVersion == TlsVersion.TLS_V1_2) {
+			step(10, "Check if the TLS ClientHello correctly initiates session resumption via Session Ticket.",
+					"The TLS ClientHello correctly initiates session resumption via Session Ticket.");
+			sessionTicket = testTool.assertExtensionTypeLogged(TlsTestToolMode.client, TlsExtensionTypes.SessionTicket_TLS);
+			if (sessionTicket == null || sessionTicket.length == 0) {
+				logger.error("The TLS ClientHello does not indicate support for session resumption via Session Ticket.");
+				return;
+			}
+		} else {
+			step(10, "Check if the TLS ClientHello correctly initiates session resumption via PSK.",
+					"The TLS ClientHello correctly initiates session resumption via PSK.");
+			var psk = testTool.assertExtensionTypeLogged(TlsTestToolMode.client, TlsExtensionTypes.pre_shared_key);
+			if (psk == null || psk.length == 0) {
+				logger.error("The TLS ClientHello does not indicate support for session resumption via PSK extension.");
+				return;
+			}
 		}
 		logger.info("The TLS ClientHello indicates support for session resumption via Session Ticket.");
 
@@ -217,13 +227,14 @@ public class TLS_A1_FR_11 extends AbstractTestCase {
 
 		step(11, "Check if the session resumption is executed without errors and the channel is established.",
 				"Session resumption is executed without errors and the channel is established.");
-		boolean serverHelloDoneLogged
-				= testTool.assertMessageLogged(TestToolResource.ServerHelloDone_transmitted, BasicLogger.INFO);
+		boolean certificateTransmitted
+				= testTool.assertMessageLogged(TestToolResource.Certificate_received_valid, BasicLogger.INFO);
 		boolean handshakeSuccessful = testTool.assertMessageLogged(TestToolResource.Handshake_successful);
-		if (!serverHelloDoneLogged && handshakeSuccessful) {
-			logger.info("The DUT has accepted the session resumption.");
+
+		if (!certificateTransmitted && handshakeSuccessful) {
+			logger.info("The server TOE has accepted the session resumption.");
 		} else {
-			logger.error("The DUT has refused the session resumption.");
+			logger.error("The server TOE has refused the session resumption.");
 		}
 
 		tfApplicationCheck.executeSteps("12", "", Arrays.asList(), testTool, dutExecutor);

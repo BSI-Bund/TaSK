@@ -20,20 +20,20 @@
 #include <string>
 
 namespace TlsTestTool {
-void ManipulateEllipticCurveGroup::executePreHandshake(TlsSession & /*session*/) {
-}
-
-void ManipulateEllipticCurveGroup::executePreStep(TlsSession & session) {
-    if (!session.isClient() && (TlsHandshakeState::SERVER_KEY_EXCHANGE == session.getState())) {
-        log(__FILE__, __LINE__, "Setting EllipticCurveGroup to " + std::to_string(manipulatedEllipticCurveGroup)
-                    + " before sending ServerKeyExchange.");
-        session.overwriteEllipticCurveGroup(manipulatedEllipticCurveGroup);
+    void ManipulateEllipticCurveGroup::executePreHandshake(TlsSession & /*session*/) {
     }
-}
 
-void ManipulateEllipticCurveGroup::executePostStep(TlsSession & /*session*/) {
-}
+    void ManipulateEllipticCurveGroup::executePreStep(TlsSession &session) {
+        if (!session.isClient() && (TlsHandshakeState::SERVER_KEY_EXCHANGE == session.getState())) {
+            log(__FILE__, __LINE__, "Setting EllipticCurveGroup to " + std::to_string(manipulatedEllipticCurveGroup)
+                                    + " before sending ServerKeyExchange.");
+            session.overwriteEllipticCurveGroup(manipulatedEllipticCurveGroup);
+        }
+    }
 
-void ManipulateEllipticCurveGroup::executePostHandshake(TlsSession & /*session*/) {
-}
+    void ManipulateEllipticCurveGroup::executePostStep(TlsSession & /*session*/) {
+    }
+
+    void ManipulateEllipticCurveGroup::executePostHandshake(TlsSession & /*session*/) {
+    }
 }

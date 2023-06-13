@@ -84,9 +84,6 @@ public class OCSPRequestExecutor extends GenericCommandLineExecution {
 		}
 		
 		start(command, logFile, null);
-		// We add a small delay for the process to finish
-		final int finishProcessDelay = 3000;
-		startSleepTimer(finishProcessDelay);
 
 	}
 

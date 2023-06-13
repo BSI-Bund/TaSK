@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 /**
  * If the test interface TR-03130-1-EID-SERVER-ECARD-PSK is selected,
- * a RMI service needs to be implemented, which satisfies this interface.
+ * an RMI service needs to be implemented, which satisfies this interface.
  *
  * The main goal of classes implementing this interface should be:
  * - Initiating the Online-Authentication Request on the eID-Server
@@ -20,7 +20,7 @@ public interface TCTokenURLProvider extends Remote {
 
     /**
      * This method should:
-     *  - initiate the Online-Authentication Request on the eID-Server
+     *  - initiate the Online-Authentication Request on the eID-Server (e.g. using a useIDRequest message)
      *  - return a TCTokenURL to the TaSK Framework, which an eID-Client could use to retrieve a TCToken Object (as specified in TR-03130).
      * @return a TCTokenURL to the TaSK Framework, which an eID-Client could use to retrieve a TCToken Object (as specified in TR-03130).
      * @throws RemoteException in case of RMI errors.

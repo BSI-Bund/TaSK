@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ApplicationMapping id="TR-03116-3-AM-TLS-SMART-METERING-LMN-SERVER">
+<ApplicationMapping id="TR-03116-3-SMGW-LMN-SERVER">
 	<Title>TLS server mapping for the HAN interface according to TR-03116-3</Title>
 	<Version>1.0</Version>
 	<Description>Within the Smart Metering infrastructure, the communication infrastructure distinguishes between different interfaces. Depending on the particular interface, smartmeter gateways and communication partners act as TLS server or as TLS client.</Description>
@@ -19,8 +19,8 @@
 			<Profile>NO_TRUNC_HMAC</Profile>
 			<Profile>PFS</Profile>
 			<Profile>SERVER_CERT</Profile>
-			<Profile>TLS_SERVER</Profile>
 			<Profile>TLS_1.2</Profile>
+			<Profile>TLS_SERVER</Profile>
 		</MandatoryProfiles>
 		<RecommendedProfiles>
 			<Profile>ENC_THEN_MAC</Profile>

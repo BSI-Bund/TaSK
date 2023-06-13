@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_A2_FR_12_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_A2_FR_12_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test verifies the behaviour of the DUT if the server chooses not to resume the session.</Purpose>
 	<Profile>TLS_CLIENT</Profile>
 	<Profile>CLIENT_CERT</Profile>
@@ -30,10 +30,10 @@
 
 	<TestStep>
 		<Command>
-			<Text>The TLS server answers the DUT choosing a TLS version and a cipher suite that is contained in the ClientHello.</Text>		
+			<Text>The TLS server answers the DUT choosing a TLS version and a cipher suite that is contained in the ClientHello.</Text>	
 		</Command>
 		<Description>The TLS server supplies the certificate chain [CERT_DEFAULT].</Description>
-		<Description>The server sends a CertificateRequest to the DUT.</Description>		
+		<Description>The server sends a CertificateRequest to the DUT.</Description>	
 		<Description>The TLS server supports session resumption and prepares necessary data (e.g. generates a new Session ID or NewSessionTicket handshake message).</Description>
 		<Description>The data required for the session resumption is supplied to the DUT.</Description>
 
@@ -47,7 +47,7 @@
 	
 	<TestStep>
 		<Command>
-			<Text>Close TLS connection.</Text>		
+			<Text>Close TLS connection.</Text>	
 		</Command>
 		<Description>The application data may be exchanged before closing the channel.</Description>
 		
@@ -70,11 +70,11 @@
 	
 	<TestStep>
 		<Command>
-			<Text>The Server does not resume the session and forces a fresh TLS handshake.</Text>		
+			<Text>The Server does not resume the session and forces a fresh TLS handshake.</Text>	
 		</Command>
 
 		<ExpectedResult>
-			<Text>The connection establishment is either aborted by the eID-Client, closed immediately after creation, or not used to send any further data.</Text>
+			<Text>The connection establishment is either aborted by the TLS client, closed immediately after creation, or not used to send any further data.</Text>
 		</ExpectedResult>
 	</TestStep>
 </TestCase>

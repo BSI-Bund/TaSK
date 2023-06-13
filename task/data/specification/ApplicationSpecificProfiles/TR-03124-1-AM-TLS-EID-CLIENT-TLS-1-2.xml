@@ -10,19 +10,20 @@
 	</ApplicationSpecificInspectionInstructions>
 	<Profiles>
 		<MandatoryProfiles>
+			<Profile>DURATION</Profile>
 			<Profile>NO_CLIENT_CERT</Profile>
 			<Profile>NO_SAN</Profile>
 			<Profile>PFS</Profile>
 			<Profile>SERVER_CERT</Profile>
+			<Profile>SKIP_CHAIN_VALIDN</Profile>
 			<Profile>STOP_RESUMPTION</Profile>
 			<Profile>TLS_1.2</Profile>
 			<Profile>TLS_CLIENT</Profile>
-			<Profile>SKIP_CHAIN_VALIDN</Profile>
 		</MandatoryProfiles>
 		<RecommendedProfiles>
-			<Profile>TLS_1.3</Profile>
 			<Profile>SESSION_ID</Profile>
 			<Profile>SESSION_TICKET</Profile>
+			<Profile>TLS_1.3</Profile>
 		</RecommendedProfiles>
 	</Profiles>
 	<ICSSections>

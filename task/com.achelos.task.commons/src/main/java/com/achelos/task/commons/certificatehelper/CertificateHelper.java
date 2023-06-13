@@ -6,6 +6,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.achelos.task.commons.tools.StringTools;
 
@@ -56,6 +58,7 @@ public final class CertificateHelper {
 		Certificate certificate = null;
 		try {
 			certificate = CertificateFactory.getInstance("X.509").generateCertificate(certificateStream);
+
 		} catch (CertificateException e) {
 			throw new IllegalArgumentException("Input data cannot be interpreted as X.509 Certificate", e);
 		}
@@ -63,5 +66,23 @@ public final class CertificateHelper {
 			throw new IllegalArgumentException("Input data do not hold a valid X.509 Certificate");
 		}
 		return (X509Certificate) certificate;
+	}
+
+	/**
+	 * Parse an input stream as a X.509 certificate.
+	 *
+	 * @param certificateStream Stream that will be used to read binary data of a X.509 certificate
+	 * @return X.509 certificate object
+	 * @throws IllegalArgumentException if certificateData cannot be parsed as a X.509 certificate
+	 */
+	public static List<X509Certificate> parseMultipleCertificates(final InputStream certificateStream) {
+		List<X509Certificate> certificateList = null;
+		try {
+			certificateList = (List<X509Certificate>)(List<?>)new LinkedList<Certificate>(CertificateFactory.getInstance("X.509").generateCertificates(certificateStream));
+
+		} catch (CertificateException e) {
+			throw new IllegalArgumentException("Input data cannot be interpreted as X.509 Certificate", e);
+		}
+		return certificateList;
 	}
 }

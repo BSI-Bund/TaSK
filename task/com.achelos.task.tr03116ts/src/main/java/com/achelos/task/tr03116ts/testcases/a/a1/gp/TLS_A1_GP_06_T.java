@@ -5,20 +5,19 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
-import com.achelos.task.commons.enums.TlsAlertLevel;
-import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
-import com.achelos.task.commons.enums.TlsVersion;
+import com.achelos.task.commons.enums.TlsAlertDescription;
+import com.achelos.task.utilities.logging.IterationCounter;
+import com.achelos.task.commons.enums.*;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
 import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_GP_06_T - domain parameters with insufficient length
+ * Test case TLS_A1_GP_06_T - Domain parameters with insufficient length.
  * <p>
  * This test verifies the behaviour of the DUT in case the server tries to use ephemeral domain parameters with
  * insufficient length.
@@ -29,7 +28,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 public class TLS_A1_GP_06_T extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_GP_06_T";
-	private static final String TEST_CASE_DESCRIPTION = "domain parameters with insufficient length";
+	private static final String TEST_CASE_DESCRIPTION = "Domain parameters with insufficient length";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies the behaviour of the DUT in case the server tries to use "
 					+ "ephemeral domain parameters with insufficient length.";
@@ -97,8 +96,7 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 	 * <li>The TLS server only offers a cipher suite based on FFDHE or ECDHE for key negotiation listed in the ICS of
 	 * the DUT.
 	 * <li>The TLS server supplies the certificate chain [CERT_DEFAULT].
-	 * <li>The TLS server sends an ephemeral key based on domain parameters (elliptic curve in case of ECDHE or key
-	 * length in case of FFDHE) of insufficient length.
+	 * <li>The TLS server sends an ephemeral key based on domain parameters of insufficient length.
 	 * <li>No TLS extensions are supplied by the server which are not required to conduct the TLS handshake.
 	 * </ol>
 	 * <h3>ExpectedResult</h3>
@@ -126,13 +124,24 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 			logger.debug(tlsVersion.name());
 		}
 
+		int iterationCount = 1;
+		int maxIterationCount = calculateMaxIterationCount(tlsVersions);
 		for (TlsVersion tlsVersion : tlsVersions) {
 
-			var eccCipherSuite = configuration.getSingleSupportedECCCipherSuite(tlsVersion);
-			var insufficientLengthECDHEGroups
+			var notSupportedEllipticCurves
 					= configuration.getNotSupportedEllipticCurves(tlsVersion);
 
-			var dheCipherSuite = configuration.getSingleSupportedFFDHECipherSuite(tlsVersion);
+			TlsCipherSuite eccCipherSuite = null;
+			TlsCipherSuite dheCipherSuite = null;
+			if(tlsVersion == TlsVersion.TLS_V1_2){
+				eccCipherSuite = configuration.getSingleSupportedECCCipherSuite(tlsVersion);
+				dheCipherSuite = configuration.getSingleSupportedFFDHECipherSuite(tlsVersion);
+			}else /*TLS 1.3*/{
+				eccCipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
+				dheCipherSuite = eccCipherSuite;
+			}
+
+			configuration.getSingleSupportedFFDHECipherSuite(tlsVersion);
 			var insufficientLengthDHEGroups
 					= configuration.getInsufficientDHEKeyLengths(tlsVersion);
 
@@ -145,123 +154,81 @@ public class TLS_A1_GP_06_T extends AbstractTestCase {
 				continue;
 			}
 
-			int iterationCount = 1;
-
-			int maxIterationCount = 0;
-			if (eccCipherSuite != null && !insufficientLengthECDHEGroups.isEmpty()) {
-				maxIterationCount += insufficientLengthECDHEGroups.size();
+			if(tlsVersion == TlsVersion.TLS_V1_2){
+				if (null != dheCipherSuite) {
+					// Insufficient Length DH Groups test only for TLS 1.2
+					logger.info("Start with insufficient DHE length groups");
+					for (var insufficientDhGroup : insufficientLengthDHEGroups) {
+						executeHandshake(tlsVersion, dheCipherSuite, insufficientDhGroup, iterationCount++, maxIterationCount);
+					}
+				}
 			}
-			if (dheCipherSuite != null && !insufficientLengthDHEGroups.isEmpty()) {
-				maxIterationCount += insufficientLengthDHEGroups.size();
-			}
-			if (dheCipherSuite != null && !notSupportedFFDHEGroups.isEmpty()) {
-				maxIterationCount += notSupportedFFDHEGroups.size();
-			}
-
 			if (null != eccCipherSuite) {
-				for (var insufficientECDHEGroup : insufficientLengthECDHEGroups) {
-					logger.info("Start iteration " + iterationCount + " of " + maxIterationCount + ".");
-					step(1, "Setting TLS version: " + tlsVersion.getName() + " ECC CipherSuite: "
-							+ eccCipherSuite.name() + " ECC Group: " + insufficientECDHEGroup.getName(), null);
-					
-					tfserverCertificate.executeSteps("2",
-							"The TLS server supplies the certificate chain [CERT_DEFAULT].",
-							Arrays.asList(), testTool, tlsVersion, eccCipherSuite,
-							TlsTestToolCertificateTypes.CERT_DEFAULT);
-					
-					tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-							Arrays.asList(),
-							testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, eccCipherSuite,
-							insufficientECDHEGroup);
-					tFDutClientNewConnection.executeSteps("4",
-							"The TLS server receives a ClientHello handshake message from the DUT.",
-							Arrays.asList(), testTool, new IterationCounter(iterationCount, maxIterationCount),
-							dutExecutor);
-					iterationCount++;
-					tfAlertMessageCheck.executeSteps("5", "The TLS client does not accept the ServerHello " +
-									"and sends a \"handshake_failure\" alert or another suitable error description.",
-							Arrays.asList("level=warning/fatal"), testTool);
-					tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
-					tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
-					tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
-							testTool);
-					dutExecutor.resetProperties();
-					testTool.resetProperties();
+				logger.info("Start with not supported elliptic curve groups");
+				for (var notSupportedECDHEGroup : notSupportedEllipticCurves) {
+					executeHandshake(tlsVersion, eccCipherSuite,notSupportedECDHEGroup, iterationCount++, maxIterationCount);
 				}
 			}
-
 			if (null != dheCipherSuite) {
-				// Insufficient Length DH Groups.
-				for (var insufficientDhGroup : insufficientLengthDHEGroups) {
-					logger.info("Start iteration " + iterationCount + " of " + maxIterationCount + ".");
-					step(1, "Setting TLS version: " + tlsVersion.getName() + " DHE CipherSuite: "
-							+ dheCipherSuite.name() + " DHE Group: " + insufficientDhGroup.name(), null);
-					
-					tfserverCertificate.executeSteps("2",
-							"The TLS server supplies the certificate chain [CERT_DEFAULT].",
-							Arrays.asList(), testTool, tlsVersion, dheCipherSuite,
-							TlsTestToolCertificateTypes.CERT_DEFAULT);
-					
-					tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-							Arrays.asList(),
-							testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, dheCipherSuite, insufficientDhGroup);
-					
-					tFDutClientNewConnection.executeSteps("4",
-							"The TLS server receives a ClientHello handshake message from the DUT.",
-							Arrays.asList(), testTool, new IterationCounter(iterationCount, maxIterationCount),
-							dutExecutor);
-					iterationCount++;
-					tfAlertMessageCheck.executeSteps("5", "The TLS client does not accept the ServerHello " +
-									"and sends a \"handshake_failure\" alert or another suitable error description.",
-							Arrays.asList("level=fatal"), testTool, TlsAlertLevel.fatal,
-							null);
-
-					tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
-
-					tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
-
-					tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
-							testTool);
-					dutExecutor.resetProperties();
-					testTool.resetProperties();
-				}
-
 				// Not Supported DHE Groups
+				logger.info("Start with not supported FFDHE groups");
 				for (var notSupportedFFDHEGroup : notSupportedFFDHEGroups) {
-					logger.info("Start iteration " + iterationCount + " of " + maxIterationCount + ".");
-					step(1, "Setting TLS version: " + tlsVersion.getName() + " DHE CipherSuite: "
-							+ dheCipherSuite.name() + " DHE Group: " + notSupportedFFDHEGroup.getName(), null);
-
-					tfserverCertificate.executeSteps("2",
-							"The TLS server supplies the certificate chain [CERT_DEFAULT].",
-							Arrays.asList(), testTool, tlsVersion, dheCipherSuite,
-							TlsTestToolCertificateTypes.CERT_DEFAULT);
-
-					tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-							Arrays.asList(),
-							testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, dheCipherSuite, notSupportedFFDHEGroup);
-
-					tFDutClientNewConnection.executeSteps("4",
-							"The TLS server receives a ClientHello handshake message from the DUT.",
-							Arrays.asList(), testTool, new IterationCounter(iterationCount, maxIterationCount),
-							dutExecutor);
-					iterationCount++;
-					tfAlertMessageCheck.executeSteps("5", "The TLS client does not accept the ServerHello " +
-									"and sends a \"handshake_failure\" alert or another suitable error description.",
-							Arrays.asList("level=fatal"), testTool, TlsAlertLevel.fatal,
-							null);
-
-					tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
-
-					tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
-
-					tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
-							testTool);
-					dutExecutor.resetProperties();
-					testTool.resetProperties();
+					executeHandshake(tlsVersion, dheCipherSuite,notSupportedFFDHEGroup, iterationCount++, maxIterationCount);
 				}
 			}
 		}
+	}
+
+	public void executeHandshake(TlsVersion tlsVersion, TlsCipherSuite cipherSuite, Object namedGroup, int iterationCount, int maxIterationCount) throws Exception {
+		logger.info("Start iteration " + iterationCount + " of " + maxIterationCount + ".");
+		step(1, "Setting TLS version: " + tlsVersion.getName() + " DHE CipherSuite: "
+				+ cipherSuite.name() + " DHE Group: " + namedGroup.toString(), null);
+
+		tfserverCertificate.executeSteps("2",
+				"The TLS server supplies the certificate chain [CERT_DEFAULT].",
+				Arrays.asList(), testTool, tlsVersion, cipherSuite,
+				TlsTestToolCertificateTypes.CERT_DEFAULT);
+
+		tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
+				Arrays.asList(),
+				testTool, tlsVersion, cipherSuite, namedGroup);
+
+		tFDutClientNewConnection.executeSteps("4",
+				"The TLS server receives a ClientHello handshake message from the DUT.",
+				Arrays.asList(), testTool, new IterationCounter(iterationCount, maxIterationCount),
+				dutExecutor);
+		if(tlsVersion == TlsVersion.TLS_V1_2) {
+			tfAlertMessageCheck.executeSteps("5", "The TLS client does not accept the ServerHello " +
+							"and sends a \"handshake_failure\" alert or another suitable error description.",
+					Arrays.asList("level=fatal","description=handshake_failure"), testTool, TlsAlertLevel.fatal,
+					TlsAlertDescription.handshake_failure);
+		}
+
+		tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
+
+		tfHandshakeNotSuccessfulCheck.executeSteps("7", "No TLS channel is established", null, testTool, tlsVersion);
+
+		tfLocalServerClose.executeSteps("8", "Server closed successfully", Arrays.asList(),
+				testTool);
+		dutExecutor.resetProperties();
+		testTool.resetProperties();
+	}
+
+	public int calculateMaxIterationCount(List<TlsVersion> tlsVersionList){
+		int maxIterationCount=0;
+		for(var tlsVersion: tlsVersionList) {
+			if (tlsVersion == TlsVersion.TLS_V1_2) {
+				maxIterationCount += configuration.getInsufficientDHEKeyLengths(tlsVersion).size();
+			}
+			if (!configuration.getSupportedECCCipherSuites(tlsVersion).isEmpty() || tlsVersion == TlsVersion.TLS_V1_3) {
+				maxIterationCount += configuration.getNotSupportedEllipticCurves(tlsVersion).
+						stream().filter(TlsNamedCurves::isECCGroup).toList().size();
+			}
+			if (!configuration.getSupportedFFDHECipherSuites(tlsVersion).isEmpty() || tlsVersion == TlsVersion.TLS_V1_3) {
+				maxIterationCount += configuration.getNotSupportedDHEGroups(tlsVersion).size();
+			}
+		}
+		return maxIterationCount;
 	}
 
 	@Override

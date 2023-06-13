@@ -202,8 +202,12 @@ class ParameterInitialization {
 			var tlsWithPSK = new TlsConfiguration.TlsWithPSK();
 			tlsWithPSK.setPSKValue(mics.getPskValue());
 			var pskIdentityHint = mics.getPskIdentityHint();
-			if (pskIdentityHint != null && pskIdentityHint.length() != 0) {
+			if (pskIdentityHint != null && !pskIdentityHint.isBlank()) {
 				tlsWithPSK.setPSKIdentityHintValue(pskIdentityHint);
+			}
+			var pskIdentity = mics.getPskIdentity();
+			if (pskIdentity != null && !pskIdentity.isBlank()) {
+				tlsWithPSK.setPSKIdentity(pskIdentity);
 			}
 			tlsConfig.setTlsWithPSK(tlsWithPSK);
 		}
@@ -229,7 +233,9 @@ class ParameterInitialization {
 		}
 
 		// Max. Session Lifetime
-		tlsConfig.setTlsSessionLifetime(mics.getSessionLifetime().toString());
+		if (mics.getSessionLifetime() != null) {
+			tlsConfig.setTlsSessionLifetime(mics.getSessionLifetime().toString());
+		}
 
 		// TLS Certificates
 		if (mics.getCertificateChain() != null && !mics.getCertificateChain().isEmpty()) {
@@ -241,13 +247,15 @@ class ParameterInitialization {
 				certItem.setFingerprint(cert.getFingerprint());
 				certItem.setSubject(cert.getSubject());
 				certItem.setType(cert.getCertType().getText());
+				certItem.setHashfunction(cert.getFingerprintHashFunction());
 				certChainList.add(certItem);
 			}
 			tlsCertificates.setCertificateChain(tlsCertChain);
-
-			var tlsDomainList = new TlsConfiguration.TLSCertificates.ServerDomains();
-			tlsDomainList.getSubDomain().addAll(mics.getDomainNameList());
-			tlsCertificates.setServerDomains(tlsDomainList);
+			if (mics.getDomainNameList() != null && !mics.getDomainNameList().isEmpty()) {
+				var tlsDomainList = new TlsConfiguration.TLSCertificates.ServerDomains();
+				tlsDomainList.getSubDomain().addAll(mics.getDomainNameList());
+				tlsCertificates.setServerDomains(tlsDomainList);
+			}
 
 			tlsConfig.setTLSCertificates(tlsCertificates);
 		}

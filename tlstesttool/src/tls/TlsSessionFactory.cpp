@@ -22,27 +22,27 @@
 #include <stdexcept>
 
 namespace TlsTestTool {
-std::shared_ptr<TlsSession> TlsSessionFactory::createClientSession(
-		const Configuration::TlsLibrary & tlsLibrary, TcpClient & tcpClient) {
-	switch (tlsLibrary) {
- 	case Configuration::TlsLibrary::OPENSSL:
- 		return std::make_shared<OpenSsl::TlsSession>(tcpClient);
-	case Configuration::TlsLibrary::MBED_TLS:
-		return std::make_shared<MbedTls::TlsSession>(tcpClient);
-	default:
-		throw std::invalid_argument("Unknown TLS library requested");
-	};
-}
+    std::shared_ptr<TlsSession> TlsSessionFactory::createClientSession(
+            const Configuration::TlsLibrary &tlsLibrary, TcpClient &tcpClient) {
+        switch (tlsLibrary) {
+            case Configuration::TlsLibrary::OPENSSL:
+                return std::make_shared<OpenSsl::TlsSession>(tcpClient);
+            case Configuration::TlsLibrary::MBED_TLS:
+                return std::make_shared<MbedTls::TlsSession>(tcpClient);
+            default:
+                throw std::invalid_argument("Unknown TLS library requested");
+        };
+    }
 
-std::shared_ptr<TlsSession> TlsSessionFactory::createServerSession(
-		const Configuration::TlsLibrary &tlsLibrary, TcpServer &tcpServer) {
-	switch (tlsLibrary) {
- 	case Configuration::TlsLibrary::OPENSSL:
- 		return std::make_shared<OpenSsl::TlsSession>(tcpServer);
-	case Configuration::TlsLibrary::MBED_TLS:
-		return std::make_shared<MbedTls::TlsSession>(tcpServer);
-	default:
-		throw std::invalid_argument("Unknown TLS library requested");
-	};
-}
+    std::shared_ptr<TlsSession> TlsSessionFactory::createServerSession(
+            const Configuration::TlsLibrary &tlsLibrary, TcpServer &tcpServer) {
+        switch (tlsLibrary) {
+            case Configuration::TlsLibrary::OPENSSL:
+                return std::make_shared<OpenSsl::TlsSession>(tcpServer);
+            case Configuration::TlsLibrary::MBED_TLS:
+                return std::make_shared<MbedTls::TlsSession>(tcpServer);
+            default:
+                throw std::invalid_argument("Unknown TLS library requested");
+        };
+    }
 }

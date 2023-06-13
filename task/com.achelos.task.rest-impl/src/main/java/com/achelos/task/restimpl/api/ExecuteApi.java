@@ -6,6 +6,8 @@ import com.achelos.task.restimpl.server.TaskRequestEntry;
 import com.achelos.task.restimpl.server.TesttoolRequestResource;
 import com.achelos.task.utilities.DateTimeUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,7 +37,8 @@ public class ExecuteApi {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({"application/json"})
     @Operation(summary = "Execute a Testrun of the TaSK Framework using a MICS file.",
-            description = "Execute the TaSK Framework with the provided MICS file.",
+            description = "Execute the TaSK Framework with the provided MICS file. "
+            		+ "The information regarding the MICS of the Device under Test and related information has to be provided in the request body.",
             tags = {"Start Execution"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Accepted", content = @Content(schema = @Schema(implementation = RunId.class))),
@@ -43,12 +46,21 @@ public class ExecuteApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "503", description = "Service Unavailable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public Response executeFromMICS(@FormDataParam("micsFile") File micsFile,
-                                    @FormDataParam("serverCertificateChain") List<FormDataBodyPart> serverCertificateChain,
-                                    @FormDataParam("ignoreMicsVerificationResult") Boolean ignoreMicsVerificationResult,
-                                    @FormDataParam("clientAuthCertificateChain") List<FormDataBodyPart> clientAuthCertificateChain,
-                                    @FormDataParam("clientAuthKey") File clientAuthKey) {
-        try {
+	public Response executeFromMICS(
+			@Parameter(description = "The MICS file itself.", required = true) @FormDataParam("micsFile") File micsFile,
+			@Parameter(
+					array = @ArraySchema(schema = @Schema(implementation = File.class)),
+					description = "The certificate chain of the server under test, from which the fingerprints are specified in the MICS file.") @FormDataParam("serverCertificateChain") List<
+					FormDataBodyPart> serverCertificateChain,
+			@Parameter(description = "Ignore the result of the MICS verification when running the resulting test cases.") @FormDataParam("ignoreMicsVerificationResult") Boolean ignoreMicsVerificationResult,
+			@FormDataParam("onlyGenerateTRP") Boolean onlyGenerateTRP,
+			@Parameter(
+					array = @ArraySchema(schema = @Schema(implementation = File.class)),
+					description = "The certificate chain a test client should use to verify client authentication.") @FormDataParam("clientAuthCertificateChain") List<
+					FormDataBodyPart> clientAuthCertificateChain,
+			@Parameter(description = "The private key a test client should use to verify client authentication.") @FormDataParam("clientAuthKey") File clientAuthKey,
+			@Parameter(description = "PEM encoded Root CA Certificate which shall be used as the trust anchor for the client authentication mechanism of the TaSK Framework test server.") @FormDataParam("certificateValidationCA") File certificateValidationCA) {
+		try {
             Response.ResponseBuilder response;
             if (micsFile == null || !micsFile.exists()) {
                 response = Response.serverError();
@@ -58,6 +70,7 @@ public class ExecuteApi {
                 response.entity(errorResponse);
             } else {
                 var ignoreMicsFlag = ignoreMicsVerificationResult != null && ignoreMicsVerificationResult;
+                var onlyGenerateTrpFlag = onlyGenerateTRP != null && onlyGenerateTRP;
                 var requestUuid = UUID.randomUUID();
                 var serverCertChainList = new ArrayList<InputStream>();
                 if (serverCertificateChain != null) {
@@ -73,7 +86,7 @@ public class ExecuteApi {
                 }
                 TaskRequestEntry taskRequestEntry;
                 try {
-                    taskRequestEntry = new TaskRequestEntry(requestUuid, micsFile, serverCertChainList, ignoreMicsFlag, clientAuthCertificateChainList, clientAuthKey);
+                    taskRequestEntry = new TaskRequestEntry(requestUuid, micsFile, serverCertChainList, ignoreMicsFlag, onlyGenerateTrpFlag, clientAuthCertificateChainList, clientAuthKey, certificateValidationCA);
                 } catch (Exception e) {
                     response = Response.serverError();
                     response.status(Response.Status.fromStatusCode(400));
@@ -107,7 +120,8 @@ public class ExecuteApi {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({"application/json"})
     @Operation(summary = "Execute a Testrun of the TaSK Framework from a given Test Runplan.",
-            description = "Execute a Testrun of the TaSK Framework with the provided Test Runplan file.",
+            description = "Execute a Testrun of the TaSK Framework with the provided Test Runplan file. "
+            		+ "The information regarding the TestRunplan of the Device under Test and related information has to be provided in the request body.",
             tags = {"Start Execution"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Accepted", content = @Content(schema = @Schema(implementation = RunId.class))),
@@ -115,7 +129,18 @@ public class ExecuteApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "503", description = "Service Unavailable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public Response executeFromRunplan(@FormDataParam("testRunPlanFile") File testRunPlanFile, @FormDataParam("clientAuthCertificateChain") List<InputStream> clientAuthCertificateChain, @FormDataParam("clientAuthKey") File clientAuthKey) {
+    	
+
+	public Response executeFromRunplan(
+			@Parameter(description = "The TestRunplan file itself.", required = true) @FormDataParam("testRunPlanFile") File testRunPlanFile,
+			@Parameter(
+                    array = @ArraySchema(schema = @Schema(implementation = File.class)),
+					description = "The certificate chain a test client should use to verify client authentication.") @FormDataParam("clientAuthCertificateChain") List<
+							InputStream> clientAuthCertificateChain,
+			@Parameter(
+					description = "The private key a test client should use to verify client authentication.") @FormDataParam("clientAuthKey") File clientAuthKey,
+			@Parameter(
+					description = "PEM encoded Root CA Certificate which shall be used as the trust anchor for the client authentication mechanism of the TaSK Framework test server.") @FormDataParam("certificateValidationCA") File certificateValidationCA) {
 
         try {
             Response.ResponseBuilder response;
@@ -129,7 +154,7 @@ public class ExecuteApi {
                 var requestUuid = UUID.randomUUID();
                 TaskRequestEntry taskRequestEntry;
                 try {
-                    taskRequestEntry = new TaskRequestEntry(requestUuid, testRunPlanFile, clientAuthCertificateChain, clientAuthKey);
+                    taskRequestEntry = new TaskRequestEntry(requestUuid, testRunPlanFile, clientAuthCertificateChain, clientAuthKey, certificateValidationCA);
                 } catch (Exception e) {
                     response = Response.serverError();
                     response.status(Response.Status.fromStatusCode(400));

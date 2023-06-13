@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.achelos.task</groupId>
 		<artifactId>com.achelos.task</artifactId>
-		<version>0.5.2</version>
+		<version>1.0.1</version>
 	</parent>
 	<artifactId>com.achelos.task.commandlineinterface</artifactId>
 	
@@ -11,27 +11,27 @@
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.logging</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.abstractinterface</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.reporting</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.rest-impl</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.achelos.task</groupId>
 			<artifactId>com.achelos.task.utilities</artifactId>
-			<version>0.5.2</version>
+			<version>1.0.1</version>
 		</dependency>
 		
 		<dependency>
@@ -46,7 +46,7 @@
 			<plugin>
         <groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.5.0</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>

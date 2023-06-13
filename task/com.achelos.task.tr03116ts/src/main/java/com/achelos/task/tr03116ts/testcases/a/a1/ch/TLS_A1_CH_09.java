@@ -6,10 +6,11 @@ import java.util.Arrays;
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.crl.CRLExecutor;
 import com.achelos.task.commandlineexecution.applications.crl.messagetextresources.CRLResource;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.helper.CrlOcspCertificate;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
@@ -20,7 +21,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_CH_09 - Server certificate revoked by CRL
+ * Test case TLS_A1_CH_09 - Server certificate revoked by CRL.
  * 
  * <p>
  * This test verifies the behaviour of the DUT when retrieving a CRL revealing that the server certificate is revoked.
@@ -164,7 +165,9 @@ public class TLS_A1_CH_09 extends AbstractTestCase {
 		
 		tfAlertMessageCheck.executeSteps("5", "The DUT does not accept the certificate chain and sends a "
 				+ "\"bad_certificate_status_response\" alert or another suitable error description.",
-				Arrays.asList("level=warning/fatal"), testTool);
+				Arrays.asList("level=warning/fatal", "description=bad_certificate_status_response"), testTool, TlsAlertDescription.bad_certificate_status_response);
+
+		//CRL does return OK instead of revoked
 
 		tfApplicationCheck.executeSteps("5", "", Arrays.asList(), testTool, dutExecutor);
 

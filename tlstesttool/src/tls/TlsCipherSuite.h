@@ -22,7 +22,7 @@
 #include <utility>
 
 namespace TlsTestTool {
-using TlsCipherSuite = std::pair<uint8_t, uint8_t>;
+    using TlsCipherSuite = std::pair<uint8_t, uint8_t>;
 }
 
 #endif /* TLS_TLSCIPHERSUITE_H_ */

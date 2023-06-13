@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_FR_11" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_FR_11</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>The test case verifies the correct behaviour of the DUT in case the client sends a certificate with an invalid signature.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>CLIENT_CERT</Profile>
@@ -31,7 +31,7 @@
 	<TestStep>
 		<Command>
 			<Text>The TLS client supplies the certificate chain [CERT_INVALID_SIG_CLIENT].</Text>
-		</Command>		
+		</Command>	
 		<ExpectedResult>
 			<Text>The DUT does not accept the certificate and sends a "bad_certificate" alert or another suitable error description.</Text>
 		</ExpectedResult>

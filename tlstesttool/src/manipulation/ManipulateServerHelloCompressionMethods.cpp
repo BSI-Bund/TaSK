@@ -19,19 +19,19 @@
 #include "tls/TlsSession.h"
 
 namespace TlsTestTool {
-void ManipulateServerHelloCompressionMethods::executePreHandshake(TlsSession & session) {
-   if (!session.isClient()) {
-	   log(__FILE__, __LINE__, "Deactivate ServerHello.compression_method");
-	   session.setHelloCompressionMethods(compressionMethods);
-   }
-}
+    void ManipulateServerHelloCompressionMethods::executePreHandshake(TlsSession &session) {
+        if (!session.isClient()) {
+            log(__FILE__, __LINE__, "Deactivate ServerHello.compression_method");
+            session.setHelloCompressionMethods(compressionMethods);
+        }
+    }
 
-void ManipulateServerHelloCompressionMethods::executePreStep(TlsSession & /*session*/) {
-}
+    void ManipulateServerHelloCompressionMethods::executePreStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateServerHelloCompressionMethods::executePostStep(TlsSession & /*session*/) {
-}
+    void ManipulateServerHelloCompressionMethods::executePostStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateServerHelloCompressionMethods::executePostHandshake(TlsSession & /*session*/) {
-}
+    void ManipulateServerHelloCompressionMethods::executePostHandshake(TlsSession & /*session*/) {
+    }
 }

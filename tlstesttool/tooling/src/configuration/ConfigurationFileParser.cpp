@@ -22,34 +22,34 @@
 #include <string>
 
 namespace Tooling {
-std::vector<KeyValuePair> ConfigurationFileParser::parse(std::istream & input) {
-	if (!input.good()) {
-		throw std::invalid_argument("Cannot read input.");
-	}
-	const std::regex argRegEx{"([a-zA-Z0-9._]+)"};
-	std::vector<KeyValuePair> keyValuePairs;
-	while (input.good()) {
-		std::string line;
-		std::getline(input, line);
-		// Ignore empty lines and lines starting with #
-		if (line.empty() || ('#' == line.front())) {
-			continue;
-		}
-        const auto splitPos = line.find_first_of('=');
-        if (std::string::npos == splitPos) {
-            throw std::invalid_argument{std::string{"Invalid argument "} + line};
+    std::vector<KeyValuePair> ConfigurationFileParser::parse(std::istream &input) {
+        if (!input.good()) {
+            throw std::invalid_argument("Cannot read input.");
         }
-        const auto argument = line.substr(0, splitPos);
-        std::smatch argMatch;
-        if (std::regex_match(argument, argMatch, argRegEx)) {
-            if (2 != argMatch.size()) {
-				throw std::invalid_argument{std::string{"Invalid argument "} + line};
-			}
-            keyValuePairs.emplace_back(argument, line.substr(splitPos + 1));
-        } else {
-            throw std::invalid_argument{std::string{"Invalid argument "} + line};
+        const std::regex argRegEx{"([a-zA-Z0-9._]+)"};
+        std::vector<KeyValuePair> keyValuePairs;
+        while (input.good()) {
+            std::string line;
+            std::getline(input, line);
+            // Ignore empty lines and lines starting with #
+            if (line.empty() || ('#' == line.front())) {
+                continue;
+            }
+            const auto splitPos = line.find_first_of('=');
+            if (std::string::npos == splitPos) {
+                throw std::invalid_argument{std::string{"Invalid argument "} + line};
+            }
+            const auto argument = line.substr(0, splitPos);
+            std::smatch argMatch;
+            if (std::regex_match(argument, argMatch, argRegEx)) {
+                if (2 != argMatch.size()) {
+                    throw std::invalid_argument{std::string{"Invalid argument "} + line};
+                }
+                keyValuePairs.emplace_back(argument, line.substr(splitPos + 1));
+            } else {
+                throw std::invalid_argument{std::string{"Invalid argument "} + line};
+            }
         }
-	}
-	return keyValuePairs;
-}
+        return keyValuePairs;
+    }
 }

@@ -25,29 +25,33 @@ namespace TlsTestTool {
 /**
  * Manipulate the EllipticCurveGroup used in a ServerKeyExchange message.
  */
-class ManipulateEllipticCurveGroup : public Manipulation {
-public:
-    /**
-     * Create a manipulation.
-     *
-     * @param newManipulatedEllipticCurveGroup Integer defining an elliptic curve group
-     */
-    ManipulateEllipticCurveGroup(TlsEllipticCurveGroupID newManipulatedEllipticCurveGroup): Manipulation(),
-        manipulatedEllipticCurveGroup(newManipulatedEllipticCurveGroup) {
-    }
+    class ManipulateEllipticCurveGroup : public Manipulation {
+    public:
+        /**
+         * Create a manipulation.
+         *
+         * @param newManipulatedEllipticCurveGroup Integer defining an elliptic curve group
+         */
+        ManipulateEllipticCurveGroup(TlsEllipticCurveGroupID newManipulatedEllipticCurveGroup) : Manipulation(),
+                                                                                                 manipulatedEllipticCurveGroup(
+                                                                                                         newManipulatedEllipticCurveGroup) {
+        }
 
-    TlsEllipticCurveGroupID getManipulatedEllipticCurveGroup() const {
-        return manipulatedEllipticCurveGroup;
-    }
+        TlsEllipticCurveGroupID getManipulatedEllipticCurveGroup() const {
+            return manipulatedEllipticCurveGroup;
+        }
 
-    virtual void executePreHandshake(TlsSession & session) override;
-    virtual void executePreStep(TlsSession & session) override;
-    virtual void executePostStep(TlsSession & session) override;
-    virtual void executePostHandshake(TlsSession & session) override;
+        virtual void executePreHandshake(TlsSession &session) override;
 
-private:
-    const TlsEllipticCurveGroupID manipulatedEllipticCurveGroup;
-};
+        virtual void executePreStep(TlsSession &session) override;
+
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+
+    private:
+        const TlsEllipticCurveGroupID manipulatedEllipticCurveGroup;
+    };
 }
 
 #endif // MANIPULATEELLIPTICCURVEGROUP_H

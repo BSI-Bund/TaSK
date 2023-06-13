@@ -4,9 +4,10 @@ package com.achelos.task.tr03116ts.testcases.a.a1.fr;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsVersion;
@@ -17,7 +18,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_07 - Truncated-HMAC extension
+ * Test case TLS_A1_FR_07 - Truncated-HMAC extension.
  * <p>
  * This test verifies that the Truncated-HMAC extension is not offered and cannot be used in a connection.
  */
@@ -106,13 +107,15 @@ public class TLS_A1_FR_07 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
@@ -142,7 +145,7 @@ public class TLS_A1_FR_07 extends AbstractTestCase {
 						+ "description.",
 				Arrays.asList("level=warning/fatal",
 						"description=unsupported_extension alert or another suitable error description."),
-				testTool);
+				testTool, TlsAlertDescription.unsupported_extension);
 
 		tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
 

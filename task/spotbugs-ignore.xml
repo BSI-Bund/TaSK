@@ -42,4 +42,20 @@
         <Method name="getInstance" />
         <Bug pattern="MS_EXPOSE_REP"/>
     </Match>
+    <!-- Calling the GarbageCollector is not nice, but the RMI Objects triggered some bugs resulting in a hanging thread without the explicit call to the GC.-->
+    <Match>
+        <Class name="com.achelos.task.dutmotivator.GenericClientExecutableDUTMotivator" />
+        <Method name="finalizeRMI" />
+        <Bug pattern="DM_GC"/>
+    </Match>
+    <Match>
+        <Class name="com.achelos.task.dutmotivator.eidclient.BrowserSimulatorRmiImpl" />
+        <Method name="finalizeRMI" />
+        <Bug pattern="DM_GC"/>
+    </Match>
+    <Match>
+        <Class name="com.achelos.task.dutmotivator.email.EMailSenderRmiImpl" />
+        <Method name="finalizeRMI" />
+        <Bug pattern="DM_GC"/>
+    </Match>
 </FindBugsFilter>

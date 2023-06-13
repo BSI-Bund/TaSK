@@ -21,20 +21,20 @@
 #include <string>
 
 namespace TlsTestTool {
-void ManipulateClientHelloCompressionMethods::executePreHandshake(TlsSession & session) {
-	if (session.isClient()) {
-		log(__FILE__, __LINE__, "Setting ClientHello.compression_methods to "
-					+ Tooling::HexStringHelper::byteArrayToHexString(compressionMethods) + ".");
-		session.setHelloCompressionMethods(compressionMethods);
-	}
-}
+    void ManipulateClientHelloCompressionMethods::executePreHandshake(TlsSession &session) {
+        if (session.isClient()) {
+            log(__FILE__, __LINE__, "Setting ClientHello.compression_methods to "
+                                    + Tooling::HexStringHelper::byteArrayToHexString(compressionMethods) + ".");
+            session.setHelloCompressionMethods(compressionMethods);
+        }
+    }
 
-void ManipulateClientHelloCompressionMethods::executePreStep(TlsSession & /*session*/) {
-}
+    void ManipulateClientHelloCompressionMethods::executePreStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateClientHelloCompressionMethods::executePostStep(TlsSession & /*session*/) {
-}
+    void ManipulateClientHelloCompressionMethods::executePostStep(TlsSession & /*session*/) {
+    }
 
-void ManipulateClientHelloCompressionMethods::executePostHandshake(TlsSession & /*session*/) {
-}
+    void ManipulateClientHelloCompressionMethods::executePostHandshake(TlsSession & /*session*/) {
+    }
 }

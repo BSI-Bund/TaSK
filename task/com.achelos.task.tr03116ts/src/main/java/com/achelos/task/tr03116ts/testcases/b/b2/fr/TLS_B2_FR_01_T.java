@@ -1,7 +1,6 @@
 package com.achelos.task.tr03116ts.testcases.b.b2.fr;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
@@ -21,7 +20,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 /**
  * Test case TLS_B2_FR_01_T - Encrypt-then-MAC extension.
  * <p>
- * These test cases verify that the Encrypt then MAC extension is used if the clients offers it. The test is carried out
+ * This test case verifies that the Encrypt then MAC extension is used if the clients offers it. The test is carried out
  * for the TLS version [TLS_VERSION] and the CBC-based cipher suite [CIPHERSUITE].
  * <p>
  * The test MUST be repeated for each combination of TLS version [TLS_VERSION], PFS algorithm [CIPHERSUITE] using ECDHE
@@ -140,7 +139,7 @@ public class TLS_B2_FR_01_T extends AbstractTestCase {
 
 			tfClientCertificate.executeSteps("1",
 					"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(),
-					testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+					testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 
 			tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()

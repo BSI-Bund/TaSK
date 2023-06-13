@@ -2,8 +2,8 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_FR_13" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_FR_13</Title>
-	<Version>1.0</Version>
-	<Purpose>This tests verifies that it is not possible to keep a TLS connection alive for more than the maximum allowed amount of time.</Purpose>
+	<Version>1.1</Version>
+	<Purpose>This test verifies that it is not possible to keep a TLS connection alive for more than the maximum allowed amount of time.</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>DURATION</Profile>
 	<Profile>CLIENT_CERT</Profile>
@@ -31,7 +31,7 @@
 	<TestStep>
 		<Command>
 			<Text>The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].</Text>
-		</Command>		
+		</Command>	
 		<ExpectedResult>
 			<Text>The TLS protocol is executed without errors and the channel is established.</Text>
 		</ExpectedResult>
@@ -39,11 +39,11 @@
 
 	<TestStep>
 		<Command>
-			<Text>The server tries to keep the connection running for more than the maximum allowed amount of time.</Text>	
+			<Text>The client tries to keep the connection running for more than the maximum allowed amount of time.</Text>
 		</Command>
 
 		<ExpectedResult>
 			<Text>The TLS connection is closed by the server.</Text>
-		</ExpectedResult>	
+		</ExpectedResult>
 	</TestStep>
 </TestCase>

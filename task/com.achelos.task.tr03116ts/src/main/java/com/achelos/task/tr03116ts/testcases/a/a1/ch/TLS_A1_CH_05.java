@@ -5,12 +5,13 @@ import java.io.File;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.ocsp.OCSPRequestExecutor;
 import com.achelos.task.commandlineexecution.applications.ocsp.OCSPServerExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.helper.CrlOcspCertificate;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolMode;
@@ -22,7 +23,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_CH_05 - Server certificate revoked by OCSPResponse
+ * Test case TLS_A1_CH_05 - Server certificate revoked by OCSPResponse.
  * 
  * <p>
  * This test verifies the behaviour of the DUT when receiving an OCSPResponse that reveals that the server certificate
@@ -156,6 +157,11 @@ public class TLS_A1_CH_05 extends AbstractTestCase {
 		//OCSP Request
 		ocspResponse.start(cipherSuite, certRevoked);
 		File logFile = ocspResponse.getOutputFile();
+
+		if (!logFile.exists()) {
+			logger.error(" Cannot find the specified OCSP Response file: " + logFile.toString());
+			return;
+		}
 		
 		testTool.setOcspResponseFile(logFile.toString());
 		
@@ -196,7 +202,7 @@ public class TLS_A1_CH_05 extends AbstractTestCase {
 		
 		tfAlertMessageCheck.executeSteps("6", "The DUT does not accept the certificate chain and sends a "
 				+ "\"bad_certificate_status_response\" alert or another suitable error description.",
-				Arrays.asList("level=warning/fatal"), testTool);
+				Arrays.asList("level=warning/fatal", "description=bad_certificate_status_response"), testTool, TlsAlertDescription.bad_certificate_status_response);
 
 		tfApplicationCheck.executeSteps("7", "", Arrays.asList(), testTool, dutExecutor);
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tr-03116-3-lmn-server [
+<!ENTITY TR-03116-3-LMN-COMMON-SPECIFICATION SYSTEM "TR-03116-3/TR-03116-3-LMN-COMMON-SPECIFICATION.xml">
+
+]>
+
+<TLSSpecification id="TR-03116-3-SMGW-LMN-SERVER">
+
+	<Metadata>
+		<Title>Application specific requirements for the LMN TLS Server interface of a Smart-Meter-Gateway according to TR-03116-3</Title>
+		<Version>1.0</Version>
+		<References>
+			<Reference>TR-03116-3</Reference>
+		</References>
+	</Metadata>
+
+	<BaseSpecification>
+		&TR-03116-3-LMN-COMMON-SPECIFICATION;
+	</BaseSpecification>
+	
+</TLSSpecification>

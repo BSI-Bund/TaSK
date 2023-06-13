@@ -4,19 +4,20 @@ package com.achelos.task.tr03116ts.testcases.a.a1.ch;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.certificatehelper.ManipulateForceCertificateUsage;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_CH_01 - Server cert with invalid signature
+ * Test case TLS_A1_CH_01 - Server cert with invalid signature.
  * 
  * <p>
  * The test case verifies the correct behaviour of the DUT in case the server sends a certificate with an invalid
@@ -127,7 +128,7 @@ public class TLS_A1_CH_01 extends AbstractTestCase {
 				+ cipherSuite.getName(), null);
 		
 		tfserverCertificate.executeSteps("2", "The server supplies the certificate chain [CERT_INVALID_SIG].",
-				Arrays.asList(), testTool, tlsVersion, cipherSuite, TlsTestToolCertificateTypes.CERT_INVALID_SIG, new ManipulateForceCertificateUsage());
+				Arrays.asList(), testTool, tlsVersion, cipherSuite, TlsTestToolCertificateTypes.CERT_INVALID_SIG);
 		
 		tfServerHello.executeSteps("3",
 				"The TLS server answers the DUT choosing a TLS version and a cipher suite that is "
@@ -140,7 +141,7 @@ public class TLS_A1_CH_01 extends AbstractTestCase {
 		
 		tfAlertMessageCheck.executeSteps("5", "The DUT does not accept the certificate chain and sends a "
 				+ "\"bad_certificate\" alert or another suitable error description.",
-				Arrays.asList("level=warning/fatal"), testTool);
+				Arrays.asList("level=warning/fatal", "description=bad_certificate"), testTool, TlsAlertDescription.bad_certificate);
 
 		tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
 

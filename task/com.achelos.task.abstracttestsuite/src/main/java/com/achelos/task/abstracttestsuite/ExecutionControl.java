@@ -1,5 +1,3 @@
-// Copyright (C) 2019 achelos GmbH
-// All rights reserved.
 package com.achelos.task.abstracttestsuite;
 
 import java.util.ArrayList;

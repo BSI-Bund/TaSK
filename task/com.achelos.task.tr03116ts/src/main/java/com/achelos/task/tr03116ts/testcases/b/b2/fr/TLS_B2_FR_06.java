@@ -7,7 +7,6 @@ import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToo
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.enums.TlsCipherSuite;
-import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.commons.tlsextensions.TlsExtStatusRequest;
@@ -18,14 +17,14 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * Testcase TLS_B2_FR_06 - Support for OCSP Stapling
+ * Test case TLS_B2_FR_06 - Support for OCSP stapling.
  * <p>
  * This test case verifies that the DUT supports OCSP stapling.
  */
 public class TLS_B2_FR_06 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B2_FR_06";
-	private static final String TEST_CASE_DESCRIPTION = "Support for OCSP Stapling";
+	private static final String TEST_CASE_DESCRIPTION = "Support for OCSP stapling";
 	private static final String TEST_CASE_PURPOSE = "This test case verifies that the DUT supports OCSP stapling.";
 
 
@@ -126,7 +125,7 @@ public class TLS_B2_FR_06 extends AbstractTestCase {
 
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 		
 		step(2, "The ClientHello message contains the status_request (OCSP stapling) extension.", "");
 
@@ -135,7 +134,7 @@ public class TLS_B2_FR_06 extends AbstractTestCase {
 				cipherSuite, new TlsExtStatusRequest(), TlsTestToolTlsLibrary.OpenSSL);
 		testTool.start();
 
-		step(4, "The DUT supplies a certificate accompanied by a valid  OCSPResponse message.", "");
+		step(4, "The DUT supplies a certificate accompanied by a valid OCSPResponse message.", "");
 		testTool.assertMessageLogged(TestToolResource.OCSP_response_received);
 		testTool.assertMessageLogged(TestToolResource.OCSP_response_successful);
 		

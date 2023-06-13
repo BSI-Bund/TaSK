@@ -25,7 +25,7 @@ class StdOutLogger extends BasicLogger {
 		if ("INFO".equals(verbosity) && lvl != DEBUG || "VERBOSE".equals(verbosity)) {
 
 			System.out.println(dateFormat.format(new Date(timestamp)) + " " + BasicLogger.getName(lvl) + " MSG: "
-					+ newLog + (null == t ? "" : " EXC:" + t.getMessage()));
+					+ newLog + getExceptionAsString(t));
 
 		} else if (LoggingConnector.getInstance().getLogVerbosity().equals("DEBUG") || "VERBOSE".equals(verbosity)) {
 			System.out.println(dateFormat.format(new Date(timestamp)) + " " + BasicLogger.getName(lvl) + " MSG: "
@@ -51,5 +51,24 @@ class StdOutLogger extends BasicLogger {
 		var stringWriter = new StringWriter();
 		e.printStackTrace(new PrintWriter(stringWriter));
 		return stringWriter.toString();
+	}
+
+	/**
+	 * Gets the message as String for provided Exception e.
+	 *
+	 * @param e Exception to get the stack trace from.
+	 * @return Message as String for provided Exception e.
+	 */
+	private static String getExceptionAsString(final Throwable e) {
+		if (e == null) {
+			return "";
+		}
+		if (e.getMessage() != null) {
+			return " EXC: " + e.getMessage();
+		}
+		if (e.getCause() != null) {
+			return getExceptionAsString(e.getCause());
+		}
+		return " Stacktrace: " + getStacktraceAsString(e);
 	}
 }

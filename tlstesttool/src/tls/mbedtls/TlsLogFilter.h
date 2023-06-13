@@ -19,21 +19,21 @@
 #define TLS_MBEDTLS_TLSLOGFILTER_H_
 
 namespace Tooling {
-class Logger;
+    class Logger;
 }
 namespace TlsTestTool {
-namespace MbedTls {
+    namespace MbedTls {
 /**
  * Implementation of TlsLogFilter for translating mbed TLS specific log messages to general log messages.
  */
-class TlsLogFilter {
-public:
-	/**
-	 * Factory function for creating an instance for the currently used TLS library.
-	 */
-	static void registerInstances(Tooling::Logger & logger);
-};
-}
+        class TlsLogFilter {
+        public:
+            /**
+             * Factory function for creating an instance for the currently used TLS library.
+             */
+            static void registerInstances(Tooling::Logger &logger);
+        };
+    }
 }
 
 #endif /* TLS_MBEDTLS_TLSLOGFILTER_H_ */

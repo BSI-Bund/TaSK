@@ -5,11 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.utilities.logging.IterationCounter;
+import com.achelos.task.commons.enums.TlsCipherSuite;
+import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
@@ -18,7 +20,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_GP_07_T - Ephemeral domain parameters
+ * Test case TLS_A1_GP_07_T - Ephemeral domain parameters.
  * <p>
  * This test verifies that the DUT supports ephemeral domain parameters of sufficient length.
  * <p>
@@ -113,23 +115,26 @@ public class TLS_A1_GP_07_T extends AbstractTestCase {
 		for (TlsVersion tlsVersion : tlsVersions) {
 			logger.debug(tlsVersion.name());
 		}
+		int iterationCount = 1;
+		int maxIterationCount = calculateMaxIterationCount(tlsVersions);
 
 		for (TlsVersion tlsVersion : tlsVersions) {
-
-			var dheCipherSuite = configuration.getSingleSupportedFFDHECipherSuite(tlsVersion);
+			TlsCipherSuite dheCipherSuite =null;
+			if(tlsVersion == TlsVersion.TLS_V1_2) {
+				dheCipherSuite = configuration.getSingleSupportedFFDHECipherSuite(tlsVersion);
+			} else {
+				dheCipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
+			}
 			var sufficientLengthDHEGroups
 					= configuration.filterSupportedGroupsToFFDHEGroups(tlsVersion);
 
 			if (null == dheCipherSuite) {
-				logger.error("No supported DHE cipher suite found");
+				logger.error("No supported DHE cipher suite found.");
 				return;
 			}
-
-			int iterationCount = 1;
-
-			int maxIterationCount = 0;
-			if (sufficientLengthDHEGroups.size() != 0) {
-				maxIterationCount += sufficientLengthDHEGroups.size();
+			if (sufficientLengthDHEGroups.isEmpty()) {
+				logger.error("No supported FFDHE groups found.");
+				return;
 			}
 
 			for (var sufficientDhGroup : sufficientLengthDHEGroups) {
@@ -142,10 +147,10 @@ public class TLS_A1_GP_07_T extends AbstractTestCase {
 						"The TLS server supplies the certificate chain [CERT_DEFAULT].",
 						Arrays.asList(), testTool, tlsVersion, dheCipherSuite,
 						TlsTestToolCertificateTypes.CERT_DEFAULT);
-				
+
 				tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
 						Arrays.asList(),
-						testTool, tlsVersion, TlsTestToolTlsLibrary.MBED_TLS, dheCipherSuite, sufficientDhGroup);
+						testTool, tlsVersion, dheCipherSuite, sufficientDhGroup);
 
 				tFDutClientNewConnection.executeSteps("4",
 						"The TLS server receives a ClientHello handshake message from the DUT.",
@@ -165,6 +170,19 @@ public class TLS_A1_GP_07_T extends AbstractTestCase {
 				testTool.resetProperties();
 			}
 		}
+	}
+
+	public int calculateMaxIterationCount(List<TlsVersion> tlsVersionList){
+		int maxIterationCount=0;
+		for(var tlsVersion: tlsVersionList) {
+			if (tlsVersion == TlsVersion.TLS_V1_2) {
+				if(!configuration.getSupportedFFDHECipherSuites(tlsVersion).isEmpty()) {
+					maxIterationCount += configuration.filterSupportedGroupsToFFDHEGroups(tlsVersion).size();				}
+			} else {
+				maxIterationCount += configuration.filterSupportedGroupsToFFDHEGroups(tlsVersion).size();
+			}
+		}
+		return maxIterationCount;
 	}
 
 	@Override

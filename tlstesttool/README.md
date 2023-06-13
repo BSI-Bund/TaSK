@@ -1,6 +1,6 @@
 # TLS Test Tool
 
-*Version 0.5.2*
+*Version 1.0.1*
 
 The TLS Test Tool is able to test a huge variety of TLS clients and servers. This README gives an overview over the structure of the TLS Test Tool and its usage. Furthermore, interfaces on different levels as well as the input and output formats for their correct usage are explained.
 
@@ -8,7 +8,9 @@ As a client, the TLS Test Tool establishes a TCP/IP connection and starts a TLS 
 
 As a server, the TLS Test Tool waits on a specific port and waits until a client connects to the server and performs a TLS handshake. The user can influence this default behaviour by using one or more of the provided manipulations.
 
+
 ## 1 Building the Tool
+
 The TLS Test Tool uses CMake as its build system and requires a C++14-compatible compiler. For
 building external libraries, Perl and Patch are required. For example, on a Debian GNU/Linux system,
 the required software can be acquired by installing the build-essential and cmake packages.
@@ -23,33 +25,42 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
-After a successful build, the TLS Test Tool can be found in the src sub-directory. 
+After a successful build, the TLS Test Tool can be found in the src sub-directory.
+
 
 ## 2 Configuration
+
 The available arguments for configuring the TLS Test Tool are described here. Values that a user
 has to provide are denoted in square brackets (e.g., [length] for a value named length).
 
 ### 2.1 Command line arguments
+
 The TLS Test Tool expects at least one argument on the command line.
+
 ```bash
 --configFile=[configuration file path]
 ```
+
 Specify the path to a configuration file. When this argument is given multiple times, all
 given configuration files are read. Options from configuration files that are given later on the
 command line will overwrite options from those given earlier.
 
 Examples:
+
 ```bash
 TlsTestTool --configFile=config/TestCase27.conf
 TlsTestTool --configFile=tlsOptions.conf
 ```
+
 ### 2.2 Configuration file
+
 The configuration for the TLS Test Tool is given in a configuration file. The configuration file
 is a plain text file. Lines that start with the hash sign (#) are treated as comments and ignored.
 Arguments are given as name-value pairs separated with the equals sign (=). The following arguments
 are known.
 
 #### 2.2.1 Input of binary data
+
 Binary data is given in hexadecimal form. The bytes of a byte array have to be encoded separately
 and printed separated by a space character. Each byte is represented by two digits from 0-9a-f. For
 example, the array of the two bytes 0xc0 0x30 has to be given as c0 30. In the following, the word
@@ -62,13 +73,12 @@ possible and has to be represented by an empty string.
 
   (required, with **mode** either `client` or `server`)
 
-  Specify the **mode** for the TLS Test Tool. 
+  Specify the **mode** for the TLS Test Tool.
 
   If *mode=client*, the TLS Test Tool will run as a TLS
-  client and connect to a server using TCP/IP. 
+  client and connect to a server using TCP/IP.
 
-  If *mode=server*, the TLS Test Tool will run as a TLS server and listen for incoming TCP/IP connections. 
-
+  If *mode=server*, the TLS Test Tool will run as a TLS server and listen for incoming TCP/IP connections.
 
 * `host=[host]`
 
@@ -82,28 +92,27 @@ possible and has to be represented by an empty string.
 
   (required, with decimal integer **port**)
 
-  If *mode=client*, the *TCP port* of a service to connect to. 
+  If *mode=client*, the *TCP port* of a service to connect to.
 
   If *mode=server*, the *TCP port* to bind and listen to on the local host.
 
 * `waitBeforeClose=[timeout]`
 
-  (with *decimal* integer **timeout**, default `10 seconds`)
+  (with *decimal* integer **timeout** in seconds, default `10`)
 
   Specify the *timeout in seconds* that the tool waits for incoming data after a run before
 closing the TCP/IP connection.
 
 * `receiveTimeout=[timeout]`
 
-  (with *decimal* integer **timeout**, default `120 seconds`)
+  (with *decimal* integer **timeout** in seconds, default `120`)
 
   Specify the *timeout in seconds* that the tool waits for incoming TCP/IP packets during a
 receive operation.
 
-
 * `listenTimeout=[timeout]`
 
-  (with *decimal* integer **timeout**, default `60 seconds`)
+  (with *decimal* integer **timeout** in seconds, default `60`)
 
   If *mode=server*, the TLS Test Tool will exit if no incoming TCP/IP connection is received
 within timeout seconds.
@@ -112,15 +121,25 @@ within timeout seconds.
 
   Ignored, if *mode=client*.
 
+* `startTLSProtocol=[protocol]`
+
+  (with **startTLSProtocol** either `smtp`, `imap`, `pop3`, default `none`)
+
+  If *mode=client*, specify the **startTLSProtocol** to be used for the startTLS pre-handshake.
+
+  If *mode=server*, only the `smtp` **startTLSProtocol** is supported.
+  
+  If not specified, the startTLS pre-handshake is not performed.
+
 #### 2.2.3 Library options
 
 * `tlsLibrary=[library]`
 
-  (with **library** either `mbed TLS` or `OpenSSL`)
+  (with **library** either `mbed TLS`, `OpenSSL``)
 
   Specify the *TLS library* to be used by the TLS Test Tool.
 
-  If not specified, the `mbed TLS` library is used.
+  If not specified, the `OpenSSL` library is used.
 
 #### 2.2.4 Logging options
 
@@ -138,8 +157,17 @@ within timeout seconds.
 
   `off` : No output.
 
+* `logFilterRegEx=[regExp]`
+
+  (with string **regExp** )
 
 #### 2.2.5 TLS options
+
+* `caCertificateFile=[path]`
+
+  (with **path** pointing to a PEM- or DER-encoded file)
+
+  File containing a X.509 certificate that will be used as *CA certificate*.
 
 * `certificateFile=[path]`
 
@@ -156,14 +184,19 @@ depending on the mode.
 
 * `tlsVersion=([major],[minor])`
 
-  (with *decimal* integers **major** equal to `3` and **minor** from `[1, 3]`)
+  (with *decimal* integers **major** equal to `3` and **minor** from `[1, 4]`)
 
-  If *mode=client*, send the specified version in *ClientHello.client_version*.
+  If *mode=client*, send the specified version in *ClientHello.client_version* 
+  or in *supported_versions extension*.
 
-  If *mode=server*, accept only the specified version and send it in *ServerHello.server_version*. 
+  If *mode=server*, accept only the specified version and send it in *ServerHello.server_version* 
+  or in *supported_versions extension*.
 
-  Use `(3,1)` for TLS v1.0,
-`(3,2)` for TLS v1.1, `(3,3)` for TLS v1.2. If not specified, all three TLS versions are accepted
+  Use `(3,1)` for TLS v1.0,  
+`(3,2)` for TLS v1.1,  
+`(3,3)` for TLS v1.2,  
+`(3,4)` for TLS v1.3.  
+  If not specified, all TLS versions are accepted
 by a server and the highest version is sent by a client.
 
 * `tlsCipherSuites=([valueUpper],[valueLower])[,([valueUpper],[valueLower])...]`
@@ -171,11 +204,11 @@ by a server and the highest version is sent by a client.
   (with *hexadecimal* integers **valueUpper** and **valueLower** preceded with 0x)
 
   Specify a list of *supported TLS cipher suites* in decreasing order of preference. If this option is 
-set, at least one TLS cipher suite has to be given. 
+set, at least one TLS cipher suite has to be given.
 
   If *mode=client*, send this list in *ClientHello.cipher_suites*.
 
-  If *mode=server*, use this list to find a matching TLS cipher suite to send in *ServerHello.cipher_suite*. 
+  If *mode=server*, use this list to find a matching TLS cipher suite to send in *ServerHello.cipher_suite*.
 
   The values correspond to the values from the [TLS Cipher Suite Registry](https://datatracker.ietf.org/doc/html/rfc5246#section-7.2.1). For
 example, the value `(0xC0,0x2C)` corresponds to TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384. If not specified, a default list of TLS cipher suites is used.
@@ -186,26 +219,35 @@ example, the value `(0xC0,0x2C)` corresponds to TLS_ECDHE_ECDSA_WITH_AES_256_GCM
 
   (with *predefined* from `{rfc3526_1536, rfc3526_2048, rfc3526_3072, rfc3526_4096, rfc3526_6144, rfc3526_8192, rfc5114_1024_160, rfc5114_2048_224 , rfc5114_2048_256}`)
 
-  If *mode=server*, configure the Diffie-Hellman group that will be used. The value of predefined
-can be one of the keys given in the above listing.
+  If *mode=server*, configure the Diffie-Hellman group that will be used.
+The value of predefined can be one of the keys given in the above listing.
 
   Ignored, if *mode=client*.
-
 
 * `tlsSecretFile=[path]`
 
   (with **path** pointing to an *output file*)
 
-  Append the master_secret in the NSS Key Log Format to a plain text file. This file can be
-used by Wireshark to decrypt TLS packets.
+  Append the master_secret in the NSS Key Log Format to a plain text file.
+This file can be used by Wireshark to decrypt TLS packets.
 
+* `tlsUseSni=[enabled]`
+
+  (with *Boolean* value **enabled** either `true` or `false`, default `false`)
+
+  Enable (enabled=true) or disable (enabled=false) the usage of Server Name Indication.
+
+* `tlsVerifyPeer=[enabled]`
+
+  (with *Boolean* value **enabled** either `true` or `false`, default `false`)
+
+  Enable (enabled=true) or disable (enabled=false) the verification of the peer.
 
 * `tlsEncryptThenMac=[enabled]`
 
-  (with *Boolean* value **enabled** either `true` or `false`, default `true`)
+  (with *Boolean* value **enabled** either `true` or `false`, default `false`)
 
   Enable (enabled=true) or disable (enabled=false) the usage of Encrypt-then-MAC.
-
 
 * `tlsSupportedGroups=[predefined][,[predefined]...]`
 
@@ -221,8 +263,7 @@ exchange, ordered from most preferred to least preferred.
 
   Ignored, if *mode=server*.
 
-
-* `tlsSignatureSchemes=([valueUpper],[valueLower])[,([valueUpper],[valueLower])...]` 
+* `tlsSignatureSchemes=([valueUpper],[valueLower])[,([valueUpper],[valueLower])...]`
 
   *OpenSSL only*
 
@@ -236,6 +277,16 @@ Configure the TLS signature schemes in the corresponding ClientHello extension.
 
   Ignored, if *mode=server*.
 
+* `tlsSignatureAlgorithms=([valueUpper],[valueLower])[,([valueUpper],[valueLower])...]`
+
+  *OpenSSL only*
+
+  (with *decimal* integers **valueUpper** and **valueLower** preceded with 0x)
+
+  If *mode=client*, specify a list of supported TLS signature algorithm in decreasing order of preference. If this
+option is set, at least one TLS signature algorithm has to be given.
+
+  Ignored, if *mode=server*.
 
 * `handshakeType=[type]`
 
@@ -249,8 +300,7 @@ If a session resumption is performed (type = `{resumptionWithSessionID, resumpti
 
   If *mode=server*, then the server expects the client to perform the configured handshake. If *type=normal*, the server listens and wait for the client to connect once and perform a normal TLS handshake. If a session resumption type is selected, then the server waits for the client to perform an intial handshake and after that to perform the session resumption. The TLS Test Tool server stays alive for these 2 handshakes.
 
-  The *zeroRTT* handshakeType can only be selected if TLS 1.3 is used (https://datatracker.ietf.org/doc/html/rfc8446#section-2.3).
-
+  The *zeroRTT* handshakeType can only be selected if TLS 1.3 is used (<https://datatracker.ietf.org/doc/html/rfc8446#section-2.3>).
 
 * `sessionCache=[SessionCacheString]`
 
@@ -258,12 +308,11 @@ If a session resumption is performed (type = `{resumptionWithSessionID, resumpti
 
   (with the **SessionCacheString** outputted by the TLS Test Tool in the first handshake.)
 
-  If *mode=client*, the session cache is used to perform a session resumption with either sessionIDs or session tickets. 
+  If *mode=client*, the session cache is used to perform a session resumption with either sessionIDs or session tickets.
 
   Ignored, if *mode=server*.
 
-
-* `earlyData=[bytes]` 
+* `earlyData=[bytes]`
 
   *OpenSSL only*
 
@@ -271,10 +320,9 @@ If a session resumption is performed (type = `{resumptionWithSessionID, resumpti
   
   Note: The **handshake type** must be `zeroRTT` and the **sessionCache** needs to be set.
   
-  If *mode=client*, then the TLS Test Tool sends early data in the session resumption to the server (https://datatracker.ietf.org/doc/html/rfc8446#section-2.3). This feature only works in TLS 1.3.  
+  If *mode=client*, then the TLS Test Tool sends early data in the session resumption to the server (<https://datatracker.ietf.org/doc/html/rfc8446#section-2.3>). This feature only works in TLS 1.3.  
   
   Ignored, if *mode=server*.
-
 
 * `ocspResponseFile=[path]`
 
@@ -286,23 +334,22 @@ If a session resumption is performed (type = `{resumptionWithSessionID, resumpti
   
   Ignored, if *mode=client*.
 
-
 * `psk=[bytes]`
 
   (with **bytes** given as *HEXSTRING*)
 
-  Note: The configured **psk** is only used if a corresponding *PSK-ciphersuite* is set (see https://www.rfc-editor.org/rfc/rfc4279).
+  Note: The configured **psk** is only used if a corresponding *PSK-ciphersuite* is set (see <https://www.rfc-editor.org/rfc/rfc4279>).
 
-  Sets the psk (Pre-Shared Key) to the TLS Test Tool.
+  Sets the psk (Pre-Shared Key) to the TLS Test Tool. This feature only works in TLS 1.2.
   Later, in the TLS handshake both parties reuse the psk to establish the TLS Session.
 
 * `pskIdentity=[string]`
 
   (with **bytes** given as *STRING*)
 
-  Note: The configured **pskIdentity** is only used if a corresponding *PSK-ciphersuite* is set (see https://www.rfc-editor.org/rfc/rfc4279).
+  Note: The configured **pskIdentity** is only used if a corresponding *PSK-ciphersuite* is set (see <https://www.rfc-editor.org/rfc/rfc4279>).
 
-  Sets the pskIdentity (Pre-Shared Key) to the TLS Test Tool.
+  Sets the pskIdentity (Pre-Shared Key) to the TLS Test Tool. This feature only works in TLS 1.2.
 
 * `pskIdentityHint=[string]`
 
@@ -310,31 +357,30 @@ If a session resumption is performed (type = `{resumptionWithSessionID, resumpti
 
   (with **bytes** given as *STRING*)
 
-  Note: The configured **pskIdentityHint** is only used if a corresponding *PSK-ciphersuite* is set (see https://www.rfc-editor.org/rfc/rfc4279).
+  Note: The configured **pskIdentityHint** is only used if a corresponding *PSK-ciphersuite* is set (see <https://www.rfc-editor.org/rfc/rfc4279>).
 
-  Sets the pskIdentityHint (Pre-Shared Key) to the TLS Test Tool.
+  Sets the pskIdentityHint (Pre-Shared Key) to the TLS Test Tool. This feature only works in TLS 1.2.
   Later, in the TLS handshake the server sends the identity hint in the Server Key Exchange message.
 
 #### 2.2.6 Message manipulations
 
-* `manipulateClientHelloCompressionMethods=[bytes]` 
+* `manipulateClientHelloCompressionMethods=[bytes]`
 
   *mbed TLS only*
 
   (with **bytes** given as *HEXSTRING*)
 
   If *mode=client*, overwrite the field compression_methods in a ClientHello message with the
-byte array given in bytes. 
+byte array given in bytes.
 
   Ignored, if *mode=server*.
 
-
-* `manipulateClientHelloExtensions=[bytes] `
+* `manipulateClientHelloExtensions=[bytes]`
 
   (with **bytes** given as *HEXSTRING*)
 
   If *mode=client*, overwrite the field *extensions* in a ClientHello message with the byte array
-of extensions separated by a colon ("**:**"). 
+of extensions separated by a colon ("**:**").
 
   Ignored, if *mode=server*.
 
@@ -342,12 +388,11 @@ of extensions separated by a colon ("**:**").
 
   *mbed TLS only*
 
-  (with *predefined* from `{secp192k1, secp192r1, secp224k1, secp224r1, secp256k1, secp256r1, secp384r1, secp521r1 , brainpoolP256r1, brainpoolP384r1, brainpoolP512r1}`) )
+  (with *predefined* from `{secp192k1, secp192r1, secp224k1, secp224r1, secp256k1, secp256r1, secp384r1, secp521r1 , brainpoolP256r1, brainpoolP384r1, brainpoolP512r1}`)
 
   If *mode=server*, configure the elliptic curve group that will be used in the ServerKeyExchange message.
 
   Ignored, if *mode=client*.
-
 
 * `manipulateForceCertificateUsage=[ignored]`
 
@@ -361,22 +406,21 @@ of extensions separated by a colon ("**:**").
   
   Ignored, if *mode=client*.
 
-* `manipulateHelloVersion=([major],[minor])` 
+* `manipulateHelloVersion=([major],[minor])`
 
   *mbed TLS only*
 
   (with hexadecimal integers **major** and **minor** preceded with 0x)
 
-  The two bytes given in **major** and **minor** define a – possibly invalid – *ProtocolVersion*. 
+  The two bytes given in **major** and **minor** define a – possibly invalid – *ProtocolVersion*.
 
   If *mode=client*, replace the field client_version in a ClientHello message with the given protocol
-version. 
+version.
 
   If *mode=server*, replace the field server_version in a ServerHello message with the
 given protocol version.
 
-
-* `manipulateRenegotiate=[ignored]` 
+* `manipulateRenegotiate=[ignored]`
 
   *mbed TLS only*
 
@@ -397,25 +441,39 @@ handshake, with **data** as payload and **count** as payload length.
 
   **count** may be zero and **data** may be empty.
 
-* `manipulateServerHelloCompressionMethods=[bytes]` 
+* `manipulateServerHelloCompressionMethods=[bytes]`
 
   *mbed TLS only*
 
   (with **bytes** given as *HEXSTRING*)
 
   If *mode=server*, overwrite the field compression_methods in a ServerHello message with the
-byte array given in bytes. 
+byte array given in bytes.
 
   Ignored, if *mode=client*.
 
-* `manipulateServerHelloExtensions=[bytes] `
+* `manipulateServerHelloExtensions=[bytes]`
 
   (with **bytes** given as *HEXSTRING*)
 
   If *mode=server*, overwrite the field *extensions* in a ServerHello message with the byte array
-of extensions separated by a colon ("**:**"). 
+of extensions separated by a colon ("**:**").
 
   Ignored, if *mode=client*.
+
+* `manipulateSendTlsApplicationData=[count],[data]`
+
+  (with decimal integer **count** and hexstring **data**)
+
+  Overwrites the application data.
+
+* `manipulateEncryptedExtensionsTls13=[bytes]`
+
+  *OpenSSL only*
+
+  (with hexstring **bytes**)
+
+  Overwrites the Extensions in case of TLS v1.3
 
 #### 2.2.7 Examples
 
@@ -428,7 +486,9 @@ host=tls-check.de
 port=443
 ```
 
+
 ## 3 License
+
 The TLS Test Tool is licensed under the EUPL-1.2-or-later.
 For more information on the license, see the included [License text](LICENSE.md) itself, or the according [website](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12) of the European Commision.
 
@@ -438,26 +498,25 @@ For more information on the license, see the included [License text](LICENSE.md)
 The licenses of 3rd party software used within TLS Test Tool are listed below.
 
 ### OpenSSL version 3.0.1
+
 Website: [https://www.openssl.org/](https://www.openssl.org/)  
 Source: [https://www.openssl.org/source/openssl-3.0.1.tar.gz](https://www.openssl.org/source/openssl-3.0.1.tar.gz)  
 License: [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
-
 ### Mbed TLS version 2.2.1
+
 Website: [https://tls.mbed.org](https://tls.mbed.org)  
 Source: [https://tls.mbed.org/download/mbedtls-2.2.1-apache.tgz](https://tls.mbed.org/download/mbedtls-2.2.1-apache.tgz)  
 License: [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
-
 ### asio version 1.12.2
+
 Website: [https://think-async.com/Asio/](https://think-async.com/Asio/)  
 Source: [http://downloads.sourceforge.net/project/asio/asio/1.12.2%20%28Stable%29/asio-1.12.2.tar.gz](http://downloads.sourceforge.net/project/asio/asio/1.12.2%20%28Stable%29/asio-1.12.2.tar.gz)  
 License: [asio License](https://www.boost.org/LICENSE_1_0.txt)
 
-
 ### Zlib version 1.2.11
+
 Website: [https://www.zlib.net](https://www.zlib.net)  
 Source: [http://download.sourceforge.net/project/libpng/zlib/1.2.11/zlib-1.2.11.tar.gz](http://download.sourceforge.net/project/libpng/zlib/1.2.11/zlib-1.2.11.tar.gz)  
 License: [zlib License](https://zlib.net/zlib_license.html)
-
-

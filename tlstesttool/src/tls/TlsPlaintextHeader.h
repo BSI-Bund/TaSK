@@ -28,12 +28,12 @@ namespace TlsTestTool {
  *
  * @see RFC 5246, Section 6.2.1
  */
-class TlsPlaintextHeader {
-public:
-	TlsContentType type;
-	TlsVersion version;
-	TlsUint16 length;
-};
+    class TlsPlaintextHeader {
+    public:
+        TlsContentType type;
+        TlsVersion version;
+        TlsUint16 length;
+    };
 }
 
 #endif /* TLS_TLSPLAINTEXTHEADER_H_ */

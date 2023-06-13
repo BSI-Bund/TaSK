@@ -28,7 +28,7 @@
 				<!-- This is only mandatory if the PSK profile was selected -->
 				<xsd:element name="TLSWithPSKCipherSuites" type="TLSWithPSKCipherSuites" minOccurs="0" maxOccurs="1"/>
 				<!-- Chapter 3.6 -->
-				<xsd:element name="ConnectionTimeout" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="ConnectionTimeout" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 				<!-- Chapter 3.7 -->
 				<!-- This is optional -->
 				<!-- This is only mandatory if the TLS version TLSv1.3 is supported. -->
@@ -38,46 +38,36 @@
 				<!-- This is only mandatory if the CHECK_CERTS profile was selected -->
 				<xsd:element name="TLSCertificates" type="TLSCertificates" minOccurs="0" maxOccurs="1"/>
 				<!-- Additional Data: TLS client certificate for testing TLS client authentication-->
-				<xsd:element name="ApplicationSpecificData" type="ApplicationSpecificData" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-	
-	
+
+
 	<xsd:complexType name="ApplicationUnderTest">
 		<xsd:sequence>
 			<xsd:element name="ApplicationType" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 			<xsd:element name="RespectiveTechnicalGuideline" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 			<xsd:choice>
-				<!-- In the case of an TLS Server, an URL and a port are necessary. -->
 				<xsd:sequence>
 					<xsd:element name="URL" type="xsd:string" minOccurs="1" maxOccurs="1" />
 					<xsd:element name="Port" type="xsd:string" minOccurs="1" maxOccurs="1" />
-					<!-- In the case of an eID Server, an RMI Interface may be necessary. -->
-					<xsd:element name="RMIURL" type="xsd:string" minOccurs="0" maxOccurs="1" />
-					<xsd:element name="RMIPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
 				</xsd:sequence>
-				<!-- In the case of an TLS client, an Executable and call arguments are necessary. -->
 				<xsd:sequence>
-					<xsd:element name="DUTExecutable" type="xsd:string" minOccurs="1" maxOccurs="1" />
-					<xsd:element name="DUTCallArguments" type="DutCallArguments" minOccurs="1" maxOccurs="1" />
-				</xsd:sequence>
-				<!-- In the case of an eID-Client, the connection details of a running BrowserSimulator are necessary. -->
-				<xsd:sequence>
-					<xsd:element name="BrowserSimulatorURL" type="xsd:string" minOccurs="1" maxOccurs="1" />
-					<xsd:element name="BrowserSimulatorPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
 					<xsd:element name="EIDClientPort" type="xsd:int" minOccurs="0" maxOccurs="1" />
 				</xsd:sequence>
 			</xsd:choice>
+			<xsd:element name="RMIURL" type="xsd:string" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="RMIPort" type="xsd:string" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="StartTLS" type="xsd:boolean" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
-	
+
 	<xsd:complexType name="ProfileList">
 		<xsd:sequence>
 			<xsd:element name="Profile" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
 		</xsd:sequence>
 	</xsd:complexType>
-	
+
 	<xsd:complexType name="SupportedCryptography">
 		<xsd:sequence>
 			<!-- Chapter 3.3 Table 4 -->
@@ -153,7 +143,7 @@
 			</xsd:element>
 		</xsd:sequence>
 	</xsd:complexType>
-	
+
 	<!-- Chapter 3.4 Table 11-->
 	<!-- This is only mandatory if the CERTIFIED_CA profile was selected -->
 	<xsd:complexType name="InformationOnTR03145Certification">
@@ -168,14 +158,18 @@
 	</xsd:complexType>
 
 	<!-- Chapter 3.5 -->
-	<!-- This is only mandatory if the PSK profile was selected -->	
+	<!-- This is only mandatory if the PSK profile was selected -->
 	<xsd:complexType name="TLSWithPSKCipherSuites">
 		<xsd:sequence>
 			<xsd:element name="PSKValue" type="xsd:hexBinary" minOccurs="1" maxOccurs="1"/>
 			<xsd:element name="PSKIdentityHintValue" type="xsd:string" minOccurs="0" maxOccurs="1" />
+			<!-- The PSK Identity is not required by ICS, but it might be useful for PSK Tests with Application Types "TLSServer" and "TLSClient" -->
+			<!-- Defaults to "Client_identity" if nothing is set in the above case.-->
+			<!-- Not required for Application Types "TR-03124-1-EID-CLIENT-TLS-2" and "TR-03130-1-EID-SERVER-ECARD-PSK", as the identity is set there in other ways.-->
+			<xsd:element name="PSKIdentity" type="xsd:string" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
-	
+
 	<!-- Chapter 3.8 -->
 	<xsd:complexType name="TLSCertificates">
 		<xsd:sequence>
@@ -191,11 +185,20 @@
 								</xsd:sequence>
 								<xsd:attribute name="type" use="required">
 									<xsd:simpleType>
-											<xsd:restriction base="xsd:string">
-												<xsd:enumeration value="RootCACertificate" />
-												<xsd:enumeration value="IntermediateCertificate" />
-												<xsd:enumeration value="EndEntityCertificate" />
-											</xsd:restriction>
+										<xsd:restriction base="xsd:string">
+											<xsd:enumeration value="RootCACertificate" />
+											<xsd:enumeration value="IntermediateCertificate" />
+											<xsd:enumeration value="EndEntityCertificate" />
+										</xsd:restriction>
+									</xsd:simpleType>
+								</xsd:attribute>
+								<xsd:attribute name="hashfunction" default="SHA-256">
+									<xsd:simpleType>
+										<xsd:restriction base="xsd:string">
+											<xsd:enumeration value="SHA-256" />
+											<xsd:enumeration value="SHA-384" />
+											<xsd:enumeration value="SHA-512" />
+										</xsd:restriction>
 									</xsd:simpleType>
 								</xsd:attribute>
 							</xsd:complexType>
@@ -213,27 +216,5 @@
 			</xsd:element>
 		</xsd:sequence>
 	</xsd:complexType>
-	
-	<!-- ApplicationSpecificData: e.g. TLS client certificate for the test of client authentication -->
-	<xsd:complexType name="ApplicationSpecificData">
-		<xsd:sequence>
-			<!-- Table 16 -->
-			<xsd:element name="TestClientCertificate" minOccurs="0" maxOccurs="1">
-				<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="CertificateFile" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-						<xsd:element name="CertificatePrivateKey" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-					</xsd:sequence>
-				</xsd:complexType>
-			</xsd:element>
-		</xsd:sequence>
-	</xsd:complexType>
 
-	<!-- DUTCallArguments: -->
-	<xsd:complexType name="DutCallArguments">
-		<xsd:sequence>
-			<xsd:element name="StartConnectionArguments" type="xsd:string" minOccurs="1" maxOccurs="1" />
-			<xsd:element name="ResumeConnectionArguments" type="xsd:string" minOccurs="0" maxOccurs="1" />
-		</xsd:sequence>
-	</xsd:complexType>
 </xsd:schema>

@@ -22,16 +22,16 @@ namespace Tooling {
 /**
  * Enumeration for different log levels.
  */
-enum class LogLevel {
-	//! No output.
-	OFF,
-	//! Little debug output (e.g., print actions that are performed).
-	LOW,
-	//! Medium amount of debug output (e.g., additional output of sizes of received packages).
-	MEDIUM,
-	//! Much debug output (e.g., additional hex dumps).
-	HIGH
-};
+    enum class LogLevel {
+        //! No output.
+        OFF,
+        //! Little debug output (e.g., print actions that are performed).
+        LOW,
+        //! Medium amount of debug output (e.g., additional output of sizes of received packages).
+        MEDIUM,
+        //! Much debug output (e.g., additional hex dumps).
+        HIGH
+    };
 }
 
 #endif /* LOGGING_LOGLEVEL_H_ */

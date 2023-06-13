@@ -16,13 +16,14 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_07 - Heartbeat extension not supported.
  * <p>
  * This test verifies the correct behaviour of the DUT if the client wants to use heartbeats.
  */
 public class TLS_B1_FR_07 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B1_FR_07";
-	private static final String TEST_CASE_DESCRIPTION = "Heartbeat-Extension not supported";
+	private static final String TEST_CASE_DESCRIPTION = "Heartbeat extension not supported";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies the correct behaviour of the DUT if the client wants to use heartbeats.";
 
@@ -117,7 +118,7 @@ public class TLS_B1_FR_07 extends AbstractTestCase {
 
 		testTool.start();
 
-		step(3, "The TLS ClientHello contains a \"HeartbeatExtension\"  with the HeartbeatMode \"peer_allowed_to_send\"",
+		step(3, "The TLS ClientHello contains a \"HeartbeatExtension\" with the HeartbeatMode \"peer_allowed_to_send\"",
 				"Receive ServerHello message from TOE. ServerHello.extensions does not contain the heartbeat extension.");
 
 		tFTCPIPNewConnection.executeSteps("4", "", Arrays.asList(),

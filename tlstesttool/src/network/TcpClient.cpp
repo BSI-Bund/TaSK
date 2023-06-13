@@ -21,24 +21,26 @@
 
 namespace TlsTestTool {
 
-class TcpClient::Data {
-public:
-	asio::io_context io_context;
-	std::shared_ptr<TcpConnection> tcpConnection;
-	Data() : io_context(), tcpConnection(std::make_shared<TcpConnection>(&io_context)){
-	}
-};
+    class TcpClient::Data {
+    public:
+        asio::io_context io_context;
+        std::shared_ptr<TcpConnection> tcpConnection;
 
-TcpClient::TcpClient() : impl(std::make_unique<Data>()) {
-}
+        Data() : io_context(), tcpConnection(std::make_shared<TcpConnection>(&io_context)) {
+        }
+    };
 
-TcpClient::~TcpClient() = default;
+    TcpClient::TcpClient() : impl(std::make_unique<Data>()) {
+    }
 
-void TcpClient::connect(const std::string & host, const std::string & port) {
-	asio::ip::tcp::resolver resolver(impl->io_context);
-	asio::connect(impl->tcpConnection->getSocket(), resolver.resolve(host, port));
-}
-std::shared_ptr<TcpConnection> TcpClient::getTcpConnection(){
-	return impl->tcpConnection;
-}
+    TcpClient::~TcpClient() = default;
+
+    void TcpClient::connect(const std::string &host, const std::string &port) {
+        asio::ip::tcp::resolver resolver(impl->io_context);
+        asio::connect(impl->tcpConnection->getSocket(), resolver.resolve(host, port));
+    }
+
+    std::shared_ptr<TcpConnection> TcpClient::getTcpConnection() {
+        return impl->tcpConnection;
+    }
 }

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_A2_CH_06_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_A2_CH_06_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This test case checks the behavior of the DUT in case the server offers a TLS server certificate based on not conforming domain parameters.</Purpose>
 	<Profile>TLS_CLIENT</Profile>
 	<Profile>SERVER_CERT</Profile>

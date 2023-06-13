@@ -39,8 +39,10 @@ public enum TestToolResource {
 	CertificateRequest_valid("Valid CertificateRequest message received."),
 	/** Certificate message transmitted.. */
 	Certificate_transmitted("Certificate message transmitted."),
-	/** Certificate message transmitted.. */
+	/** Certificate message received.. */
 	Certificate_received_valid("Valid Certificate message received."),
+	/** Valid CertificateVerify message received.. */
+	CertificateVerify_valid("Valid CertificateVerify message received."),
 	/** Certificate Status message received by server when using OCSP stapling*/
 	Certificate_status_received("Certificate status message received."),
 	/** Certificate Status message transmitted by server when using OCSP stapling*/

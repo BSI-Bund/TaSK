@@ -1,6 +1,3 @@
-/**
- * Copyright © 2009 achelos GmbH All rights reserved.
- */
 package com.achelos.task.abstracttestsuite;
 
 /**

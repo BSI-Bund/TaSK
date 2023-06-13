@@ -4,18 +4,22 @@ import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
-import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsTestToolMode;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
 import com.achelos.task.logging.MessageConstants;
-import com.achelos.task.tr03116ts.testfragments.*;
+import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
+import com.achelos.task.tr03116ts.testfragments.TFClientCertificate;
+import com.achelos.task.tr03116ts.testfragments.TFHandshakeNotSuccessfulCheck;
+import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
+import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * Test case TLS_B2_GP_02 - Reject unsupported Cipher Suites.
+ * Test case TLS_B2_GP_02 - Reject unsupported cipher suites.
  * <p>
  * This test verifies that the connection is not established if the client offers only cipher suites that are not listed
  * in the ICS.
@@ -23,7 +27,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 public class TLS_B2_GP_02 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_B2_GP_02";
-	private static final String TEST_CASE_DESCRIPTION = "Reject unsupported Cipher Suites";
+	private static final String TEST_CASE_DESCRIPTION = "Reject unsupported cipher suites";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies that the connection is not established if the client offers "
 					+ "only cipher suites that are not listed in the ICS.";
@@ -120,7 +124,7 @@ public class TLS_B2_GP_02 extends AbstractTestCase {
 
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ " .", null, testTool, tlsVersion, notSupportedCipherSuites);
@@ -132,7 +136,7 @@ public class TLS_B2_GP_02 extends AbstractTestCase {
 		// check for handshake_failure
 		tFAlertMessageCheck.executeSteps("4", "The DUT does not accept the ClientHello and sends a \"handshake "
 				+ "failure\" alert or another suitable error description.",
-				Arrays.asList("level=warning/fatal", "description=handshake_failure"), testTool);
+				Arrays.asList("level=warning/fatal", "description=handshake_failure"), testTool, TlsAlertDescription.handshake_failure);
 		tfHandshakeNotSuccessfulCheck.executeSteps("5", "No TLS channel is established", null, testTool, tlsVersion);
 
 	}

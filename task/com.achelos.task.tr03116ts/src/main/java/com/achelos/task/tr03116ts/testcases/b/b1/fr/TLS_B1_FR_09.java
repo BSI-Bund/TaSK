@@ -16,6 +16,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
+ * Test case TLS_B1_FR_09 - Session renegotiation.
  * <p>
  * This test verifies the correct behaviour of the DUT in case the client tries to renegotiate the parameters.
  */
@@ -70,7 +71,7 @@ public class TLS_B1_FR_09 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers a cipher suite that is supported according to the ICS.
 	 * <li>In case the cipher suite is based on ECC, the TLS ClientHello offers valid elliptic curves in the appropriate
 	 * extension according to the ICS.
@@ -86,7 +87,7 @@ public class TLS_B1_FR_09 extends AbstractTestCase {
 	 * <h2>TestStep 2</h2>
 	 * <h3>Command</h3>
 	 * <ol>
-	 * <li>The TLS client sends a HelloRequest message to initiate a renegotiation process.
+	 * <li>The TLS client sends a ClientHello message to initiate a renegotiation process.
 	 * </ol>
 	 * <h3>ExpectedResult</h3>
 	 * <ul>
@@ -130,11 +131,13 @@ public class TLS_B1_FR_09 extends AbstractTestCase {
 				"The TLS protocol is executed without errors and the channel is established.");
 		testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-		tfAlertMessageCheck.executeSteps("4",
-				"The DUT either ignores the request or answers with a \"no_renegotiation\" alert or another suitable "
-						+ "alert\" description.",
-				Arrays.asList("level=warning/fatal", "description=no_renegotiation"), testTool);
+		step(4, "The TLS client sends a ClientHello message to initiate a renegotiation process.", "");
 
+		if(testTool.numberOfTimesMessageLogged(TestToolResource.ServerHello_valid)>1){
+			logger.error("The DUT server accepted the renegoation.");
+		} else {
+			logger.info("The DUT ignored the request");
+		}
 	}
 
 

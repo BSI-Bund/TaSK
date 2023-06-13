@@ -21,20 +21,20 @@
 
 namespace TlsTestTool {
 
-void SendApplicationData::executePreHandshake(TlsSession & /*session*/) {
-}
+    void SendApplicationData::executePreHandshake(TlsSession & /*session*/) {
+    }
 
-void SendApplicationData::executePreStep(TlsSession & /*session*/) {
-}
+    void SendApplicationData::executePreStep(TlsSession & /*session*/) {
+    }
 
-void SendApplicationData::executePostStep(TlsSession & /*session*/) {
-}
+    void SendApplicationData::executePostStep(TlsSession & /*session*/) {
+    }
 
-void SendApplicationData::executePostHandshake(TlsSession & session) {
-	for (uint64_t counter = 1; counter <= numberSendData; ++counter) {
-		log(__FILE__, __LINE__, "Send TLS application data message " + std::to_string(counter) + " of "
-					+ std::to_string(numberSendData) + '.');
-		session.sendApplicationData(applicationData);
-	}
-}
+    void SendApplicationData::executePostHandshake(TlsSession &session) {
+        for (uint64_t counter = 1; counter <= numberSendData; ++counter) {
+            log(__FILE__, __LINE__, "Send TLS application data message " + std::to_string(counter) + " of "
+                                    + std::to_string(numberSendData) + '.');
+            session.sendApplicationData(applicationData);
+        }
+    }
 }

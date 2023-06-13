@@ -22,32 +22,35 @@
 #include <memory>
 
 namespace TlsTestTool {
-class TcpClient;
-class TcpServer;
-class TlsSession;
+    class TcpClient;
+
+    class TcpServer;
+
+    class TlsSession;
+
 /**
  * Factory that creates a TlsSession implementation based on a string identifier.
  */
-class TlsSessionFactory {
-public:
-	/**
-	 * Create a TLS client session.
-	 * @param tlsLibrary Identifier to select the TLS library.
-	 * @param tcpClient Connected TCP/IP client that will be used to send and receive data.
-	 * @return TlsSession implementation
-	 */
-	static std::shared_ptr<TlsSession> createClientSession(const Configuration::TlsLibrary & tlsLibrary,
-														   TcpClient & tcpClient);
+    class TlsSessionFactory {
+    public:
+        /**
+         * Create a TLS client session.
+         * @param tlsLibrary Identifier to select the TLS library.
+         * @param tcpClient Connected TCP/IP client that will be used to send and receive data.
+         * @return TlsSession implementation
+         */
+        static std::shared_ptr<TlsSession> createClientSession(const Configuration::TlsLibrary &tlsLibrary,
+                                                               TcpClient &tcpClient);
 
-	/**
-	 * Create a TLS server session.
-	 * @param tlsLibrary Identifier to select the TLS library.
-	 * @param tcpServer TCP/IP server that will be used to send and receive data.
-	 * @return TlsSession implementation
-	 */
-	static std::shared_ptr<TlsSession> createServerSession(const Configuration::TlsLibrary & tlsLibrary,
-														   TcpServer & tcpServer);
-};
+        /**
+         * Create a TLS server session.
+         * @param tlsLibrary Identifier to select the TLS library.
+         * @param tcpServer TCP/IP server that will be used to send and receive data.
+         * @return TlsSession implementation
+         */
+        static std::shared_ptr<TlsSession> createServerSession(const Configuration::TlsLibrary &tlsLibrary,
+                                                               TcpServer &tcpServer);
+    };
 }
 
 #endif /* TLS_TLSSESSIONFACTORY_H_ */

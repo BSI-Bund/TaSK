@@ -20,6 +20,7 @@
 			An applicant SHALL provide a declaration containing information on the supported profiles. -->
 			<!-- mandatory profiles from TR-03116-TS_Annex, Table 7 -->
 		<Profile>CHECK_CERTS</Profile>
+		<Profile>DURATION</Profile>
 		<Profile>INTERIM_SUITES_SRV</Profile>
 		<Profile>NO_CLIENT_CERT</Profile>
 		<Profile>PFS</Profile>
@@ -54,12 +55,6 @@
 				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_GCM_SHA256</CipherSuite>
 				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA256</CipherSuite>
 				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_CBC_SHA256</CipherSuite>
-				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</CipherSuite>
-				<CipherSuite>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</CipherSuite>
 
 			</SupportedCipherSuites>
 			
@@ -84,6 +79,7 @@
 				<!-- Table 7 
 					In case the SUPP_GROUPS profile was selected, the named groups MUST be given in Table 7 in the order of preference.
 					This is mandatory if the SUPP_GROUPS profile was selected -->
+				<Group>brainpoolP256r1</Group>
 				<Group>secp256r1</Group>
 				<Group>secp384r1</Group>
 				<Group>secp521r1</Group>

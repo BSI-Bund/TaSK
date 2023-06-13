@@ -24,44 +24,45 @@
 
 
 namespace TlsTestTool {
-class AbstractSocketObserver;
+    class AbstractSocketObserver;
+
 /**
  * TCP/IP client socket.
  */
-class TcpClient {
-public:
-	class Data;
+    class TcpClient {
+    public:
+        class Data;
 
-private:
-	//! Use pimpl idiom.
-	std::unique_ptr<Data> impl;
+    private:
+        //! Use pimpl idiom.
+        std::unique_ptr<Data> impl;
 
-public:
-	/**
-	 * Construct a non-connected TCP/IP client socket.
-	 */
-	TcpClient();
+    public:
+        /**
+         * Construct a non-connected TCP/IP client socket.
+         */
+        TcpClient();
 
-	/**
-	 * Free the TCP/IP client socket.
-	 */
-	~TcpClient();
+        /**
+         * Free the TCP/IP client socket.
+         */
+        ~TcpClient();
 
-	/**
-	 * Connect the socket to the given host and port.
-	 *
-	 * @param IP address or host name of the host to connect to.
-	 * @param port TCP port number of the service to connect to.
-	 * @throw std::exception Thrown on failure.
-	 */
-	void connect(const std::string & host, const std::string & port);
+        /**
+         * Connect the socket to the given host and port.
+         *
+         * @param IP address or host name of the host to connect to.
+         * @param port TCP port number of the service to connect to.
+         * @throw std::exception Thrown on failure.
+         */
+        void connect(const std::string &host, const std::string &port);
 
-	/**
-	 * Return the TcpConnection of the client
-	 * @return tcpConnection
-	 */
-	std::shared_ptr<TcpConnection> getTcpConnection();
-};
+        /**
+         * Return the TcpConnection of the client
+         * @return tcpConnection
+         */
+        std::shared_ptr<TcpConnection> getTcpConnection();
+    };
 }
 
 #endif /* NETWORK_TCPCLIENT_H_ */

@@ -15,7 +15,7 @@ class TestInputPrinter {
 
 	@Test
 	void testMICSPrinting() {
-		LoggingConnector.getInstance("DEBUG");
+		LoggingConnector.getInstance("INFO");
 		var exampleMICSPath = new File("../data/input/ExampleMICS_Server.xml");
 		assertTrue(exampleMICSPath.exists(), "Test MICS file does not exist.");
 

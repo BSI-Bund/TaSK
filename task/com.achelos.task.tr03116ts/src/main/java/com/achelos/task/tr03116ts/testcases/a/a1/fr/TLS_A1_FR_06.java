@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
@@ -20,7 +20,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Test case TLS_A1_FR_06 - Encrypt-then-MAC Extension
+ * Test case TLS_A1_FR_06 - Encrypt-then-MAC extension.
  * <p>
  * This test verifies that the Encrypt-then-MAC Extension is offered and can be used in a connection with a CBC-mode
  * cipher suite
@@ -28,7 +28,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 public class TLS_A1_FR_06 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_FR_06";
-	private static final String TEST_CASE_DESCRIPTION = "Encrypt-then-MAC Extension";
+	private static final String TEST_CASE_DESCRIPTION = "Encrypt-then-MAC extension";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies that the Encrypt-then-MAC Extension is offered and can be used in a connection "
 					+ "with a CBC-mode cipher suite";
@@ -106,13 +106,16 @@ public class TLS_A1_FR_06 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
+
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** All supported cipher suites */
 		var cipherSuites = configuration.getCBCBasedSupportedCipherSuites(tlsVersion);
@@ -143,7 +146,7 @@ public class TLS_A1_FR_06 extends AbstractTestCase {
 		step(5, "Check if the TLS ClientHello offers at least one CBC-based cipher suite.",
 				"TLS ClientHello offers at least one CBC-based cipher suite.");
 		List<TlsCipherSuite> clientHelloCipherSuites = TlsCipherSuite
-				.parseCipherSuiteStringList(testTool.getValue(TestToolResource.ClientHello_cipher_suites));
+				.parseCipherSuiteStringList(testTool.getValue(TestToolResource.ClientHello_cipher_suites), true, tlsVersion);
 		List<TlsCipherSuite> cbcCipherSuites = clientHelloCipherSuites.stream()
 				.filter(cipherSuite -> cipherSuite.name().contains("_CBC_")).collect(Collectors.toList());
 		if (cbcCipherSuites != null && !cbcCipherSuites.isEmpty()) {

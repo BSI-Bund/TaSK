@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
@@ -19,14 +19,14 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_FR_13 - random value for gmt_unix_time
+ * Test case TLS_A1_FR_13 - Random value for gmt_unix_time.
  * <p>
  * Positive test verifying the value for gmt_unix_time in ClientHello to be random.
  */
 public class TLS_A1_FR_13 extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_FR_13";
-	private static final String TEST_CASE_DESCRIPTION = "random value for gmt_unix_time";
+	private static final String TEST_CASE_DESCRIPTION = "Random value for gmt_unix_time";
 	private static final String TEST_CASE_PURPOSE
 			= "Positive test verifying the value for gmt_unix_time in ClientHello to be random.";
 
@@ -79,7 +79,7 @@ public class TLS_A1_FR_13 extends AbstractTestCase {
 	 * <h3>ExpectedResult</h3>
 	 * <ul>
 	 * <li>The TLS server receives a ClientHello handshake message from the DUT.
-	 * <li>The TLS ClientHello offers the highest TLS version stated in the ICS.
+	 * <li>The TLS ClientHello offers the highest TLS version [TLS_VERSION].
 	 * <li>The ClientHello message includes a random structure ""Random"" consisting of ""gmt_unix_time"" and
 	 * ""random_bytes"".
 	 * <li>The value for ""gmt_unix_time"" is set randomly and does not correlate to the current time and date in any
@@ -107,13 +107,15 @@ public class TLS_A1_FR_13 extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS Version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported CipherSuite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
@@ -137,7 +139,7 @@ public class TLS_A1_FR_13 extends AbstractTestCase {
 				dutExecutor);
 
 		fFTLSHighestVersionSupportCheck.executeSteps("5",
-				"The TLS ClientHello offers the highest TLS version stated in the ICS.", null,
+				"The TLS ClientHello offers the highest TLS version [TLS_VERSION].", null,
 				testTool);
 
 		step(6, "Check if the ClientHello message includes a random structure \"Random\" consisting of "

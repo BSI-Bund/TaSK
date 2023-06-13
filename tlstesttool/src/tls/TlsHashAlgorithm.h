@@ -26,7 +26,9 @@ namespace TlsTestTool {
  *
  * @see RFC 5246, Section 7.4.1.4.1
  */
-enum class TlsHashAlgorithm : TlsUint8 { NONE = 0, MD5 = 1, SHA1 = 2, SHA224 = 3, SHA256 = 4, SHA384 = 5, SHA512 = 6 };
+    enum class TlsHashAlgorithm : TlsUint8 {
+        NONE = 0, MD5 = 1, SHA1 = 2, SHA224 = 3, SHA256 = 4, SHA384 = 5, SHA512 = 6
+    };
 }
 
 #endif /* TLS_TLSHASHALGORITHM_H_ */

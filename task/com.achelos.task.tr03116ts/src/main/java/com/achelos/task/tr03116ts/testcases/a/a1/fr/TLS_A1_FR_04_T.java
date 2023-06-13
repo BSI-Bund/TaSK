@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsTestToolTlsLibrary;
 import com.achelos.task.commons.enums.TlsVersion;
@@ -21,7 +21,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_FR_04_T - Correct PSK
+ * Test case TLS_A1_FR_04_T - Correct PSK.
  * 
  * <p>
  * This test verifies the behaviour of the DUT if the server uses a correct PSK. The test is carried out for the TLS
@@ -90,7 +90,7 @@ public class TLS_A1_FR_04_T extends AbstractTestCase {
 	 * <h3>ExpectedResult</h3>
 	 * <ul>
 	 * <li>The TLS server receives a ClientHello handshake message from the DUT.
-	 * <li>The TLS ClientHello offers the highest TLS version stated in the ICS.
+	 * <li>The TLS ClientHello offers the highest TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers all cipher suites stated in the ICS for this TLS version in specified order.
 	 * <li>The TLS ClientHello offers only the extensions stated in the ICS that match the TLS version.
 	 * </ul>
@@ -107,7 +107,6 @@ public class TLS_A1_FR_04_T extends AbstractTestCase {
 	 * </ol>
 	 * <h3>ExpectedResult</h3>
 	 * <ul>
-	 * <li>The DUT sends a valid psk_identity according to the ICS.
 	 * <li>The TLS protocol is executed without errors and the channel is established.
 	 * </ul>
 	 */
@@ -117,110 +116,96 @@ public class TLS_A1_FR_04_T extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		// all supported tls version
-		List<TlsVersion> tlsVersions = configuration.getSupportedTLSVersions();
-		if (null == tlsVersions || tlsVersions.isEmpty()) {
-			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug(MessageConstants.SUPPORTED_TLS_VERSIONS);
-		for (TlsVersion tlsVersion : tlsVersions) {
-			logger.debug(tlsVersion.name());
+
+		List<TlsCipherSuite> pskCipherSuites
+				= configuration.getSupportedPSKCipherSuites(tlsVersion);
+		if (null == pskCipherSuites || pskCipherSuites.isEmpty()) {
+			logger.error(MessageConstants.NO_SUPPORTED_PSK_CIPHER_SUITE_FOR_TLS_VERSION + tlsVersion.getName());
 		}
-		
 		int iterationCount = 1;
-		int numberOfiterations = 0;
-		
-		HashMap<TlsVersion, List<TlsCipherSuite>> map = new HashMap<>();
-		for (TlsVersion tlsVersion : tlsVersions) {
-			List<TlsCipherSuite> pskCipherSuites
-					= configuration.getSupportedPSKCipherSuites(tlsVersion);
-			if (null == pskCipherSuites || pskCipherSuites.isEmpty()) {
-				logger.error(MessageConstants.NO_SUPPORTED_PSK_CIPHER_SUITE_FOR_TLS_VERSION + tlsVersion.getName());
-			} else {
-				map.put(tlsVersion, pskCipherSuites);
-				numberOfiterations += pskCipherSuites.size();
-			}
+		int numberOfiterations = pskCipherSuites.size();
+
+		logger.debug(MessageConstants.SUPPORTED_PSK_CIPHER_SUITES_FOR_TLS_VERSION + tlsVersion.getName());
+		for (TlsCipherSuite cipherSuite : pskCipherSuites) {
+			logger.debug(cipherSuite.name());
 		}
 
-		for (Map.Entry<TlsVersion, List<TlsCipherSuite>> entry : map.entrySet()) {
-			
-			TlsVersion tlsVersion = entry.getKey();
-			List<TlsCipherSuite> pskCipherSuites = entry.getValue();
+		for (TlsCipherSuite cipherSuite : pskCipherSuites) {
+			logger.info("Start iteration " + iterationCount + " of " + numberOfiterations
+					+ ".");
+			step(1, "Setting TLS version: " + tlsVersion.getName() + " and PSK Cipher suite: "
+					+ cipherSuite.getName(), null);
 
-			logger.debug(MessageConstants.SUPPORTED_PSK_CIPHER_SUITES_FOR_TLS_VERSION + tlsVersion.getName());
-			for (TlsCipherSuite cipherSuite : pskCipherSuites) {
-				logger.debug(cipherSuite.name());
+			tfserverCertificate.executeSteps("2", "The TLS server supplies the certificate chain [CERT_DEFAULT].",
+					Arrays.asList(), testTool, tlsVersion, cipherSuite, TlsTestToolCertificateTypes.CERT_DEFAULT);
+
+			tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
+					Arrays.asList(), testTool, tlsVersion, TlsTestToolTlsLibrary.OpenSSL, cipherSuite);
+
+			tFDutClientNewConnection.executeSteps("4",
+					"The TLS server receives a ClientHello handshake message from the DUT.",
+					Arrays.asList(), testTool,
+					new IterationCounter(iterationCount++, numberOfiterations), dutExecutor);
+
+			fFTLSHighestVersionSupportCheck.executeSteps("5",
+					"The TLS ClientHello offers the highest TLS version [TLS_VERSION].", null,
+					testTool);
+
+			step(6, "Check if the TLS ClientHello offers all cipher suites stated in the ICS for "
+					+ tlsVersion.getName()
+					+ " in specified order.",
+					"The TLS ClientHello offers all cipher suites stated in the ICS for this TLS version in"
+							+ " specified order.");
+			List<TlsCipherSuite> clientHelloCipherSuites = TlsCipherSuite
+					.parseCipherSuiteStringList(testTool.getValue(TestToolResource.ClientHello_cipher_suites), true, tlsVersion);
+
+			/* edge case: TLS_EMPTY_RENEGOTIATION_INFO_SCSV should not be checked */
+			clientHelloCipherSuites.remove(TlsCipherSuite.TLS_EMPTY_RENEGOTIATION_INFO_SCSV);
+
+			boolean cipherSuitesOrderMatch = pskCipherSuites.equals(clientHelloCipherSuites);
+
+			if (cipherSuitesOrderMatch) {
+				logger.info(
+						"The TLS ClientHello offers cipher suites stated in the ICS for the "
+								+ "TLS version \"" + tlsVersion.getName()
+								+ "\" in specified order."
+								+ " Expected cipher suites order: " + pskCipherSuites.toString()
+								+ " Actual cipher suites order: " + clientHelloCipherSuites.toString());
+			} else {
+				logger.error(
+						"The TLS ClientHello does not offer cipher suites stated in the ICS for the "
+								+ "TLS version \"" + tlsVersion.getName()
+								+ "\" in specified order."
+								+ " Expected cipher suites order: " + pskCipherSuites.toString()
+								+ " Actual cipher suites order: " + clientHelloCipherSuites.toString());
 			}
 
-			for (TlsCipherSuite cipherSuite : pskCipherSuites) {
-				logger.info("Start iteration " + iterationCount + " of " + numberOfiterations
-						+ ".");
-				step(1, "Setting TLS version: " + tlsVersion.getName() + " and PSK Cipher suite: "
-						+ cipherSuite.getName(), null);
-				
-				tfserverCertificate.executeSteps("2", "The TLS server supplies the certificate chain [CERT_DEFAULT].",
-						Arrays.asList(), testTool, tlsVersion, cipherSuite, TlsTestToolCertificateTypes.CERT_DEFAULT);
-				
-				tftlsServerHello.executeSteps("3", "Server started and waits for new client connection",
-						Arrays.asList(), testTool, tlsVersion, TlsTestToolTlsLibrary.OpenSSL, cipherSuite);
+			step(7, "Check if the TLS ClientHello offers only the extensions stated in the ICS that match "
+					+ "the TLS version.",
+					"TLS ClientHello offers only the extensions stated in the ICS that match "
+							+ "the TLS version.");
+			testTool.checkSupportedExtensions(tlsVersion);
 
-				tFDutClientNewConnection.executeSteps("4",
-						"The TLS server receives a ClientHello handshake message from the DUT.",
-						Arrays.asList(), testTool,
-						new IterationCounter(iterationCount++, numberOfiterations), dutExecutor);
+			step(8, "Check if the TLS protocol is executed without errors and the channel is established.",
+					"The TLS protocol is executed without errors and the channel is established.");
+			testTool.assertMessageLogged(TestToolResource.Handshake_successful);
 
-				fFTLSHighestVersionSupportCheck.executeSteps("5",
-						"The TLS ClientHello offers the highest TLS version stated in the ICS.", null,
-						testTool);
+			tfApplicationCheck.executeSteps("9", "", Arrays.asList(), testTool, dutExecutor);
 
-				step(6, "Check if the TLS ClientHello offers all cipher suites stated in the ICS for "
-						+ tlsVersion.getName()
-						+ " in specified order.",
-						"The TLS ClientHello offers all cipher suites stated in the ICS for this TLS version in"
-								+ " specified order.");
-				List<TlsCipherSuite> clientHelloCipherSuites = TlsCipherSuite
-						.parseCipherSuiteStringList(testTool.getValue(TestToolResource.ClientHello_cipher_suites));
+			tfLocalServerClose.executeSteps("10", "Server closed successfully", Arrays.asList(),
+					testTool);
 
-				/* edge case: TLS_EMPTY_RENEGOTIATION_INFO_SCSV should not be checked */
-				clientHelloCipherSuites.remove(TlsCipherSuite.TLS_EMPTY_RENEGOTIATION_INFO_SCSV);
-
-				boolean cipherSuitesOrderMatch = pskCipherSuites.equals(clientHelloCipherSuites);
-
-				if (cipherSuitesOrderMatch) {
-					logger.info(
-							"The TLS ClientHello offers cipher suites stated in the ICS for the "
-									+ "TLS version \"" + tlsVersion.getName()
-									+ "\" in specified order."
-									+ " Expected cipher suites order: " + pskCipherSuites.toString()
-									+ " Actual cipher suites order: " + clientHelloCipherSuites.toString());
-				} else {
-					logger.error(
-							"The TLS ClientHello does not offer cipher suites stated in the ICS for the "
-									+ "TLS version \"" + tlsVersion.getName()
-									+ "\" in specified order."
-									+ " Expected cipher suites order: " + pskCipherSuites.toString()
-									+ " Actual cipher suites order: " + clientHelloCipherSuites.toString());
-				}
-
-				step(7, "Check if the TLS ClientHello offers only the extensions stated in the ICS that match "
-						+ "the TLS version.",
-						"TLS ClientHello offers only the extensions stated in the ICS that match "
-								+ "the TLS version.");
-				testTool.checkSupportedExtensions(tlsVersion);
-
-				step(8, "Check if the TLS protocol is executed without errors and the channel is established.",
-						"The TLS protocol is executed without errors and the channel is established.");
-				testTool.assertMessageLogged(TestToolResource.Handshake_successful);
-
-				tfApplicationCheck.executeSteps("9", "", Arrays.asList(), testTool, dutExecutor);
-
-				tfLocalServerClose.executeSteps("10", "Server closed successfully", Arrays.asList(),
-						testTool);
-
-				dutExecutor.resetProperties();
-				testTool.resetProperties();
-			}
+			dutExecutor.resetProperties();
+			testTool.resetProperties();
 		}
 	}
 

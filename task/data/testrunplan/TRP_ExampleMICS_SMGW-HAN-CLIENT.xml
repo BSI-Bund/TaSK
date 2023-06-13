@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TestRunPlan>
+  <TestRunPlanGenerationTime>2023-05-25T13:30:09</TestRunPlanGenerationTime>
+  <TestConfiguration>
+    <ApplicationType>TR-03116-3-SMGW-HAN-CLIENT</ApplicationType>
+    <RMIURL>localhost</RMIURL>
+    <RMIPort>1099</RMIPort>
+    <DUTCapabilities>
+      <Capability>SESSION_TICKET</Capability>
+      <Capability>SESSION_ID</Capability>
+    </DUTCapabilities>
+  </TestConfiguration>
+  <MICSInfo>
+    <Name>Test Application - SMGW-HAN-Client</Name>
+    <Description>This is an example ICS that will be used as the input to the TaSK test framework.</Description>
+    <PathToFile>/path/to/task/data/input/ExampleMICS_SMGW-HAN-CLIENT.xml</PathToFile>
+  </MICSInfo>
+  <TlsConfiguration>
+    <TlsVersions>
+      <TlsVersion supported="false">SSLv2/v3</TlsVersion>
+      <TlsVersion supported="false">TLSv1.0</TlsVersion>
+      <TlsVersion supported="false">TLSv1.1</TlsVersion>
+      <TlsVersion supported="true">TLSv1.2</TlsVersion>
+      <TlsVersion supported="false">TLSv1.3</TlsVersion>
+    </TlsVersions>
+    <SupportedCipherSuites>
+      <CipherSuite tlsVersion="TLSv1.2">
+        <Name>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</Name>
+      </CipherSuite>
+      <CipherSuite tlsVersion="TLSv1.2">
+        <Name>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</Name>
+      </CipherSuite>
+      <CipherSuite tlsVersion="TLSv1.2">
+        <Name>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</Name>
+      </CipherSuite>
+    </SupportedCipherSuites>
+    <TlsSupportedGroups>
+      <Group tlsVersion="TLSv1.2" supported="true">
+        <Name>brainpoolP256r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="true">
+        <Name>brainpoolP384r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="true">
+        <Name>brainpoolP512r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="true">
+        <Name>secp256r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="true">
+        <Name>secp384r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>secp192r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>secp224r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>brainpoolP256r1tls13</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>brainpoolP384r1tls13</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>secp521r1</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>brainpoolP512r1tls13</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>ffdhe2048</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>ffdhe3072</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>ffdhe4096</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>ffdhe6144</Name>
+      </Group>
+      <Group tlsVersion="TLSv1.2" supported="false">
+        <Name>ffdhe8192</Name>
+      </Group>
+    </TlsSupportedGroups>
+    <SupportedSignatureAlgorithms>
+      <SignatureAlgorithm tlsVersion="TLSv1.2">
+        <Name>ecdsa</Name>
+        <HashName>sha256</HashName>
+      </SignatureAlgorithm>
+      <SignatureAlgorithm tlsVersion="TLSv1.2">
+        <Name>ecdsa</Name>
+        <HashName>sha384</HashName>
+      </SignatureAlgorithm>
+      <SignatureAlgorithm tlsVersion="TLSv1.2">
+        <Name>ecdsa</Name>
+        <HashName>sha512</HashName>
+      </SignatureAlgorithm>
+    </SupportedSignatureAlgorithms>
+    <SupportedSignatureAlgorithmsCertificate/>
+    <SupportedExtensions>
+      <Extension tlsVersion="TLSv1.2">truncated_hmac</Extension>
+      <Extension tlsVersion="TLSv1.2">encrypt_then_mac</Extension>
+      <Extension tlsVersion="TLSv1.2">extended_master_secret</Extension>
+    </SupportedExtensions>
+    <KeyLengths>
+      <RSA>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">1024</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">1536</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">2048</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">3072</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">4096</KeyLength>
+      </RSA>
+      <DSA>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">1024</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">1536</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">2048</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">3072</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">4096</KeyLength>
+      </DSA>
+      <DHE>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">1024</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">1536</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">2048</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">3072</KeyLength>
+        <KeyLength supported="false" tlsVersion="TLSv1.2">4096</KeyLength>
+      </DHE>
+    </KeyLengths>
+    <TlsSessionLifetime>PT5M</TlsSessionLifetime>
+    <ZeroRTTSupport>false</ZeroRTTSupport>
+    <TLSCertificates>
+      <CertificateChain>
+        <Certificate type="RootCACertificate" hashfunction="SHA-256">
+          <Subject>C = DE, O = Dummy-Org, CN = Dummy-RootCA</Subject>
+          <Fingerprint>BD6681410FB05ECD2B414AFA3B02E285132CD289F9CAD10E5C850FC9888E576E</Fingerprint>
+        </Certificate>
+        <Certificate type="IntermediateCertificate" hashfunction="SHA-256">
+          <Subject>C = DE, O = Dummy-Org, CN = Dummy-SubCA</Subject>
+          <Fingerprint>C298EC17B9257DBFB7F36280CAADE22C6317186C146B5FDD5792BCB77AFCED29</Fingerprint>
+        </Certificate>
+        <Certificate type="EndEntityCertificate" hashfunction="SHA-256">
+          <Subject>CN = Dummy-EndEntity</Subject>
+          <Fingerprint>238DA7970E5E3B72CC0DB456E5EB891C3689E6B1EB14659C9DF18962668AD985</Fingerprint>
+        </Certificate>
+      </CertificateChain>
+    </TLSCertificates>
+  </TlsConfiguration>
+  <TestCases>
+    <TestCase>TLS_A2_GP_01_T</TestCase>
+    <TestCase>TLS_A2_GP_02_T</TestCase>
+    <TestCase>TLS_A2_GP_04</TestCase>
+    <TestCase>TLS_A2_GP_05_T</TestCase>
+    <TestCase>TLS_A2_GP_06_T</TestCase>
+    <TestCase>TLS_A2_FR_05</TestCase>
+    <TestCase>TLS_A2_FR_06</TestCase>
+    <TestCase>TLS_A2_FR_07</TestCase>
+    <TestCase>TLS_A2_FR_08</TestCase>
+    <TestCase>TLS_A2_FR_09</TestCase>
+    <TestCase>TLS_A2_FR_10</TestCase>
+    <TestCase>TLS_A2_FR_11</TestCase>
+    <TestCase>TLS_A2_FR_13</TestCase>
+    <TestCase>TLS_A2_CH_02</TestCase>
+    <TestCase>TLS_A2_CH_03</TestCase>
+    <TestCase>TLS_A2_CH_04</TestCase>
+    <TestCase>TLS_A2_CH_06_T</TestCase>
+    <TestCase>TLS_A2_CH_08</TestCase>
+    <TestCase>TLS_A2_CH_09</TestCase>
+    <TestCase>TLS_A2_CH_10_T</TestCase>
+  </TestCases>
+</TestRunPlan>

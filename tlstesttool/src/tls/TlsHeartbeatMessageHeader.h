@@ -25,11 +25,13 @@ namespace TlsTestTool {
  * @see RFC 6520, Section 4
  */
 #pragma pack(push, 1)
-class HeartbeatMessageHeader {
-public:
-    uint8_t type;
-    TlsTestTool::TlsUint16 payload_length;
-};
+
+    class HeartbeatMessageHeader {
+    public:
+        uint8_t type;
+        TlsTestTool::TlsUint16 payload_length;
+    };
+
 #pragma pack(pop)
 }
 

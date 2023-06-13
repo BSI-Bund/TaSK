@@ -52,7 +52,7 @@
                                 "brainpoolP256r1:"\
                                 "brainpoolP384r1:"\
                                 "brainpoolP512r1"
-                                
+
 #define OPENSSL_SUPPORTEDGROUPS_ALL "sect163k1:"\
                                 "sect163r1:"\
                                 "sect163r2:"\
@@ -91,34 +91,38 @@
                                 "ffdhe8192"
 
 namespace TlsTestTool {
-namespace OpenSsl {
+    namespace OpenSsl {
 /**
  * Parameters of OpenSSL in internal representation.
  */
-class TlsHelper {
-public:
-	/**
-	 * Get a cipher suite string in internal OpenSSL representation.
-	 *
-	 * @param cipherSuite A pair identifying the cipher suite.
-	 * @return internal cipher suite string
-	 * @throw std::invalid_argument Thrown, if an unknown pair is given
-	 */
-    static const std::string getInternalCipherSuite(const TlsCipherSuite cipherSuite);
+        class TlsHelper {
+        public:
+            /**
+             * Get a cipher suite string in internal OpenSSL representation.
+             *
+             * @param cipherSuite A pair identifying the cipher suite.
+             * @return internal cipher suite string
+             * @throw std::invalid_argument Thrown, if an unknown pair is given
+             */
+            static const std::string getInternalCipherSuite(const TlsCipherSuite cipherSuite);
 
-    /**
-	 * Get a elliptic curve string in internal OpenSSL representation.
-	 *
-	 * @param supportedGroup A ID identifying the supported group.
-	 * @return internal elliptic curve string
-	 * @throw std::invalid_argument Thrown, if an unknown ID is given
-	 */
-    static const std::string getInternalEllipticCurve(const TlsSupportedGroupID eccCurveID);
-    static const std::string getInternalSupportedGroup(const TlsSupportedGroupID supportedGroupID);
-    static const std::string getInternalSignatureAlgorithm(const TlsSignatureAndHashAlgorithm signatureAlgorithm);
-    static const std::string getInternalSignatureScheme(const TlsSignatureScheme signatureScheme);
-};
-}
+            /**
+                 * Get a elliptic curve string in internal OpenSSL representation.
+                 *
+                 * @param supportedGroup A ID identifying the supported group.
+                 * @return internal elliptic curve string
+                 * @throw std::invalid_argument Thrown, if an unknown ID is given
+                 */
+            static const std::string getInternalEllipticCurve(const TlsSupportedGroupID eccCurveID);
+
+            static const std::string getInternalSupportedGroup(const TlsSupportedGroupID supportedGroupID);
+
+            static const std::string
+            getInternalSignatureAlgorithm(const TlsSignatureAndHashAlgorithm signatureAlgorithm);
+
+            static const std::string getInternalSignatureScheme(const TlsSignatureScheme signatureScheme);
+        };
+    }
 }
 
 #endif /* TLS_OPENSSLTLSHELPER_H_ */

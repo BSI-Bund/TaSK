@@ -19,7 +19,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * Testcase TLS_B2_GP_06 - Prime of sufficient length.
+ * Test case TLS_B2_GP_06 - Prime of sufficient length.
  * <p>
  * This positive test verifies that the DUT offers a FFDHE group with a prime of a sufficient length.
  */
@@ -76,7 +76,6 @@ public class TLS_B2_GP_06 extends AbstractTestCase {
 	 * <ol>
 	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
 	 * <li>The TLS ClientHello offers a cipher suite that uses FFDHE and is supported according to the ICS.
-	 * <li>The TLS ClientHello does not offer the named groups extensions.
 	 * <li>The presence of the signature_algorithms extension depends on the used TLS version. In case it is sent, all
 	 * algorithms that are supported according to the ICS are listed.
 	 * <li>The TLS ClientHello does not contain further extensions which are not required to conduct the TLS handshake.
@@ -134,7 +133,7 @@ public class TLS_B2_GP_06 extends AbstractTestCase {
 
 			tfClientCertificate.executeSteps("1",
 					"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(),
-					testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+					testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 			tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 					+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion, cipherSuite);

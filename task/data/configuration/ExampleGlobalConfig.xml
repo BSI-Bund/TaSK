@@ -15,7 +15,8 @@
 		<parameter id="tls_test_tool_port">
 			<!--Port to Start TLS Test Tool as server 
 				# mandatory only for client test cases
-				# default value: 8080 -->
+				# default value: 8080
+				# NOTE: If the port is smaller than 1024, the TlsTestTool (or TaSK) must be executed with higher privileges (e.g. grant TLSTestTool CAP_NET_BIND_SERVICE). -->
 			<int>8080</int>
 		</parameter>
 		<parameter id="tls_test_tool_logLevel">
@@ -42,6 +43,12 @@
 				# optional
 				# default value: 5 -->
 			<int>5</int>
+		</parameter>
+		<parameter id="tls_test_tool_listen_timeout">
+			<!-- Waiting time in seconds for which the TlsTesttool waits for an incoming TCP/IP connection.
+				# optional
+				# default value: 60 -->
+			<int>60</int>
 		</parameter>
 		<parameter id="specification_directory">
 			<!-- The path of the specification files of the TaSK framework.
@@ -140,5 +147,15 @@
 			-->
 			<string>password</string>
 		</parameter>
+
+		<!-- The following parameters are only used for the experimental support of the TR-03108-1-EMSP-CLIENT-CETI-DANE application type. -->
+		<!--
+		<parameter id="experimental_dns_server_ip">
+			<string>192.168.11.101</string>
+		</parameter>
+		<parameter id="experimental_dane_task_host_ip">
+			<string>192.168.11.102</string>
+		</parameter>
+		-->
 	</parameters>
 </configuration>

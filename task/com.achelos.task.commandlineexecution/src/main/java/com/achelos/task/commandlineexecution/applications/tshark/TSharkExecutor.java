@@ -98,10 +98,7 @@ public class TSharkExecutor extends GenericCommandLineExecution {
 				start(command, processErrorOutput, tSharkFile.getParentFile());
 
 				logDebug("Wait until TShark is started successfully");
-				// Add a small delay for the process to start
-				final int finishProcessDelay = 3000;
-				startSleepTimer(finishProcessDelay);
-				// All executors use startSleepTimer method because some times process takes a little bit time to start.
+				
 
 			} catch (IOException e) {
 				logError("An error occurred while executing TShark Dumpcap:  " + e.getMessage());

@@ -22,26 +22,26 @@
 #include <string>
 
 namespace Tooling {
-std::vector<KeyValuePair> CommandLineParser::parseArgs(const int argc, const char ** argv) {
-	if (1 > argc) {
-		throw std::invalid_argument("At least one argument expected.");
-	}
-	const std::regex argRegEx{"--([a-zA-Z]+)=(.+)"};
-	std::vector<KeyValuePair> keyValuePairs;
-	keyValuePairs.reserve(argc - 1);
-	// Ignore first argument: program name
-	for (int i = 1; i < argc; ++i) {
-		const char * arg = argv[i];
-		std::cmatch argMatch;
-		if (std::regex_match(arg, argMatch, argRegEx)) {
-			if (3 != argMatch.size()) {
-				throw std::invalid_argument{std::string{"Invalid argument "} + arg};
-			}
-			keyValuePairs.emplace_back(argMatch[1], argMatch[2]);
-		} else {
-			throw std::invalid_argument{std::string{"Invalid argument "} + arg};
-		}
-	}
-	return keyValuePairs;
-}
+    std::vector<KeyValuePair> CommandLineParser::parseArgs(const int argc, const char **argv) {
+        if (1 > argc) {
+            throw std::invalid_argument("At least one argument expected.");
+        }
+        const std::regex argRegEx{"--([a-zA-Z]+)=(.+)"};
+        std::vector<KeyValuePair> keyValuePairs;
+        keyValuePairs.reserve(argc - 1);
+        // Ignore first argument: program name
+        for (int i = 1; i < argc; ++i) {
+            const char *arg = argv[i];
+            std::cmatch argMatch;
+            if (std::regex_match(arg, argMatch, argRegEx)) {
+                if (3 != argMatch.size()) {
+                    throw std::invalid_argument{std::string{"Invalid argument "} + arg};
+                }
+                keyValuePairs.emplace_back(argMatch[1], argMatch[2]);
+            } else {
+                throw std::invalid_argument{std::string{"Invalid argument "} + arg};
+            }
+        }
+        return keyValuePairs;
+    }
 }

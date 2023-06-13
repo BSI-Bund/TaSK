@@ -71,7 +71,7 @@ public class TLS_B2_GP_10 extends AbstractTestCase {
 	 * </ol>
 	 * <h3>Description</h3>
 	 * <ol>
-	 * <li>The TLS ClientHello offers the highest TLS version supported according to the ICS.
+	 * <li>The TLS ClientHello offers the TLS version [TLS_VERSION].
 	 * <li>The TLS ClientHello offers cipher suites which are supported according to the ICS, however in the reverted
 	 * order. This means that the less preferable cipher suite is put at the beginning of the list, while the most
 	 * preferable is put at the end of the list.
@@ -130,7 +130,7 @@ public class TLS_B2_GP_10 extends AbstractTestCase {
 
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ " .", null, testTool, tlsVersion, cipherSuites);

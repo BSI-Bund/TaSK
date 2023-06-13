@@ -4,14 +4,18 @@ import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
-import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsNamedCurves;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
 import com.achelos.task.logging.MessageConstants;
-import com.achelos.task.tr03116ts.testfragments.*;
+import com.achelos.task.tr03116ts.testfragments.TFAlertMessageCheck;
+import com.achelos.task.tr03116ts.testfragments.TFClientCertificate;
+import com.achelos.task.tr03116ts.testfragments.TFHandshakeNotSuccessfulCheck;
+import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
+import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
@@ -136,7 +140,7 @@ public class TLS_B2_GP_04 extends AbstractTestCase {
 		
 		tfClientCertificate.executeSteps("2",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		// configure client hello
 		tfClientHello.executeSteps("3", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
@@ -150,7 +154,7 @@ public class TLS_B2_GP_04 extends AbstractTestCase {
 		// check for handshake_failure
 		tFAlertMessageCheck.executeSteps("5", "The DUT rejects the ClientHello and sends a \"handshake failure\" alert "
 				+ "or another suitable error description",
-				Arrays.asList("level=warning/fatal", "description=handshake_failure"), testTool);
+				Arrays.asList("level=warning/fatal", "description=handshake_failure"), testTool, TlsAlertDescription.handshake_failure);
 		tfHandshakeNotSuccessfulCheck.executeSteps("6", "No TLS channel is established", null, testTool, tlsVersion);
 	}
 

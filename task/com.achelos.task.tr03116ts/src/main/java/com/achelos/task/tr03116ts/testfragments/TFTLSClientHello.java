@@ -80,6 +80,7 @@ public class TFTLSClientHello extends AbstractTestFragment {
 		TlsTestToolTlsLibrary tlsLibrary = null; // default library
 		TlsTestToolConfigurationHandshakeType handshakeType = TlsTestToolConfigurationHandshakeType.NORMAL;
 		HandshakePreparationInfo dutPreparationInfo = null;
+		boolean suppressSupportedGroups = false;
 
 		// Fetch the TlsTestToolExecutor
 		if ((null == params) || (0 >= params.length)) {
@@ -127,6 +128,9 @@ public class TFTLSClientHello extends AbstractTestFragment {
 			}
 			else if (param instanceof TlsTestToolConfigurationHandshakeType) {
 				handshakeType = (TlsTestToolConfigurationHandshakeType) param;
+			}
+			else if (param instanceof SuppressSupportedGroups){
+				suppressSupportedGroups = true;
 			}
 		}
 
@@ -220,7 +224,7 @@ public class TFTLSClientHello extends AbstractTestFragment {
 		}
 
 		/*add supportedGroups to Client Hello*/
-		if (tlsCipherSuites.size() > 0) {
+		if (tlsCipherSuites.size() > 0 && !suppressSupportedGroups) {
 			if (configuration.containsPFSCipherSuite(tlsCipherSuites) || tlsVersion == TlsVersion.TLS_V1_3) {
 				stepCounter++;
 				step(prefix, stepCounter, "In case the cipher suite is based on ECC, the TLS ClientHello "
@@ -243,13 +247,12 @@ public class TFTLSClientHello extends AbstractTestFragment {
 			}
 		}
 
-
 		if (!tlsExtensions.isEmpty()) {
 			// The TLS ClientHello offers one or more extensions.
 
 			//if we want to overwrite the ClientHelloExtensions in TLS 1.3, we need to add the supportedVersions extension as well
 			if(tlsVersion == TlsVersion.TLS_V1_3) {
-				tlsExtensions.add(new TlsExtSupportedVersions(TlsVersion.TLS_V1_3));
+				tlsExtensions.add(new TlsExtSupportedVersions(TlsVersion.TLS_V1_3, true));
 				tlsExtensions.add(TlsExtEcPointFormats.createDefault());
 			}
 
@@ -264,7 +267,7 @@ public class TFTLSClientHello extends AbstractTestFragment {
 		}
 
 		// This sets the server psk and pskidentity.
-		if (dutPreparationInfo != null) {
+		if (dutPreparationInfo != null && tlsVersion != TlsVersion.TLS_V1_3) {
 			if (dutPreparationInfo.getPsk() != null && !dutPreparationInfo.getPsk().isBlank()) {
 				step(prefix, stepCounter++, "Set the PreSharedKey value for the TLS client", "");
 				testTool.setPSK(DatatypeConverter.parseHexBinary(dutPreparationInfo.getPsk()));
@@ -272,11 +275,14 @@ public class TFTLSClientHello extends AbstractTestFragment {
 					testTool.setPSKIdentity(dutPreparationInfo.getPskIdentity());
 				}
 			}
-		} else if (configuration.getPSKValue()!=null && configuration.getPSKValue().length>0) {
+		} else if (configuration.getPSKValue()!=null && configuration.getPSKValue().length>0 && tlsVersion != TlsVersion.TLS_V1_3) {
 			step(prefix, stepCounter++, "Set the PreSharedKey value for the TLS client", "");
 			testTool.setPSK(configuration.getPSKValue());
-			if(configuration.getPSKIdentityHint()!=null && !configuration.getPSKIdentityHint().isEmpty()){
+			if (configuration.getPSKIdentityHint()!=null && !configuration.getPSKIdentityHint().isBlank()){
 				testTool.setPSKIdentityHint(configuration.getPSKIdentityHint());
+			}
+			if (configuration.getPSKIdentity()!=null && !configuration.getPSKIdentity().isBlank()) {
+				testTool.setPSKIdentity(configuration.getPSKIdentity());
 			}
 		}
 

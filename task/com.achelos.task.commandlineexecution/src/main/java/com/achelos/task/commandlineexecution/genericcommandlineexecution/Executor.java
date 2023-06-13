@@ -16,9 +16,7 @@ public enum Executor {
 	/** OCSP Request. */
 	OCSPREQUEST("OCSP Request", "_cached_ocsp_reponse", ""),
 	/** TShark. */
-	TSHARK("TShark", "_tshark-capture", ".pcap"),
-	/** Client executor. */
-	DUT("DUT Executor", "_dut", ".log");
+	TSHARK("TShark", "_tshark-capture", ".pcap");
 
 	private String name;
 	private String logFileName;

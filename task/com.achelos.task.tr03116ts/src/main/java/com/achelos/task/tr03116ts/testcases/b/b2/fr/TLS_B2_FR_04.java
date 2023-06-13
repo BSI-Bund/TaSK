@@ -20,7 +20,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSVersionCheck;
 
 
 /**
- * Testcase TLS_B2_FR_04 - Certificate chain signatures
+ * Test case TLS_B2_FR_04 - Certificate chain signatures.
  * <p>
  * This test case checks the server certificate used by the DUT. The server certificate must be signed by a CA certified
  * according to [TR-03145].
@@ -130,7 +130,7 @@ public class TLS_B2_FR_04 extends AbstractTestCase {
 
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 
 		// configure client hello

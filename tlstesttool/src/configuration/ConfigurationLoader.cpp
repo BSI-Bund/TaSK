@@ -27,27 +27,27 @@
 #include <vector>
 
 namespace TlsTestTool {
-Configuration ConfigurationLoader::parse(const int argc, const char ** argv) {
-	const auto cmdLineArguments = Tooling::CommandLineParser::parseArgs(argc, argv);
-	Configuration configuration;
-	for (const auto & cmdLineArgument : cmdLineArguments) {
-		if ("configFile" == cmdLineArgument.first) {
-			std::ifstream configFile(cmdLineArgument.second);
-			const auto configArguments = Tooling::ConfigurationFileParser::parse(configFile);
-			ConfigurationParser::updateConfiguration(configuration, configArguments);
-		} else {
-			throw std::invalid_argument{std::string{"Unknown command line argument "} + cmdLineArgument.first};
-		}
-	}
-	if (Configuration::NetworkMode::UNKNOWN == configuration.getMode()) {
-		throw std::runtime_error{"Missing required argument mode."};
-	}
-	if ((Configuration::NetworkMode::CLIENT == configuration.getMode()) && configuration.getHost().empty()) {
-		throw std::runtime_error{"Missing required argument host."};
-	}
-	if (0 == configuration.getPort()) {
-		throw std::runtime_error{"Missing required argument port."};
-	}
-	return configuration;
-}
+    Configuration ConfigurationLoader::parse(const int argc, const char **argv) {
+        const auto cmdLineArguments = Tooling::CommandLineParser::parseArgs(argc, argv);
+        Configuration configuration;
+        for (const auto &cmdLineArgument: cmdLineArguments) {
+            if ("configFile" == cmdLineArgument.first) {
+                std::ifstream configFile(cmdLineArgument.second);
+                const auto configArguments = Tooling::ConfigurationFileParser::parse(configFile);
+                ConfigurationParser::updateConfiguration(configuration, configArguments);
+            } else {
+                throw std::invalid_argument{std::string{"Unknown command line argument "} + cmdLineArgument.first};
+            }
+        }
+        if (Configuration::NetworkMode::UNKNOWN == configuration.getMode()) {
+            throw std::runtime_error{"Missing required argument mode."};
+        }
+        if ((Configuration::NetworkMode::CLIENT == configuration.getMode()) && configuration.getHost().empty()) {
+            throw std::runtime_error{"Missing required argument host."};
+        }
+        if (0 == configuration.getPort()) {
+            throw std::runtime_error{"Missing required argument port."};
+        }
+        return configuration;
+    }
 }

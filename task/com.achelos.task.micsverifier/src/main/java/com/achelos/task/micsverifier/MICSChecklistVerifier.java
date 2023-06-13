@@ -57,9 +57,10 @@ class MICSChecklistVerifier {
 		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Initializing the MICS file checklist verification.");
 		var checklistVerifier = new MICSChecklistVerifier(mics, tlsSpecification);
 		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Successfully initialized the MICS file checklist verification.");
-		var micsChecklistTestSuite = new TestSuiteRun(ICS_CHECKLIST_TESTSUITE_ID,
-				Arrays.asList("TLS_ICS_01", "TLS_ICS_02", "TLS_ICS_03", "TLS_ICS_04", "TLS_ICS_05", "TLS_ICS_06",
-						"TLS_ICS_07", "TLS_ICS_08", "TLS_ICS_09", "TLS_ICS_10", "TLS_ICS_11", "TLS_ICS_12"));
+
+		var checkListTestcases = checklistVerifier.getMicsChecklistForDUTApplicationType();
+		var micsChecklistTestSuite = new TestSuiteRun(ICS_CHECKLIST_TESTSUITE_ID, checkListTestcases);
+
 		micsChecklistTestSuite.setStartTime();
 		logger.tellLogger(BasicLogger.MSG_NEW_TESTSUITE, micsChecklistTestSuite);
 
@@ -104,9 +105,12 @@ class MICSChecklistVerifier {
 		testCaseRunList.add(checklistVerifier.TLS_ICS_10());
 		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Finished running the test case TLS_ICS_10.");
 		// TLS_ICS_11
-		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Running the test case TLS_ICS_11.");
-		testCaseRunList.add(checklistVerifier.TLS_ICS_11());
-		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Finished running the test case TLS_ICS_11.");
+		if (checkListTestcases.contains("TLS_ICS_11")) {
+			// In the E-Mail Trsp. IMAP case this test case shall be skipped.
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "Running the test case TLS_ICS_11.");
+			testCaseRunList.add(checklistVerifier.TLS_ICS_11());
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "Finished running the test case TLS_ICS_11.");
+		}
 		// TLS_ICS_12
 		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Running the test case TLS_ICS_12.");
 		testCaseRunList.add(checklistVerifier.TLS_ICS_12());
@@ -531,44 +535,44 @@ class MICSChecklistVerifier {
 	}
 
 	/*
-	 * Check that Table 7 of the ICS contains only named elliptic curves according to IANA.
+	 * Check that Table 7 of the ICS contains only named groups according to IANA.
 	 */
 	private TestCaseRun TLS_ICS_06() {
 		final String testCaseName = "TLS_ICS_06";
 		final String testCaseDescription = "TLS_ICS_06 in TR-03116-TS";
-		final String testCasePurpose = "Table 7 of the ICS contains only named elliptic curves according to IANA.";
+		final String testCasePurpose = "Table 7 of the ICS contains only named groups according to IANA.";
 		var testRun = new TestCaseRun(testCaseName, RunState.RUNNING, "MICS Verifier");
 		logger.tellLogger(BasicLogger.MSG_NEW_TESTCASE, testRun);
 		logger.tellLogger(BasicLogger.MSG_TESTCASE_DESCRIPTION, testCaseDescription);
 		logger.tellLogger(BasicLogger.MSG_TESTCASE_PURPOSE, testCasePurpose);
 
 		logger.debug(
-				MICSVerifier.LOGGER_COMPONENT + "Checking that Table 7 of the ICS contains only named elliptic curves according to IANA.");
+				MICSVerifier.LOGGER_COMPONENT + "Checking that Table 7 of the ICS contains only named groups according to IANA.");
 		var notNamedCurves = new ArrayList<String>();
 		for (var supportedTlsVersion : mics.getSupportedTlsVersions()) {
 			for (var group : supportedTlsVersion.getSupportedGroups()) {
 				try {
-					logger.debug(MICSVerifier.LOGGER_COMPONENT + "The MICS file contains elliptic curve name: " + group);
+					logger.debug(MICSVerifier.LOGGER_COMPONENT + "The MICS file contains group name: " + group);
 					if (TlsNamedCurves.valueOf(group) == null) {
 						throw new Exception();
 					}
-					logger.debug(MICSVerifier.LOGGER_COMPONENT + "Elliptic Curve Name: " + group + " is defined according to IANA.");
+					logger.debug(MICSVerifier.LOGGER_COMPONENT + "Group: " + group + " is defined according to IANA.");
 				} catch (Exception e) {
-					notNamedCurves.add("MICS includes group not being a namedCurve defined by IANA for TLS version"
+					notNamedCurves.add("MICS includes group not being a named Group defined by IANA for TLS version"
 							+ supportedTlsVersion.getTlsVersion().getName() + ": " + group);
 				}
 			}
 		}
 		var result = notNamedCurves.isEmpty();
 		if (result) {
-			logger.info(MICSVerifier.LOGGER_COMPONENT + "All elliptic curve names in the MICS file are defined according to IANA.");
+			logger.info(MICSVerifier.LOGGER_COMPONENT + "All named groups names in the MICS file are defined according to IANA.");
 			reportResult("TLS_ICS_06", result);
 		} else {
 			for (var s : notNamedCurves) {
 				testRun.addStatusMessage(s);
 				testRun.increaseErrorCount();
 			}
-			logger.info(MICSVerifier.LOGGER_COMPONENT + "Some elliptic curve names in the MICS file are not defined according to IANA.");
+			logger.info(MICSVerifier.LOGGER_COMPONENT + "Some named groups in the MICS file are not defined according to IANA.");
 			reportResult("TLS_ICS_06", result, notNamedCurves);
 		}
 		testRun.setState(RunState.FINISHED);
@@ -579,21 +583,21 @@ class MICSChecklistVerifier {
 	}
 
 	/*
-	 * Check that Table 7 of the ICS contains all mandatory elliptic curves according to the application-specific
+	 * Check that Table 7 of the ICS contains all mandatory named groups according to the application-specific
 	 * requirements.
 	 */
 	private TestCaseRun TLS_ICS_07() {
 		final String testCaseName = "TLS_ICS_07";
 		final String testCaseDescription = "TLS_ICS_07 in TR-03116-TS";
 		final String testCasePurpose
-				= "Table 7 of the ICS contains all mandatory elliptic curves according to the application-specific requirements.";
+				= "Table 7 of the ICS contains all mandatory named groups according to the application-specific requirements.";
 		var testRun = new TestCaseRun(testCaseName, RunState.RUNNING, "MICS Verifier");
 		logger.tellLogger(BasicLogger.MSG_NEW_TESTCASE, testRun);
 		logger.tellLogger(BasicLogger.MSG_TESTCASE_DESCRIPTION, testCaseDescription);
 		logger.tellLogger(BasicLogger.MSG_TESTCASE_PURPOSE, testCasePurpose);
 
 		logger.debug(
-				MICSVerifier.LOGGER_COMPONENT + "Checking that Table 7 of the ICS contains all mandatory elliptic curves according to the application-specific requirements.");
+				MICSVerifier.LOGGER_COMPONENT + "Checking that Table 7 of the ICS contains all mandatory named groups according to the application-specific requirements.");
 		var missingGroups = new ArrayList<String>();
 
 		// TLS version TLSv1.2 (if supported)
@@ -1175,24 +1179,32 @@ class MICSChecklistVerifier {
 		logger.debug(
 				MICSVerifier.LOGGER_COMPONENT + "Checking that Table 14 provides a maximum session duration not exceeding the maximum session duration defined by the application-specific requirements.");
 		var micsSessionLifetime = mics.getSessionLifetime();
-		var specifiedMaxLifetime = tlsSpecification.getTlsSessionLifetime();
-		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Maximum session duration according to the MICS file is " + micsSessionLifetime.toString());
-		logger.debug(MICSVerifier.LOGGER_COMPONENT + "Maximum session lifetime according to application-specific requirements is "
-				+ specifiedMaxLifetime.toString());
-		var result = micsSessionLifetime.compareTo(specifiedMaxLifetime) < 0;
-		if (result) {
-			logger.info(
-					MICSVerifier.LOGGER_COMPONENT + "The max. session duration specified in the MICS file is allowed according to the application-specific requirements.");
-			reportResult("TLS_ICS_11", result);
+		if (micsSessionLifetime != null) {
+			var specifiedMaxLifetime = tlsSpecification.getTlsSessionLifetime();
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "Maximum session duration according to the MICS file is " + micsSessionLifetime.toString());
+			logger.debug(MICSVerifier.LOGGER_COMPONENT + "Maximum session lifetime according to application-specific requirements is "
+					+ specifiedMaxLifetime.toString());
+			var result = micsSessionLifetime.compareTo(specifiedMaxLifetime) < 0;
+			if (result) {
+				logger.info(
+						MICSVerifier.LOGGER_COMPONENT + "The max. session duration specified in the MICS file is allowed according to the application-specific requirements.");
+				reportResult("TLS_ICS_11", result);
+			} else {
+				var message = "The MICS file session lifetime " + micsSessionLifetime.toString()
+						+ " is greater than the specified max session lifetime " + specifiedMaxLifetime.toString();
+				testRun.addStatusMessage(testCaseName);
+				testRun.increaseErrorCount();
+				logger.info(
+						MICSVerifier.LOGGER_COMPONENT + "The max session duration specified in the MICS file is not allowed according to the application-specific requirements.");
+				reportResult("TLS_ICS_11", result, message);
+			}
 		} else {
-			var message = "The MICS file session lifetime " + micsSessionLifetime.toString()
-					+ " is greater than the specified max session lifetime " + specifiedMaxLifetime.toString();
+			var message = "The MICS file does not contain a session lifetime.";
 			testRun.addStatusMessage(testCaseName);
 			testRun.increaseErrorCount();
-			logger.info(
-					MICSVerifier.LOGGER_COMPONENT + "The max session duration specified in the MICS file is not allowed according to the application-specific requirements.");
-			reportResult("TLS_ICS_11", result, message);
+			reportResult("TLS_ICS_11", false, message);
 		}
+
 		testRun.setState(RunState.FINISHED);
 		testRun.setStopTime(ZonedDateTime.now());
 		logger.tellLogger(BasicLogger.MSG_TESTCASE_ENDED, testRun);
@@ -1274,6 +1286,16 @@ class MICSChecklistVerifier {
 		logger.tellLogger(BasicLogger.MSG_TESTCASE_ENDED, testRun);
 
 		return testRun;
+	}
+
+	private List<String> getMicsChecklistForDUTApplicationType() {
+		if (mics.getApplicationType().equalsIgnoreCase("TR-03108-1-EMSP-SERVER-MUA-IMAP")) {
+			return Arrays.asList("TLS_ICS_01", "TLS_ICS_02", "TLS_ICS_03", "TLS_ICS_04", "TLS_ICS_05", "TLS_ICS_06",
+					"TLS_ICS_07", "TLS_ICS_08", "TLS_ICS_09", "TLS_ICS_10", "TLS_ICS_12");
+		} else {
+			return Arrays.asList("TLS_ICS_01", "TLS_ICS_02", "TLS_ICS_03", "TLS_ICS_04", "TLS_ICS_05", "TLS_ICS_06",
+					"TLS_ICS_07", "TLS_ICS_08", "TLS_ICS_09", "TLS_ICS_10", "TLS_ICS_11", "TLS_ICS_12");
+		}
 	}
 
 	private void reportResult(final String testCase, final Boolean result, final List<String> additionalInformation) {

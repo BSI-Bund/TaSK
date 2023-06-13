@@ -22,7 +22,7 @@
 #include <utility>
 
 namespace TlsTestTool {
-using TlsSignatureAndHashAlgorithm = std::pair<uint8_t, uint8_t>;
+    using TlsSignatureAndHashAlgorithm = std::pair<uint8_t, uint8_t>;
 }
 
 #endif /* TLS_TLSSIGNATUREANDHASHALGORITHM_H_ */

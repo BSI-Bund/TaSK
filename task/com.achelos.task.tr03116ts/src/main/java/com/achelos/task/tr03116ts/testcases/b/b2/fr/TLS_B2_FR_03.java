@@ -14,13 +14,12 @@ import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
 import com.achelos.task.logging.MessageConstants;
 import com.achelos.task.tr03116ts.testfragments.TFClientCertificate;
-import com.achelos.task.tr03116ts.testfragments.TFTCPIPCloseConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTCPIPNewConnection;
 import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * Testcase TLS_B2_FR_03 - Check Server Certificate
+ * Test case TLS_B2_FR_03 - Check server certificate.
  * <p>
  * This test case checks the server certificate used by the DUT. In particular, the domain name and the signature are
  * verified.
@@ -28,7 +27,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 public class TLS_B2_FR_03 extends AbstractTestCase {
 	
 	private static final String TEST_CASE_ID = "TLS_B2_FR_03";
-	private static final String TEST_CASE_DESCRIPTION = "Check Server Certificate";
+	private static final String TEST_CASE_DESCRIPTION = "Check server certificate";
 	private static final String TEST_CASE_PURPOSE = 
 			"This test case checks the server certificate used by the DUT. In particular, the domain name and the signature are verified.";
 	
@@ -126,7 +125,7 @@ public class TLS_B2_FR_03 extends AbstractTestCase {
 		
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the valid certificate chain [CERT_DEFAULT_CLIENT].", Arrays.asList(),
-				testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				testTool, tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.name() + " .", null, testTool, tlsVersion, cipherSuite);

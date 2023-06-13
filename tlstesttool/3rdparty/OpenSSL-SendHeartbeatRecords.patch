@@ -3,7 +3,7 @@
 @@ -1516,6 +1516,7 @@
  void BIO_ssl_shutdown(BIO *ssl_bio);
  
- int SSL_CTX_set_overwrite_client_hello_ext(SSL_CTX * ctx, const char *ext, size_t ext_len);
+ int SSL_CTX_set_overwrite_client_hello_ext(SSL_CTX * ctx, const char *ext, size_t ext_len, unsigned int message_ext);
 +int SSL_CTX_set_handshake_type(SSL_CTX * ctx, int overwriteHandshakeType, int handshakeType);
  
  __owur int SSL_CTX_set_cipher_list(SSL_CTX *, const char *str);
@@ -43,8 +43,8 @@
  {
 --- a/ssl/ssl_lib.c	2022-10-21 12:46:49.439457000 +0200
 +++ b/ssl/ssl_lib.c	2022-12-16 14:56:38.907279140 +0100
-@@ -2717,6 +2717,12 @@
-     ctx->overwrite_client_hello_ext_len= ext_len;
+@@ -2718,6 +2718,12 @@
+    ctx->overwrite_message_ext= message_ext;
  }
  
 +int SSL_CTX_set_handshake_type(SSL_CTX * ctx, int overwriteHandshakeType, int handshakeType){
@@ -61,7 +61,7 @@
 @@ -881,6 +881,10 @@
      char* overwrite_client_hello_ext;
      size_t overwrite_client_hello_ext_len;
- 
+     unsigned int overwrite_message_ext;
 +    //Mark Simon
 +    int overwrite_handshake_type;
 +    int handshake_type;

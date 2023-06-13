@@ -1,3 +1,168 @@
+# Changelog for Version 1.0.1
+
+## This is fixed
+* CLI parameters `--certificate-validation-ca`, `client-auth-certchain` and `client-auth-key` 
+now support relative and absolute paths
+* Testcases using OpenSSL with brainpool curves in TLS 1.2 are now working correctly
+
+# Changelog for Version 1.0.0
+
+## This is new
+* Generation of OpenAPI.yaml during build.
+* Experimental support for `TR-03108-1-EMSP-CLIENT-CETI-DANE` application type.
+* Dockerfile has been added to execute TaSK Framework.
+* Add option to only create TestRunplan and skip execution.
+* Add TLSv1.3 support for some testcases.
+* Improvement of documentation
+* Update TaSK Framework to new Draft of TR-03116-TS and its Annex.
+## This is fixed
+* Execution of RMI Components Bug was fixed.
+* Fix bug in Manual DUT Motivator.
+* Fixed bugs in test cases:
+  * TLS_B1_FR_08
+  * TLS_B1_GP_06
+  * TLS_A2_CH_06_T
+  * TLS_A2_CH_08
+  * TLS_A1_CH_06_T
+  * TLS_A1_CH_08
+  * TLS_B2_FR_11
+
+# Changelog for Version 0.6.0
+
+## This is new
+
+* Support for Smart-Meter-Gateway tests
+  * HAN Client
+  * HAN Server
+  * WAN Client
+* Support for Email test
+  * IMAPS
+  * POP3S
+  * SMTPS
+* Improved DUT motivator architecture
+* Additional DUT motivator for manual motivation
+
+## This is fixed
+
+* Resolved github issues #6, #7, #8
+
+
+### New Documents
+
+* example MICS and TRP files for Smart Meter Gateway tests
+* example MICS and TRP files for EMail tests
+
+### New Testcases
+
+* Module A1-FR
+  * TLS_A1_FR_05
+* Module A2-CH
+  * TLS_A2_CH_01
+  * TLS_A2_CH_02
+  * TLS_A2_CH_03
+  * TLS_A2_CH_04
+  * TLS_A2_CH_05
+  * TLS_A2_CH_06_T
+  * TLS_A2_CH_07
+  * TLS_A2_CH_08
+  * TLS_A2_CH_09
+  * TLS_A2_CH_10_T
+* Module A2-FR
+  * TLS_A2_FR_01
+  * TLS_A2_FR_02
+  * TLS_A2_FR_03
+  * TLS_A2_FR_04
+  * TLS_A2_FR_05
+  * TLS_A2_FR_06
+  * TLS_A2_FR_07
+  * TLS_A2_FR_08
+  * TLS_A2_FR_09
+  * TLS_A2_FR_10
+  * TLS_A2_FR_11
+  * TLS_A2_FR_12_T
+  * TLS_A2_FR_13
+* Module A2-GP
+  * TLS_A2_GP_01_T
+  * TLS_A2_GP_02_T
+  * TLS_A2_GP_03_T
+  * TLS_A2_GP_04
+  * TLS_A2_GP_05
+  * TLS_A2_GP_06_T
+  * TLS_A2_GP_07_T
+* Module B2-FR
+  * TLS_B2_FR_02_T
+  * TLS_B2_FR_03
+  * TLS_B2_FR_05
+  * TLS_B2_FR_09
+  * TLS_B2_FR_10
+  * TLS_B2_FR_12
+  * TLS_B2_FR_13
+  * TLS_B2_FR_17
+  * TLS_B2_FR_18
+  * TLS_B2_FR_18
+* Module B2-GP
+  * TLS_B2_GP_09_T
+
+### Updated Testcases
+
+* Module A1-CH
+  * TLS_A1_CH_01
+  * TLS_A1_CH_02
+  * TLS_A1_CH_03
+  * TLS_A1_CH_04
+  * TLS_A1_CH_05
+  * TLS_A1_CH_06_T
+  * TLS_A1_CH_07
+  * TLS_A1_CH_08
+  * TLS_A1_CH_09
+  * TLS_A1_CH_10_T
+* Module A1-FR
+  * TLS_A1_FR_01
+  * TLS_A1_FR_02
+  * TLS_A1_FR_03
+  * TLS_A1_FR_06
+  * TLS_A1_FR_07
+  * TLS_A1_FR_08
+  * TLS_A1_FR_09
+  * TLS_A1_FR_11
+* Module A1-GP
+  * TLS_A1_GP_01_T
+  * TLS_A1_GP_02_T
+  * TLS_A1_GP_03_T
+  * TLS_A1_GP_04
+  * TLS_A1_GP_05
+  * TLS_A1_GP_06_T
+  * TLS_A1_GP_07_T
+* Module B2-FR
+  * TLS_B1_FR_01_T
+  * TLS_B1_FR_02_T
+  * TLS_B1_FR_03
+  * TLS_B1_FR_04
+  * TLS_B1_FR_09
+  * TLS_B1_FR_11
+  * TLS_B1_FR_17
+* Module B2-GP
+  * TLS_B1_GP_01_T
+  * TLS_B1_GP_02
+  * TLS_B1_GP_03_T
+  * TLS_B1_GP_04
+  * TLS_B1_GP_05_T
+  * TLS_B1_GP_08
+  * TLS_B1_GP_09
+* Module B2-FR
+  * TLS_B2_FR_01_T
+  * TLS_B2_FR_11
+  * TLS_B2_FR_15
+  * TLS_B2_FR_16
+* Module B2-GP
+  * TLS_B2_GP_01_T
+  * TLS_B2_GP_02
+  * TLS_B2_GP_03_T
+  * TLS_B2_GP_04
+  * TLS_B2_GP_05_T
+  * TLS_B2_GP_08
+
+
 # Changelog for Version 0.5.2
 ## This is fixed
 ### Testbed fixes

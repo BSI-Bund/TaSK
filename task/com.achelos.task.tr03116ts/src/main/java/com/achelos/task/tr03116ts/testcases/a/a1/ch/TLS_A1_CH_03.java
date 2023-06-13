@@ -4,10 +4,11 @@ package com.achelos.task.tr03116ts.testcases.a.a1.ch;
 import java.util.Arrays;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
 import com.achelos.task.commons.certificatehelper.ManipulateForceCertificateUsage;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.configuration.TlsTestToolCertificateTypes;
@@ -16,7 +17,7 @@ import com.achelos.task.tr03116ts.testfragments.*;
 
 
 /**
- * Testcase TLS_A1_CH_03 - Host certificate with wrong domain name
+ * Test case TLS_A1_CH_03 - Host certificate with wrong domain name.
  * 
  * <p>
  * The test case verifies the correct behaviour of the DUT in case the server sends a certificate that does not match
@@ -128,9 +129,9 @@ public class TLS_A1_CH_03 extends AbstractTestCase {
 		step(1, "Setting TLS version: " + tlsVersion.getName() + " and cipher suite: "
 				+ cipherSuite.getName(), null);
 		
-		tfserverCertificate.executeSteps("2", "The server supplies the certificate chain [CERT_INVALID_DOMAIN_NAME].",
+		tfserverCertificate.executeSteps("2", "The server supplies the certificate chain [CERT_INVALID_DOMAIN_NAME_SAN].",
 				Arrays.asList(), testTool, tlsVersion, cipherSuite,
-				TlsTestToolCertificateTypes.CERT_INVALID_DOMAIN_NAME_SAN, new ManipulateForceCertificateUsage());
+				TlsTestToolCertificateTypes.CERT_INVALID_DOMAIN_NAME_SAN);
 
 		tfServerHello.executeSteps("3",
 				"The TLS server answers the DUT choosing a TLS version and a cipher suite that is "
@@ -143,7 +144,7 @@ public class TLS_A1_CH_03 extends AbstractTestCase {
 		
 		tfAlertMessageCheck.executeSteps("5", "The DUT does not accept the certificate chain and sends a "
 				+ "\"certificate_unknown\" alert or another suitable error description.",
-				Arrays.asList("level=warning/fatal"), testTool);
+				Arrays.asList("level=warning/fatal", "description=certificate_unknown"), testTool, TlsAlertDescription.certificate_unknown);
 
 		tfApplicationCheck.executeSteps("6", "", Arrays.asList(), testTool, dutExecutor);
 

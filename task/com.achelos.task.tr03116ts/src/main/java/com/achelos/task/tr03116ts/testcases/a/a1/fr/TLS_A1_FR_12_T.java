@@ -11,12 +11,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import com.achelos.task.abstracttestsuite.AbstractTestCase;
-import com.achelos.task.commandlineexecution.applications.dut.DUTExecutor;
+import com.achelos.task.dutexecution.DUTExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.configuration.TlsTestToolConfigurationHandshakeType;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
-import com.achelos.task.commandlineexecution.genericcommandlineexecution.IterationCounter;
+import com.achelos.task.utilities.logging.IterationCounter;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsTestToolMode;
@@ -29,7 +29,7 @@ import com.achelos.task.utilities.logging.LogBean;
 
 
 /**
- * Testcase TLS_A1_FR_12_T - Session Resumption declined
+ * Test case TLS_A1_FR_12_T - Session resumption declined.
  * <p>
  * This test verifies the behaviour of the DUT if the server chooses not to resume the session.
  * <p>
@@ -39,7 +39,7 @@ import com.achelos.task.utilities.logging.LogBean;
 public class TLS_A1_FR_12_T extends AbstractTestCase {
 
 	private static final String TEST_CASE_ID = "TLS_A1_FR_12_T";
-	private static final String TEST_CASE_DESCRIPTION = "Session Resumption declined";
+	private static final String TEST_CASE_DESCRIPTION = "Session resumption declined";
 	private static final String TEST_CASE_PURPOSE
 			= "This test verifies the behaviour of the DUT if the server chooses not to resume the session.";
 
@@ -51,6 +51,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 	private final TFLocalServerClose tfLocalServerClose;
 	private final TFDUTClientNewConnection tFDutClientNewConnection;
 	private final TFConnectionCloseCheck tFConnectionCloseCheck;
+	private final TFServerSessionClose tfServerSessionClose;
 	private final TFApplicationSpecificInspectionCheck tfApplicationCheck;
 
 	public TLS_A1_FR_12_T() {
@@ -64,6 +65,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 		tFDutClientNewConnection = new TFDUTClientNewConnection(this);
 		tFConnectionCloseCheck = new TFConnectionCloseCheck(this);
 		tfApplicationCheck = new TFApplicationSpecificInspectionCheck(this);
+		tfServerSessionClose = new TFServerSessionClose(this);
 	}
 
 	@Override
@@ -141,7 +143,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 	 * </ol>
 	 * <h3>ExpectedResult</h3>
 	 * <ul>
-	 * <li>The connection establishment is either aborted by the eID-Client, closed immediately after creation, or not
+	 * <li>The connection establishment is either aborted by the TLS client, closed immediately after creation, or not
 	 * used to send any further data.
 	 * </ul>
 	 */
@@ -151,13 +153,15 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 		logger.info("START: " + getTestCaseId());
 		logger.info(getTestCaseDescription());
 
-		/** highest supported TLS version */
-		TlsVersion tlsVersion = configuration.getHighestSupportedTlsVersion();
-		if (tlsVersion == null) {
-			logger.error(MessageConstants.NO_SUPPORTED_TLS_VERSIONS);
+		// all unsupported tls version
+		TlsVersion tlsVersion = TlsVersion.TLS_V1_2;
+
+		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
+
+		if (!configuration.getSupportedTLSVersions().contains(tlsVersion)) {
+			logger.error(MessageConstants.TLS_VERSION12_NOT_SUPPORTED);
 			return;
 		}
-		logger.debug(MessageConstants.TLS_VERSION + tlsVersion.getName());
 
 		/** one supported cipher suite */
 		TlsCipherSuite cipherSuite = configuration.getSingleSupportedCipherSuite(tlsVersion);
@@ -242,7 +246,7 @@ public class TLS_A1_FR_12_T extends AbstractTestCase {
 
 			tfApplicationCheck.executeSteps("8", "", Arrays.asList(), testTool, dutExecutor);
 
-			tFConnectionCloseCheck.executeSteps("9", "The Tls connection is closed.", Arrays.asList(), testTool);
+			tfServerSessionClose.executeSteps("8", "Close TLS connection successfully", Arrays.asList(), testTool);
 			testTool.assertMessageLogged(TestToolResource.Initial_handshake_finished_Wait_for_resumption_handshake);
 
 

@@ -2,6 +2,7 @@ package com.achelos.task.commons.certificatehelper;
 
 import com.achelos.task.commons.enums.TlsHashAlgorithm;
 import com.achelos.task.commons.enums.TlsSignatureAlgorithm;
+import com.achelos.task.commons.enums.TlsSignatureScheme;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,14 +64,18 @@ public class TlsSignatureAlgorithmWithHashTls12 extends TlsSignatureAlgorithmWit
 		if (data != null) {
 			// First 2 bytes is the length of the buffer
 			for (int i = 2; i < data.length; i += 2) {
-				TlsSignatureAlgorithmWithHash sigAlgo;
-				try {
-					sigAlgo = new TlsSignatureAlgorithmWithHashTls12(TlsSignatureAlgorithm.getElement(data[i + 1]),
-							TlsHashAlgorithm.getElement(data[i]));
-				} catch (Exception e) {
-					throw new IllegalArgumentException(e);
+				TlsSignatureAlgorithmWithHash sigHashAlgo;
+				var sigAlgo = TlsSignatureAlgorithm.getElement(data[i + 1]);
+				var hashAlgo = TlsHashAlgorithm.getElement(data[i]);
+				if(sigAlgo == null || hashAlgo == null){
+					if(!TlsSignatureScheme.isSignatureScheme(data[i], data[i+1])){
+						throw new IllegalArgumentException("Illegal SignatureWithHashAlgorithm");
+					} else{
+						continue;
+					}
 				}
-				foundSignatureAlgorithmWithHash.add(sigAlgo);
+				sigHashAlgo = new TlsSignatureAlgorithmWithHashTls12(sigAlgo, hashAlgo);
+				foundSignatureAlgorithmWithHash.add(sigHashAlgo);
 			}
 		}
 		return foundSignatureAlgorithmWithHash;

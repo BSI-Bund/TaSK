@@ -18,7 +18,7 @@ import com.achelos.task.tr03116ts.testfragments.TFTLSClientHello;
 
 
 /**
- * Testcase TLS_B2_FR_13 - Connection closed by server
+ * Testcase TLS_B2_FR_13 - Connection closed by server.
  * <p>
  * This tests verifies that it is not possible to keep a TLS connection alive for more than the maximum allowed amount
  * of time.
@@ -100,7 +100,7 @@ public class TLS_B2_FR_13 extends AbstractTestCase {
 	 * <h2>TestStep 3</h2>
 	 * <h3>Command</h3>
 	 * <ol>
-	 * <li>The server tries to keep the connection running for more than the maximum allowed amount of time.
+	 * <li>The client tries to keep the connection running for more than the maximum allowed amount of time.
 	 * </ol>
 	 * <h3>ExpectedResult</h3>
 	 * <ul>
@@ -131,7 +131,7 @@ public class TLS_B2_FR_13 extends AbstractTestCase {
 		
 		tfClientCertificate.executeSteps("1",
 				"The TLS client supplies the certificate chain [CERT_INVALID_SIG_CLIENT].", Arrays.asList(), testTool,
-				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT);
+				tlsVersion, TlsTestToolCertificateTypes.CERT_DEFAULT_CLIENT);
 
 		tfClientHello.executeSteps("2", "The TLS ClientHello offers the TLS version " + tlsVersion.getName()
 				+ ", cipher suite " + cipherSuite.getName() + " .", null, testTool, tlsVersion, cipherSuite);

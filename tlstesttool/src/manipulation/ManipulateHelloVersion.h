@@ -25,28 +25,31 @@ namespace TlsTestTool {
 /**
  * Overwrite ClientHello.client_version or ServerHello.server_version with a given value.
  */
-class ManipulateHelloVersion : public Manipulation {
-public:
-	/**
-	 * Create a manipulation.
-	 *
-	 * @param newExtensions Value to set the version field to
-	 */
-	ManipulateHelloVersion(const TlsVersion & tlsVersion) : Manipulation(), version(tlsVersion) {
-	}
+    class ManipulateHelloVersion : public Manipulation {
+    public:
+        /**
+         * Create a manipulation.
+         *
+         * @param newExtensions Value to set the version field to
+         */
+        ManipulateHelloVersion(const TlsVersion &tlsVersion) : Manipulation(), version(tlsVersion) {
+        }
 
-	const TlsVersion & getVersion() const {
-		return version;
-	}
+        const TlsVersion &getVersion() const {
+            return version;
+        }
 
-	virtual void executePreHandshake(TlsSession & session) override;
-	virtual void executePreStep(TlsSession & session) override;
-	virtual void executePostStep(TlsSession & session) override;
-	virtual void executePostHandshake(TlsSession & session) override;
+        virtual void executePreHandshake(TlsSession &session) override;
 
-private:
-	const TlsVersion version;
-};
+        virtual void executePreStep(TlsSession &session) override;
+
+        virtual void executePostStep(TlsSession &session) override;
+
+        virtual void executePostHandshake(TlsSession &session) override;
+
+    private:
+        const TlsVersion version;
+    };
 }
 
 #endif /* MANIPULATION_MANIPULATEHELLOVERSION_H_ */

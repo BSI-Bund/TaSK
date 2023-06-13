@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../XMLSchema/TestCase.xsl"?>
 <TestCase id="TLS_B2_GP_09_T" xmlns="http://bsi.bund.de/TR03116" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://bsi.bund.de/TR03116 ../../../XMLSchema/TR03116.xsd">
 	<Title>Test case TLS_B2_GP_09_T</Title>
-	<Version>1.0</Version>
+	<Version>1.1</Version>
 	<Purpose>This positive test verifies that the DUT supports the "signature_algorithms_cert" extension. The test uses the signature algorithm and hash function [SIG_ALGORITHM_CERT].</Purpose>
 	<Profile>TLS_SERVER</Profile>
 	<Profile>CLIENT_CERT</Profile>

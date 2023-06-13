@@ -10,6 +10,7 @@ import javax.management.InvalidAttributeValueException;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHash;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls12;
 import com.achelos.task.commons.certificatehelper.TlsSignatureAlgorithmWithHashTls13;
+import com.achelos.task.commons.constants.Constants;
 import com.achelos.task.commons.enums.TlsCipherSuite;
 import com.achelos.task.commons.enums.TlsExtensionTypes;
 import com.achelos.task.commons.enums.TlsHashAlgorithm;
@@ -31,7 +32,7 @@ public class RunPlanTlsConfiguration {
 	private HashMap<TlsVersion, Boolean> tlsVersions;
 	private HashMap<TlsVersion, List<TlsCipherSuite>> supportedCipherSuites;
 	private HashMap<TlsVersion, List<TlsSignatureAlgorithmWithHash>> supportedSignatureAlgorithms;
-	private List<TlsSignatureScheme> tls13SupportedSignatureAlgorithmsForCertificate;
+	private List<TlsSignatureAlgorithmWithHashTls13> tls13SupportedSignatureAlgorithmsForCertificate;
 	private HashMap<TlsVersion, List<TlsNamedCurves>> supportedGroups;
 	private HashMap<TlsVersion, List<TlsNamedCurves>> notSupportedGroups;
 	private HashMap<TlsVersion, List<TlsExtensionTypes>> supportedExtensions;
@@ -42,6 +43,7 @@ public class RunPlanTlsConfiguration {
 	private Duration tlsSessionLifetime;
 	private byte[] pSKValue;
 	private String pSKIdentityHint;
+	private String pSKIdentity;
 	private boolean is0RTTSupported;
 
 	private RunPlanTlsConfiguration() {
@@ -99,7 +101,11 @@ public class RunPlanTlsConfiguration {
 		runPlanConfig.supportedCipherSuites = supportedCipherSuites;
 
 		// TLS Session Lifetime
-		runPlanConfig.tlsSessionLifetime = StringHelper.getDurationFromString(tlsConfig.getTlsSessionLifetime());
+		if (tlsConfig.getTlsSessionLifetime() != null) {
+			runPlanConfig.tlsSessionLifetime = StringHelper.getDurationFromString(tlsConfig.getTlsSessionLifetime());
+		} else {
+			runPlanConfig.tlsSessionLifetime = Duration.ZERO;
+		}
 
 
 		// TLS Signature Algorithms
@@ -126,7 +132,7 @@ public class RunPlanTlsConfiguration {
 		runPlanConfig.supportedSignatureAlgorithms = supportedSignatureAlgorithms;
 
 		// TLS Signature Schemes for Certificate (TLSv1.3 only)
-		var signAlgoCertList = new ArrayList<TlsSignatureScheme>();
+		var signAlgoCertList = new ArrayList<TlsSignatureAlgorithmWithHashTls13>();
 		if (tlsConfig.getSupportedSignatureAlgorithmsCertificate() != null
 				&& !tlsConfig.getSupportedSignatureAlgorithmsCertificate().getSignatureAlgorithm().isEmpty()) {
 			for (var signAlg : tlsConfig.getSupportedSignatureAlgorithmsCertificate().getSignatureAlgorithm()) {
@@ -136,7 +142,7 @@ public class RunPlanTlsConfiguration {
 						throw new IllegalArgumentException(
 								"Signature Scheme for Certificate only allowed for TLS version: TLSv1.3.");
 					}
-					signAlgoCertList.add(TlsSignatureScheme.valueOf(signAlg.getName().toUpperCase()));
+					signAlgoCertList.add(new TlsSignatureAlgorithmWithHashTls13(TlsSignatureScheme.valueOf(signAlg.getName().toUpperCase())));
 				} catch (Exception e) {
 					throw new IllegalArgumentException("Unable to parse TLS Signature Scheme: " + signAlg.getName()
 							+ " for TLS version: " + signAlg.getTlsVersion(), e);
@@ -239,6 +245,7 @@ public class RunPlanTlsConfiguration {
 		// PSK
 		byte[] pskValue = new byte[] { };
 		String pskIdentityHint = "";
+		String pskIdentity = Constants.getPSKIdentityDefault();
 		if (tlsConfig.getTlsWithPSK() != null) {
 			pskValue = tlsConfig.getTlsWithPSK().getPSKValue() != null
 					&& tlsConfig.getTlsWithPSK().getPSKValue().length != 0 ? tlsConfig.getTlsWithPSK().getPSKValue()
@@ -247,9 +254,14 @@ public class RunPlanTlsConfiguration {
 					&& !tlsConfig.getTlsWithPSK().getPSKIdentityHintValue().isBlank()
 							? tlsConfig.getTlsWithPSK().getPSKIdentityHintValue()
 							: pskIdentityHint;
+			pskIdentity = tlsConfig.getTlsWithPSK().getPSKIdentity() != null
+					&& !tlsConfig.getTlsWithPSK().getPSKIdentity().isBlank() ?
+					tlsConfig.getTlsWithPSK().getPSKIdentity()
+					: pskIdentity;
 		}
 		runPlanConfig.pSKValue = pskValue;
 		runPlanConfig.pSKIdentityHint = pskIdentityHint;
+		runPlanConfig.pSKIdentity = pskIdentity;
 
 		// Is 0-RTT Supported
 		runPlanConfig.is0RTTSupported = tlsConfig.isZeroRTTSupport() != null ? tlsConfig.isZeroRTTSupport() : false;
@@ -312,7 +324,7 @@ public class RunPlanTlsConfiguration {
 	 * Returns a list of supported signature algorithms for certificates for the TLS Version TLSv1.3.
 	 * @return a list of supported signature algorithms for certificates for the TLS Version TLSv1.3.
 	 */
-	public List<TlsSignatureScheme> getSupportedSignatureAlgorithmsForCertificate() {
+	public List<TlsSignatureAlgorithmWithHashTls13> getSupportedSignatureAlgorithmsForCertificate() {
 		return new ArrayList<>(tls13SupportedSignatureAlgorithmsForCertificate);
 	}
 
@@ -356,6 +368,14 @@ public class RunPlanTlsConfiguration {
 	 */
 	public String getPSKIdentityHint() {
 		return pSKIdentityHint;
+	}
+
+	/**
+	 * Returns the PSK Identity.
+	 * @return the PSK Identity.
+	 */
+	public String getPSKIdentity() {
+		return pSKIdentity;
 	}
 
 	/**

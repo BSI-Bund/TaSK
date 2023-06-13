@@ -7,8 +7,8 @@ import com.achelos.task.abstracttestsuite.AbstractTestCase;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.TlsTestToolExecutor;
 import com.achelos.task.commandlineexecution.applications.tlstesttool.messagetextresources.TestToolResource;
 import com.achelos.task.commandlineexecution.applications.tshark.TSharkExecutor;
+import com.achelos.task.commons.enums.TlsAlertDescription;
 import com.achelos.task.commons.enums.TlsCipherSuite;
-import com.achelos.task.commons.enums.TlsTestToolLogLevel;
 import com.achelos.task.commons.enums.TlsVersion;
 import com.achelos.task.logging.BasicLogger;
 import com.achelos.task.logging.MessageConstants;
@@ -136,7 +136,7 @@ public class TLS_B1_GP_05_T extends AbstractTestCase {
 			tfAlertMessageCheck.executeSteps("4",
 					"The DUT rejects the ClientHello with a \"protocol_version\" alert or "
 							+ "	another suitable error description",
-					Arrays.asList("level=warning/fatal", "description=protocol_version"), testTool);
+					Arrays.asList("level=warning/fatal", "description=protocol_version"), testTool, TlsAlertDescription.protocol_version);
 			tfHandshakeNotSuccessfulCheck.executeSteps("5", "No TLS channel is established", null, testTool, tlsVersion);
 
 			testTool.resetProperties();

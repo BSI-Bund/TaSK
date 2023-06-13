@@ -10,22 +10,30 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements an RMI Server.
- * This class registers a TCTokenURLProvider Implementation and binds it to the corresponding name.
+ * This class registers a TCTokenURLProvider implementation and binds it to the corresponding name.
  * Afterwards, it starts a Server and listens to incoming RMI connections.
  */
 public class RMIServer {
+    /*
+     *  NOTE: Please update the RMI_IP address below with the
+     *        "real" IP address of the machine the RMI Server is running on.
+     *        In the case of multiple network interface controllers make sure the IP address
+     *        belongs to the correct interface.
+     */
 
     /**
      * Used to set the java.rmi.server.hostname property.
-     * RMI uses IP addresses to indicate the location of a server (embedded in a remote reference). If the use of a hostname is desired, this property is used to specify the fully-qualified hostname for RMI to use for remote objects exported to the local JVM.
+     * RMI uses IP addresses to indicate the location of a server (embedded in a remote reference).
+     * If the use of a hostname is desired, this property is used to specify the fully-qualified hostname
+     * for RMI to use for remote objects exported to the local JVM.
      * The property can also be set to an IP address.
      */
     private final static String RMI_IP = "127.0.0.1";
 
     /**
-     * Entry Point for the program.
+     * Entry point for the program.
      * @param args Arguments. Not used.
-     * @throws Exception If an uncatched exception occurs.
+     * @throws Exception If an uncaught exception occurs.
      */
     public static void main(String[] args) throws Exception {
         try {
