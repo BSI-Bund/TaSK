@@ -135,7 +135,7 @@ within timeout seconds.
 
 * `tlsLibrary=[library]`
 
-  (with **library** either `mbed TLS`, `OpenSSL``)
+  (with **library** either `mbed TLS`, `OpenSSL`)
 
   Specify the *TLS library* to be used by the TLS Test Tool.
 
